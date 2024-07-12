@@ -28,7 +28,10 @@ class ProductController extends Controller
             ->get();
 
         //return view('product.index', ['product'=> $product]);
-        return response()->json(['products' => $product]);
+        return response()->json([
+            'message' => 'success',
+            'data' => $product
+        ],200);
     }
 
     /**
@@ -108,7 +111,7 @@ class ProductController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $product->fresh()
-            ],201);
+            ],200);
         }
         catch (\Exception $e) {
             error_log('Error updating product: ' . $e->getMessage());
@@ -131,7 +134,7 @@ class ProductController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $product
-            ],201);
+            ],200);
         }
         catch(\Exception $e){
             error_log('Error deleting product: ' . $e->getMessage());
@@ -182,7 +185,8 @@ class ProductController extends Controller
 
     public function displayProductsForCategory(Request $request){
         $search = $request->get('product_category');
-        if(!$search){
+        print_r($search);
+        if($search){
             $product = DB::table('products')
                         ->select('product_name', 'product_sell_price', 'product_quantity')
                         ->where('product_category', '=', "$search")
@@ -197,5 +201,59 @@ class ProductController extends Controller
                 'message' => 'No products in this category'
             ],404);
         }
+    }
+
+    // product report -> product sale report
+    public function productSaleReport(Request $request){
+        $date_from = $request->date_from;
+        $date_to = $request->date_to;
+        $query = DB::select('SELECT invoice_details.product_name, 
+                products.product_category, 
+                sum(invoice_details.quantity) as total_sale_quantity, 
+                sum(total_product_price) as total_sale_amount 
+            from invoice_details 
+            left join products on invoice_details.product_id=products.id 
+            where date(invoice_details.created_at) between ? and ? 
+            group by invoice_details.product_id', [$date_from, $date_to]);
+
+        $total_data = DB::select('SELECT sum(invoice_details.quantity) as total_sale_quantity, 
+                sum(total_product_price) as total_sale_amount 
+            from invoice_details 
+            left join products on invoice_details.product_id=products.id 
+            where date(invoice_details.created_at) between ? and ?', [$date_from, $date_to]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $query,
+            'total_data' => $total_data
+        ],200);
+    }
+
+    // product report -> product stock summary report if quantity<=low stock alert
+    public function productStockReport(Request $request){
+        $date_from = $request->date_from;
+        $date_to = $request->date_to;
+
+        $query = DB::select('SELECT product_name, product_category, product_quantity as current_stock, mrp as sale_price, purchase_price, (product_quantity * mrp) as stock_valuation from products where date(created_at) between ? and ?;', [$date_from, $date_to]);
+
+        $total_data = DB::select('SELECT count(id) as total_unique_items, (SELECT product_quantity from products where product_quantity <= low_stock_alert) as total_low_stock_items from products where date(created_at) between ? and ? ;', [$date_from, $date_to]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $query,
+            'total_data' => $total_data
+        ]);
+    }
+
+    // product report -> product details report
+    public function productDetailReport(Request $request){
+        $date_from = $request->date_from;
+        $date_to = $request->date_to;
+        $query = DB::select('SELECT * from products where date(created_at) between ? and ?', [$date_from, $date_to]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $query
+        ]); 
     }
 }

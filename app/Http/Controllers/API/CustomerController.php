@@ -109,7 +109,7 @@ class CustomerController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $customer->fresh()
-            ]);
+            ],200);
         }
 
         catch(\Exception $e){
@@ -166,5 +166,53 @@ class CustomerController extends Controller
         return response()->json([
             'message' => 'Customer not found'
         ],404);
+    }
+
+    // customer report -> customer details report
+    public function detailReport(Request $request){
+        $date_from = $request->date_from;
+        $date_to = $request->date_to;
+
+        $query = DB::select('SELECT customer_name, customer_phone_no, customer_category, customer_billing_address, customer_billing_type,customer_billing_province, customer_billing_postal_code, customer_delivery_address, customer_delivery_province, customer_delivery_postal_code, customer_billing_term, customer_date_of_birth from customers where date(created_at) between ? and ?;', [$date_from, $date_to]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $query
+        ],200);
+    }
+
+    // customer report -> customer ledger report
+    public function invoiceReport(Request $request){
+        $date_from = $request->date_from;
+        $date_to = $request->date_to;
+        $customer_id = $request->customer_id;
+        $query = DB::select('SELECT date(invoices.created_at) as date, invoices.id as invoice_no, invoices.total_price as credit from invoices where customer_id=? and date(invoices.created_at) between ? and ?
+        group by invoices.id', [$customer_id, $date_from, $date_to]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $query
+        ]);
+    }
+
+    // customer report -> customer invoice ledger report
+    public function invoiceDetailReport(Request $request){
+        $date_from = $request->date_from;
+        $date_to = $request->date_to;
+        $customer_id = $request->customer_id;
+        $invoice_id = $request->invoice_id;
+
+        $query = DB::select('SELECT invoices.id, 
+                invoice_details.product_name, 
+                invoice_details.quantity, 
+                invoice_details.unit_product_price, 
+                invoice_details.total_product_price 
+            from invoices right join invoice_details on invoices.id=invoice_details.invoice_id 
+            where invoices.customer_id=? and invoice_details.invoice_id=? and date(invoices.created_at) between ? and ?', [$customer_id, $invoice_id, $date_from, $date_to]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $query
+        ]);
     }
 }

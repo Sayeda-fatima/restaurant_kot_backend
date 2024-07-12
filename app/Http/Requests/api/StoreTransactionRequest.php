@@ -11,7 +11,7 @@ class StoreTransactionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,14 +23,14 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             //
-            'transaction_id' =>'required|numeric',
-            'created_on' => 'required|datetime',
-            'customer_name' => 'required|string|max:255',
+            //'transaction_id' =>'required|numeric',
+            //'created_on' => 'required|datetime',
+            //'customer_name' => 'required|string|max:255',
             'product_quantity' => 'required|integer|min:1',
-            'total_price' => 'required|decimal',
-            'mode_of_payment' => 'required|enum|[cash, cheque, bank]',
-            'amount_received' => 'required|decimal|min:0',
-            'change_amount' => 'required|decimal|min:0'
+            //'total_price' => 'required|decimal',
+            //'mode_of_payment' => 'required|enum|[cash, cheque, bank]',
+            //'amount_received' => 'required|decimal|min:0',
+            //'change_amount' => 'required|decimal|min:0'
         ];
     }
 }

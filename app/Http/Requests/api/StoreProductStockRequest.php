@@ -22,7 +22,7 @@ class StoreProductStockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            ''
         ];
     }
 }

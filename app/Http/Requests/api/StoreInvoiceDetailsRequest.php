@@ -11,7 +11,7 @@ class StoreInvoiceDetailsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class StoreInvoiceDetailsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'invoice_id' => 'required|integer|exists:invoices,id',
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity' => 'required|integer',
+            'discount' => 'nullable|decimal:0,2|min:0'
         ];
     }
 }

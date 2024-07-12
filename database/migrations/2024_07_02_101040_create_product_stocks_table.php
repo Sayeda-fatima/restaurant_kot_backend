@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('product_stocks', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('invoice_details_id')->nullable();
+            $table->foreign('invoice_details_id')->references('id')->on('invoice_details');
             $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products');
-            $table->integer('product_quantity');
-            $table->set('product_update_type', ['add', 'sale']);
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->string('product_name');
             $table->integer('product_update_quantity');
+            //$table->integer('product_quantity');
+            $table->set('product_update_type', ['add', 'sale']);
+            $table->integer('product_stock_after_update');
             $table->timestamps();
         });
     }

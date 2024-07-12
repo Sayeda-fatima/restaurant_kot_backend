@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
@@ -44,8 +45,8 @@ class Product extends Model
     public function productStock(): HasOne {
         return $this->hasOne(ProductStock::class);
     }
-    public function invoice(): HasMany{
-        return $this->hasMany(Product::class);
+    public function invoice(): HasManyThrough{
+        return $this->hasManyThrough(Invoice::class, InvoiceDetails::class);
     }
 
     public function productCategory(): BelongsTo{

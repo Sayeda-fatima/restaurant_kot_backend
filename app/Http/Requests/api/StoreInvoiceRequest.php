@@ -23,9 +23,9 @@ class StoreInvoiceRequest extends FormRequest
     {
         return [
             'customer_id' => 'required|integer|exists:customers,id',
-            'customer_name' => 'string|max:255',
-            'total_price' => 'required|decimal:0,2|min:0',
-            'billing_address' => 'required|string|max:255',
+            //'customer_name' => 'string|max:255',
+            //'total_price' => 'required|decimal:0,2|min:0',
+            //'customer_billing_address' => 'required|string|max:255',
             'mode_of_payment' => 'required|in:bank,cash,cheque',
         ];
     }

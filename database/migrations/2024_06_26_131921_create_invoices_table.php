@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            //$table->integer('order_id')->unique();
             $table->unsignedBigInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers');
             //$table->datetime('created_on');
             $table->string('customer_name');
-            //$table->foreignId('product_id')->references('product_id')->on('products');
-            //$table->integer('product_quantity');
-            //$table->decimal('unit_price',8,2);
             $table->decimal('total_price',8,2);
-            $table->string('billing_address');
+            $table->string('customer_billing_address');
+            $table->enum('status',['IN_CART', 'PENDING', 'SUCCESS', 'FAILED']);
             $table->set('mode_of_payment', ['bank', 'cash', 'cheque']);
             $table->timestamps();
         });
