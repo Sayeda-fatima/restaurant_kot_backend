@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProductCategory;
 use App\Http\Requests\api\StoreProductCategoryRequest;
@@ -16,6 +16,7 @@ class ProductCategoryController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', ProductCategory::class);
         $product = DB::table('product_categories')
             ->select('product_category')
             ->get();
@@ -39,6 +40,7 @@ class ProductCategoryController extends Controller
      */
     public function store(StoreProductCategoryRequest $request)
     {
+        Gate::authorize('create', ProductCategory::class);
         try {
             $productCategory = ProductCategory::create($request->all());
 
@@ -77,6 +79,7 @@ class ProductCategoryController extends Controller
      */
     public function update(UpdateProductCategoryRequest $request, ProductCategory $productCategory, int $id)
     {
+        Gate::authorize('update', $productCategory);
         try {
             $productCategory = ProductCategory::find($id);
             $data = $request->all();
@@ -100,6 +103,7 @@ class ProductCategoryController extends Controller
      */
     public function destroy(ProductCategory $productCategory, int $id)
     {
+        Gate::authorize('delete', $productCategory);
         try {
             $productCategory = ProductCategory::find($id);
             $productCategory->delete();

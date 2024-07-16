@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\API\Auth;
 
 use Hash;
 use App\Http\Controllers\Controller;
@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
             if (!$user || !Hash::check($credentials['password'], $user->password)) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
-            $user->api_token = Str::random(60);
+            $user->api_token = hash('sha256',Str::random(60));
             $user->save();
             return response()->json(['user' => $user, 'api_token' => $user->api_token], 200);
         }
@@ -44,7 +44,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        Auth::guard('api')->logout();
 
         $request->session()->invalidate();
 

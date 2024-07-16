@@ -13,15 +13,15 @@ class InvoiceDetailsPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, InvoiceDetails $invoiceDetails): bool
+    public function view(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 
     /**
@@ -29,7 +29,7 @@ class InvoiceDetailsPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
@@ -37,7 +37,7 @@ class InvoiceDetailsPolicy
      */
     public function update(User $user, InvoiceDetails $invoiceDetails): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
@@ -45,7 +45,7 @@ class InvoiceDetailsPolicy
      */
     public function delete(User $user, InvoiceDetails $invoiceDetails): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
@@ -53,7 +53,7 @@ class InvoiceDetailsPolicy
      */
     public function restore(User $user, InvoiceDetails $invoiceDetails): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
@@ -61,6 +61,6 @@ class InvoiceDetailsPolicy
      */
     public function forceDelete(User $user, InvoiceDetails $invoiceDetails): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 }

@@ -13,15 +13,15 @@ class CustomerPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Customer $customer): bool
+    public function view(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 
     /**
@@ -29,7 +29,7 @@ class CustomerPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
@@ -37,7 +37,7 @@ class CustomerPolicy
      */
     public function update(User $user, Customer $customer): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 
     /**
@@ -45,7 +45,7 @@ class CustomerPolicy
      */
     public function delete(User $user, Customer $customer): bool
     {
-        return true;
+        return $user->access_type === 'ADMIN';
     }
 
     /**
@@ -53,7 +53,7 @@ class CustomerPolicy
      */
     public function restore(User $user, Customer $customer): bool
     {
-        return true;
+        return $user->access_type === 'ADMIN';
     }
 
     /**
@@ -61,6 +61,6 @@ class CustomerPolicy
      */
     public function forceDelete(User $user, Customer $customer): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Expense;
 use App\Models\Supplier;
 use App\Http\Requests\api\StoreExpenseRequest;
@@ -17,6 +18,7 @@ class ExpenseController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', Expense::class);
         $expense = DB::table('expenses')
                     ->select('id', 'supplier_name', 'amount_paid')
                     ->get();
@@ -39,6 +41,7 @@ class ExpenseController extends Controller
      */
     public function store(StoreExpenseRequest $request)
     {
+        Gate::authorize('create', Expense::class);
         try{
             $supplier = Supplier::find($request->supplier_id);
             $expense = Expense::create([
@@ -82,6 +85,7 @@ class ExpenseController extends Controller
      */
     public function update(UpdateExpenseRequest $request, Expense $expense)
     {
+        Gate::authorize('update', $expense);
         try{
             $expense->update([
                 'supplier_id' => $request->supplier_id,
@@ -107,6 +111,7 @@ class ExpenseController extends Controller
      */
     public function destroy(Expense $expense)
     {
+        Gate::authorize('delete', $expense);
         try{
             $expense -> delete();
             return response()->json([
@@ -122,6 +127,8 @@ class ExpenseController extends Controller
     }
 
     public function expenseReport(Request $request){
+        Gate::authorize('view', Expense::class);
+        
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 

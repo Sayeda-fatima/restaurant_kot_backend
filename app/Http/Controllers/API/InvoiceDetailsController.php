@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use Database\Factories\InvoiceDetailsFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use App\Models\InvoiceDetails;
 use App\Models\Product;
 use App\Models\Invoice;
@@ -19,6 +20,7 @@ class InvoiceDetailsController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', InvoiceDetails::class);
         /*$invoiceDetails = DB::table('invoice_details')
                             ->join('products', 'invoice_details.product_id', '=', 'products.id')
                             ->select('invoice_details.invoice_id', 'products.product_name', 'invoice_details.quantity', 'products.product_sell_price'); //select sum(total_product_price) as total 
@@ -43,6 +45,8 @@ class InvoiceDetailsController extends Controller
      */
     public function store(StoreInvoiceDetailsRequest $request)
     {
+        // access type -> ADMIN, SALES, STAFF
+        Gate::authorize('create', InvoiceDetails::class);
         $product = Product::find($request->product_id);
         $invoice = Invoice::find($request->invoice_id);
         try{
@@ -91,8 +95,8 @@ class InvoiceDetailsController extends Controller
      */
     public function update(UpdateInvoiceDetailsRequest $request, InvoiceDetails $invoiceDetails, int $id)
     {
+        Gate::authorize('update', $invoiceDetails);
         try{
-            
             $product = Product::find($request->product_id);
             $invoice = Invoice::find($request->invoice_id);
             $invoiceDetails = InvoiceDetails::find($id);
@@ -126,6 +130,7 @@ class InvoiceDetailsController extends Controller
      */
     public function destroy(InvoiceDetails $invoiceDetails, Request $request, int $id)
     {
+        Gate::authorize('delete', $invoiceDetails);
         $invoice = Invoice::find($request->invoice_id);
         try{
             $invoiceDetails = InvoiceDetails::find($id);
@@ -147,7 +152,9 @@ class InvoiceDetailsController extends Controller
     }
 
     // transaction report -> invoice details -> sale report
-    public function saleReport(Request $request, int $id){
+    public function saleReport(Request $request){
+        // access -> ADMIN
+        Gate::authorize('view', InvoiceDetails::class);
         //$invoice = Invoice::find($id);
         $id = $request->id;
         $date1 = $request->date_from;

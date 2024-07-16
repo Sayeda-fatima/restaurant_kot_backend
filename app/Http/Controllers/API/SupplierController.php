@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Supplier;
 use App\Http\Requests\api\StoreSupplierRequest;
 use App\Http\Requests\api\UpdateSupplierRequest;
@@ -17,6 +17,7 @@ class SupplierController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', Supplier::class);
         $supplier = DB::table('suppliers')
                         ->select('supplier_name', 'supplier_phone_no', 'supplier_billing_type')
                         ->orderby('supplier_name')
@@ -42,6 +43,7 @@ class SupplierController extends Controller
      */
     public function store(StoreSupplierRequest $request)
     {
+        Gate::authorize('create', Supplier::class);
         try{
             $supplier = Supplier::create([
                 'supplier_name' => $request->supplier_name,
@@ -94,6 +96,7 @@ class SupplierController extends Controller
      */
     public function update(UpdateSupplierRequest $request, Supplier $supplier)
     {
+        Gate::authorize('update', $supplier);
         try{
             $data = $request->all();
             $supplier -> update($data);
@@ -117,6 +120,8 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
+        Gate::authorize('update', $supplier);
+
         try{
             $supplier->delete();
             return response()->json([
@@ -133,6 +138,9 @@ class SupplierController extends Controller
     }
 
     public function searchSupplier(Request $request){
+        
+        Gate::authorize('view', Supplier::class);
+
         $search = $request->get('search_term');
         if($search!=NULL){
             $supplier = Supplier::where('supplier_name', 'LIKE', "%$search%")

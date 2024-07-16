@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Http\Requests\api\StoreProductStockRequest;
@@ -18,7 +18,15 @@ class ProductStockController extends Controller
      */
     public function index()
     {
-        return view('product.stock');
+        Gate::authorize('viewAny', ProductStock::class);
+        $productStock = DB::table('product_stocks')
+                        ->select('invoice_details_id', 'product_name', 'product_quantity', 'product_update_quantity', 'product_stock_after_update')
+                        ->orderby('invoice_details_id')
+                        ->get();
+        return response()->json([
+            'message' => 'success',
+            'data' => $productStock
+        ]);
     }
 
     /**
@@ -34,6 +42,7 @@ class ProductStockController extends Controller
      */
     public function store(StoreProductStockRequest $request)
     {
+        Gate::authorize('create', ProductStock::class);
         try{
             $product = Product::find($request->product_id);
             $productStock = ProductStock::create([
@@ -73,6 +82,7 @@ class ProductStockController extends Controller
      */
     public function update(UpdateProductStockRequest $request, ProductStock $productStock)
     {
+        Gate::authorize('update', $productStock);
         try{
             $data = $request->all();
             $productStock -> update($data);
@@ -93,6 +103,7 @@ class ProductStockController extends Controller
      */
     public function destroy(ProductStock $productStock)
     {
+        Gate::authorize('delete', $productStock);
         try{
             $productStock->delete();
             return response()->json([
@@ -112,6 +123,8 @@ class ProductStockController extends Controller
     }
 
     public function stockReport(Request $request){
+        Gate::authorize('view', ProductStock::class);
+        
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $query = DB::select('SELECT * from product_stocks where date(created_at) between ? and ?', [$date_from, $date_to]);

@@ -13,15 +13,16 @@ class ProductPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Product $product): bool
+    public function view(User $user): bool
     {
         //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
@@ -29,38 +30,38 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Product $product): bool
+    public function update(User $user, ?Product $product): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Product $product): bool
+    public function delete(User $user, ?Product $product): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Product $product): bool
+    public function restore(User $user, ?Product $product): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Product $product): bool
+    public function forceDelete(User $user, ?Product $product): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 }

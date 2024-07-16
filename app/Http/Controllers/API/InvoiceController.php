@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Collection;
 use App\Models\Invoice;
 use App\Models\Customer;
@@ -20,6 +20,7 @@ class InvoiceController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', Invoice::class);
         $invoice = DB::table('invoices')
                     ->select('id', 'customer_id', 'total_price', 'mode_of_payment')
                     ->get()
@@ -43,6 +44,7 @@ class InvoiceController extends Controller
      */
     public function store(StoreInvoiceRequest $request)
     {
+        Gate::authorize('create', Invoice::class);
         $customer = Customer::find($request->customer_id);
         try{
             $invoice = Invoice::create([
@@ -87,6 +89,8 @@ class InvoiceController extends Controller
      */
     public function update(UpdateInvoiceRequest $request, Invoice $invoice)
     {
+        // specify access type -> ADMIN, STAFF, SALES
+        Gate::authorize('update', $invoice);
         try{
             $customer = Customer::find($request->customer_id);
             $invoice->update([
@@ -114,6 +118,8 @@ class InvoiceController extends Controller
      */
     public function destroy(Invoice $invoice)
     {
+        // specify access type -> ADMIN, STAFF, SALES
+        Gate::authorize('update', $invoice); 
         try{
             $invoice -> delete();
             return response()->json([
@@ -131,6 +137,9 @@ class InvoiceController extends Controller
 
     // transaction report -> sale report
     public function saleReport(Request $request){
+        // specify access type -> ADMIN
+        Gate::authorize('view', Invoice::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
@@ -161,6 +170,9 @@ class InvoiceController extends Controller
 
     // transaction report -> sale wise profit and loss statement
     public function saleProfitReport(Request $request){
+        // specify access type -> ADMIN
+        Gate::authorize('view', Invoice::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
@@ -193,6 +205,9 @@ class InvoiceController extends Controller
 
     // transaction report -> money in report
     public function moneyInReport(Request $request){
+        // specify access type -> ADMIN
+        Gate::authorize('view', Invoice::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
@@ -214,6 +229,9 @@ class InvoiceController extends Controller
     }
 
     public function endDayReport(Request $request){
+        // specify access type -> ADMIN
+        Gate::authorize('view', Invoice::class);
+        
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 

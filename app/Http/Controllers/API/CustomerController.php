@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Customer;
 use App\Http\Requests\api\StoreCustomerRequest;
 use App\Http\Requests\api\UpdateCustomerRequest;
@@ -17,6 +17,8 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', Customer::class);
+        try{
         // display list of customers
         $customers = DB::table('customers')
                     ->select('customer_name', 'customer_phone_no', 'customer_billing_type')
@@ -29,6 +31,12 @@ class CustomerController extends Controller
             'message' => 'success',
             'data' => $customers
         ],201);
+        }catch(\Exception $e){
+            error_log('Error displaying customers: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Failed to display customers', 'error' => $e->getMessage()], 500);
+        }
+
     }
 
     /**
@@ -45,6 +53,7 @@ class CustomerController extends Controller
      */
     public function store(StoreCustomerRequest $request)
     {
+        Gate::authorize('create', Customer::class);
         try{
             $customer = Customer::create([
                 'customer_name' => $request->input('customer_name'),
@@ -101,6 +110,7 @@ class CustomerController extends Controller
      */
     public function update(UpdateCustomerRequest $request, Customer $customer)
     {
+        Gate::authorize('update', $customer);
         try{
             $data = $request->all();
             $customer -> update($data);
@@ -124,6 +134,7 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
+        Gate::authorize('delete', $customer);
         try{
             $customer->delete();
             return response()->json([
@@ -142,8 +153,9 @@ class CustomerController extends Controller
 
     public function allCustomers(){
         // display customers in for invoice
-        $customer = Customer::orderBy('id', 'DESC')
-                            ->groupby('customer_category')
+        $customer = Customer::select('customer_name', 'customer_phone_no')
+                            ->orderBy('id', 'DESC')
+                            ->orderby('customer_category')
                             ->get();
         
         return response()->json([
@@ -170,6 +182,9 @@ class CustomerController extends Controller
 
     // customer report -> customer details report
     public function detailReport(Request $request){
+
+        Gate::authorize('view', Customer::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
@@ -183,11 +198,18 @@ class CustomerController extends Controller
 
     // customer report -> customer ledger report
     public function invoiceReport(Request $request){
+        // specify access
+        Gate::authorize('view', Customer::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $customer_id = $request->customer_id;
-        $query = DB::select('SELECT date(invoices.created_at) as date, invoices.id as invoice_no, invoices.total_price as credit from invoices where customer_id=? and date(invoices.created_at) between ? and ?
-        group by invoices.id', [$customer_id, $date_from, $date_to]);
+        $query = DB::select('SELECT date(invoices.created_at) as date, 
+                invoices.id as invoice_no, 
+                invoices.total_price as credit 
+            from invoices 
+            where customer_id=? and date(invoices.created_at) between ? and ?
+            group by invoices.id', [$customer_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',
@@ -197,6 +219,9 @@ class CustomerController extends Controller
 
     // customer report -> customer invoice ledger report
     public function invoiceDetailReport(Request $request){
+        // specify access type 
+        Gate::authorize('view', Customer::class);
+        
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $customer_id = $request->customer_id;

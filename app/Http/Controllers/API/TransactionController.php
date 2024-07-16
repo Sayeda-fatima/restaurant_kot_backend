@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Transaction;
 use App\Http\Requests\api\StoreTransactionRequest;
 use App\Http\Requests\api\UpdateTransactionRequest;
@@ -16,6 +17,7 @@ class TransactionController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', Transaction::class);
         //display transactions
         $transactions = DB::table('transactions')
                             ->select('customer_name', 'id', 'total_price', 'mode_of_payment', 'created_at')
@@ -41,6 +43,7 @@ class TransactionController extends Controller
      */
     public function store(StoreTransactionRequest $request)
     {
+        Gate::authorize('create', Transaction::class);
         try{
             $transaction = Transaction::create([
                 'total_price' => $request->total_price,
@@ -80,6 +83,8 @@ class TransactionController extends Controller
      */
     public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
+        Gate::authorize('update', $transaction);
+
         try{
             $transaction = Transaction::update([
                 'total_price' => $request->total_price,
@@ -102,6 +107,8 @@ class TransactionController extends Controller
      */
     public function destroy(Transaction $transaction)
     {
+        Gate::authorize('delete', $transaction);
+
         try{
             $transaction -> delete();
             return response()->json([
@@ -117,6 +124,9 @@ class TransactionController extends Controller
     }
     // transactions -> money out report
     public function moneyOutReport(Request $request){
+
+        Gate::authorize('view', Transaction::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
@@ -129,6 +139,9 @@ class TransactionController extends Controller
     }
      // item report -> item report
      public function productReport(Request $request){
+
+        Gate::authorize('view', Transaction::class);
+
         $product_id = $request->product_id;
         $date_from = $request->date_from;
         $date_to = $request->date_to;
@@ -147,9 +160,28 @@ class TransactionController extends Controller
             left join customers on transactions.customer_id=customers.id
             where product_id=? and date(transactions.created_at) between ? and ?', [$product_id, $date_from, $date_to]);
 
+        $total_sale = DB::select("SELECT sum(product_quantity) as total_sale_quantity,
+            sum(total_price) as total_sale_amount
+            from transactions        
+            where product_id=? and 
+            transaction_type='sale' and 
+            date(created_at) between ? and ?", [$product_id, $date_from, $date_to]);
+
+
+        $total_purchase = DB::select("SELECT sum(transactions.product_quantity) as total_purchase_quantity,
+            sum(transactions.product_quantity * products.purchase_price) as total_purchase_amount
+            from transactions 
+            left join products on transactions.product_id=products.id
+            where product_id=? and 
+            transactions.transaction_type='purchase' and 
+            date(transactions.created_at) between ? and ?", [$product_id, $date_from, $date_to]);
+
+
         return response()->json([
             'message' => 'success',
-            'data' => $query
+            'data' => $query,
+            'total_data' => $total_sale,
+            'total_purchase' => $total_purchase
         ]);
     }
 }

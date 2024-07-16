@@ -13,15 +13,15 @@ class ProductCategoryPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF' || $user->access_type === 'SALES';
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, ProductCategory $productCategory): bool
+    public function view(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 
     /**
@@ -29,23 +29,23 @@ class ProductCategoryPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, ProductCategory $productCategory): bool
+    public function update(User $user, ?ProductCategory $productCategory): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, ProductCategory $productCategory): bool
+    public function delete(User $user, ?ProductCategory $productCategory): bool
     {
-        //
+        return $user->access_type === 'ADMIN' || $user->access_type === 'STAFF';
     }
 
     /**
@@ -53,7 +53,7 @@ class ProductCategoryPolicy
      */
     public function restore(User $user, ProductCategory $productCategory): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 
     /**
@@ -61,6 +61,6 @@ class ProductCategoryPolicy
      */
     public function forceDelete(User $user, ProductCategory $productCategory): bool
     {
-        //
+        return $user->access_type === 'ADMIN';
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Product;
 use App\Http\Requests\api\StoreProductRequest;
 use App\Http\Requests\api\UpdateProductRequest;
@@ -18,7 +18,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-
+        // access -> ADMIN, STAFF, SALES
+        Gate::authorize('viewAny', Product::class);
 
         // display list of products
         $product = DB::table('products')
@@ -50,6 +51,9 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
+        /*if($request->user()->cannot('create', Product::class))
+            abort(403); */
+            Gate::authorize('create', Product::class);
         try {
             $product = Product::create([
                 'product_name' => $request->input('product_name'),
@@ -104,9 +108,9 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+        Gate::authorize('update', $product);
         try {
             $data = $request->all();
-            print_r($product);
             $product->update($data);
             return response()->json([
                 'message' => 'success',
@@ -128,6 +132,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        Gate::authorize('delete', $product);
         //delete a product
         try{
             $product->delete();
@@ -145,6 +150,7 @@ class ProductController extends Controller
     }
     public function allProducts()
     {
+        Gate::authorize('viewAny', Product::class);
         //display all product for invoive
         $product = Product::orderBy('product_name', 'DESC')
             ->orderBy('product_category')
@@ -156,6 +162,8 @@ class ProductController extends Controller
 
     public function searchProduct(Request $request)
     {
+        Gate::authorize('view', Product::class);
+
         $search = $request->get('search_term');
         if ($search != NULL) {
             $product = Product::where('id', 'LIKE', "%$search%")
@@ -184,6 +192,9 @@ class ProductController extends Controller
     }
 
     public function displayProductsForCategory(Request $request){
+
+        Gate::authorize('view', Product::class);
+
         $search = $request->get('product_category');
         print_r($search);
         if($search){
@@ -205,6 +216,7 @@ class ProductController extends Controller
 
     // product report -> product sale report
     public function productSaleReport(Request $request){
+        Gate::authorize('view', Product::class);
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $query = DB::select('SELECT invoice_details.product_name, 
@@ -231,6 +243,9 @@ class ProductController extends Controller
 
     // product report -> product stock summary report if quantity<=low stock alert
     public function productStockReport(Request $request){
+
+        Gate::authorize('view', Product::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
@@ -247,6 +262,9 @@ class ProductController extends Controller
 
     // product report -> product details report
     public function productDetailReport(Request $request){
+
+        Gate::authorize('view', Product::class);
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $query = DB::select('SELECT * from products where date(created_at) between ? and ?', [$date_from, $date_to]);

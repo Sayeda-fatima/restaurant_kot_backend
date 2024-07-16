@@ -20,6 +20,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->string('api_token', 80)->after('password')->unique()->nullable()->default(null);
+            $table->set('access_type', ['ADMIN', 'FULL', 'SALES']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
