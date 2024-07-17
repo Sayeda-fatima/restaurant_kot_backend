@@ -12,6 +12,7 @@ use App\Http\Requests\api\StoreInvoiceRequest;
 use App\Http\Requests\api\UpdateInvoiceRequest;
 use App\Http\Requests\api\StoreInvoiceDetailsRequest;
 use App\Http\Controllers\Controller;
+use App\Events\NewInvoice;
 
 class InvoiceController extends Controller
 {
@@ -55,6 +56,10 @@ class InvoiceController extends Controller
                 'customer_billing_address' => $customer->customer_billing_address,
                 'mode_of_payment' => $request->mode_of_payment
             ]);
+            // possible way to update price
+            //$invoice->updateTotalPrice();
+            event(new NewInvoice($invoice, $invoice->status));
+
             return response()->json([
                 'message' => 'success',
                 'data' => $invoice

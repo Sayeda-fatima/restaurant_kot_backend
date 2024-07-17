@@ -30,7 +30,7 @@ class Invoice extends Model
         return $this->hasMany(InvoiceDetails::class);
     }
 
-    public function getTotalPrice(Request $request){
+    public function updateTotalPrice(){
         /*$totalPrice = 0;
          // Access invoice items through the relationship
          $invoiceItems = $this->invoiceDetails;
@@ -46,6 +46,9 @@ class Invoice extends Model
         $totalPrice = DB::raw('SELECT invoice_id, sum(total_product_price) as total_price from invoice_details group by invoice_id;
 ');
         //return $totalPrice; */
-        return $this->invoiceDetails->sum('total_product_price')->groupby($request);
+        $totalPrice= $this->invoiceDetails->sum('total_product_price');
+        $this->total_amount = $totalPrice;
+        $this->save();
+
     }
 }

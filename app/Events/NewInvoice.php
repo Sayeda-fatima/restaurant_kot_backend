@@ -26,13 +26,13 @@ class NewInvoice
     /**
      * Create a new event instance.
      */
-    public function __construct($invoice, $invoiceDetails, $product, $productStock, $status)
+    public function __construct($invoice, $status)
     {
         $this->invoice = $invoice;
-        $this->invoiceDetails = $invoiceDetails;
+        /*$this->invoiceDetails = $invoiceDetails;
         $this->product = $product;
-        $this->productStock = $productStock;
-        $this->status = $status;
+        $this->productStock = $productStock; 
+        $this->status = $status; */
     }
 
     /**

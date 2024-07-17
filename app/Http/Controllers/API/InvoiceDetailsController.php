@@ -169,21 +169,27 @@ class InvoiceDetailsController extends Controller
     }
 
     public function estimatePrice(Request $request){
-        $product = Product::find($request->product_id);
-        
-        // how to do it for n products? 
-        $data = [
-            'product_id' => $request->product_id,
-            'product_name' => $product->product_name,
-            'quantity' => $request->quantity,
-            'unit_product_price' => $product->mrp,
-            'discount' => $request->discount,
-            'total_product_price' => ($product->mrp * $request->quantity * $request->discount/100),
-        ];
-        $data['total_cost'] += $data['total_product_price'];
+        //$product = Product::find($request->product_id);
+        $products = $request->input('products');
+        $estimateData = [];
+        $totalCost = 0;
+        foreach($products as $productData){
+            $product = Product::find($productData['product_id']);
+            $data = [
+                'product_id' => $request->product_id,
+                'product_name' => $product->product_name,
+                'quantity' => $request->quantity,
+                'unit_product_price' => $product->mrp,
+                'discount' => $request->discount,
+                'total_product_price' => ($product->mrp * $request->quantity * $request->discount/100),
+            ];
+        }
+        $estimateData[] = $data;
+        $totalCost += $data['total_product_price'];
         return response()->json([
             'message' => 'success',
-            'data' => $data
+            'data' => $data,
+            'total_cost' => $totalCost
         ]);
     }
 }
