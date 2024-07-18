@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('name');   //pick from customers table or supplier table 
             $table->set('type', ['customer', 'supplier']);
             $table->unsignedBigInteger('customer_id');
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade')->nullable();  //customers table
+            $table->foreign('customer_id')->references('id')->on('customers')->nullable();  //customers table
             $table->unsignedBigInteger('supplier_id');
             $table->foreign('supplier_id')->references('id')->on('suppliers')->nullable();         // supplier table    
             $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');   //products table
+            $table->foreign('product_id')->references('id')->on('products');   //products table
             $table->string('product_name');    //product table
             $table->integer('product_quantity');
             $table->decimal('product_price',8,2);   //product table

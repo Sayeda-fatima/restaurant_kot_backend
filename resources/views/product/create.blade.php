@@ -6,8 +6,9 @@
     <title>Document</title>
 </head>
 <body>
-    <form action="{{ route('product.store') }}" method="post">
+    <form action="{{ route('product.store') }}" method="post" enctype="multipart/form-data">
         @csrf
+        Image <input type="file" name="product_image" id="img" accept="image/*"><br>
         Name<input type="text" name="product_name"><br>
         Price<input type="number" name="product_sell_price" step="0.01"><br>
         Measuring Unit<input type="text" name="measuring_unit"><br>

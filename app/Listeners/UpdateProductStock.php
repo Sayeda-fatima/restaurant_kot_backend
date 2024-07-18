@@ -75,7 +75,7 @@ class UpdateProductStock
                     $product->product_quantity -= $detail->quantity;
                     $product->save();
 
-                // store in transaction
+                // store in transaction after successful invoice generation
                 Transaction::create([
                     'name' => $invoice->customer_name,
                     'product_id' => $detail->product_id,
@@ -90,6 +90,7 @@ class UpdateProductStock
                 ]);
             } else {
                 // Handle insufficient stock or product not found
+                return error_log('Error! Stock insufficient or product not found');
 
             }
         }

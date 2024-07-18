@@ -23,12 +23,11 @@ class ProductController extends Controller
 
         // display list of products
         $product = DB::table('products')
-            ->select('product_name', 'product_sell_price', 'product_quantity')
+            ->select('product_image','product_name', 'product_sell_price', 'product_quantity')
             ->orderby('product_name')
             ->orderby('product_category')
             ->get();
 
-        //return view('product.index', ['product'=> $product]);
         return response()->json([
             'message' => 'success',
             'data' => $product
@@ -51,11 +50,15 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        /*if($request->user()->cannot('create', Product::class))
-            abort(403); */
-            Gate::authorize('create', Product::class);
+        Gate::authorize('create', Product::class);
+       
         try {
+            // Generate unique filename
+            $imageName = time() . '_' . $request->file('product_image')->getClientOriginalName();  
+            $image = $request->file('product_image')->storeAs('productImages', $imageName);  
+
             $product = Product::create([
+                'product_image' => $image,
                 'product_name' => $request->input('product_name'),
                 'product_sell_price' => $request->input('product_sell_price'),
                 'measuring_unit' => $request->input('measuring_unit'),
@@ -80,7 +83,9 @@ class ProductController extends Controller
                 'expiry_date' => $request->input('expiry_date'),
                 'show_product_online_store' => $request->input('show_product_online_store')
             ]);
-            return response()->json(['product' => $product, 'message' => 'Product created successfully'], 201);
+            $product->product_image = $image;
+            $product->save();
+            return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
         } catch (\Exception $e) {
             error_log('Error creating product: ' . $e->getMessage());
 

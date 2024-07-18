@@ -98,10 +98,18 @@ class TransactionController extends Controller
         Gate::authorize('update', $transaction);
 
         try{
+            $product = Product::find($request->product_id);
             $transaction = Transaction::update([
-                'total_price' => $request->total_price,
-                'amount_received' => $request->amount_received,
-                'change_amount' => ($request->total_price - $request->amount_received)
+                'name' => $request->customer_name,
+                'product_id' => $request->product_id,
+                'type' => $request->type,
+                'customer_id' => $request->customer_id,
+                'product_name' => $product->product_name,
+                'product_quantity' => $request->quantity,
+                'product_price' => $product->mrp,
+                'total_price' => ($product->mrp * $request->quantity),
+                'mode_of_payment' => $request->mode_of_payment,
+                'transaction_type' => $request->transaction_type
             ]);
             return response()->json([
                 'message' => 'success',

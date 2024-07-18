@@ -146,10 +146,6 @@ class ProductStockController extends Controller
         }
     }
 
-    public function updateStock(Request $request){
-        // adjust stock
-
-    }
 
     public function stockReport(Request $request){
         Gate::authorize('view', ProductStock::class);
