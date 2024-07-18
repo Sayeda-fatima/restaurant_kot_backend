@@ -54,7 +54,8 @@ class InvoiceController extends Controller
                 //'total_price' => $request->total_price,
                 //'total_price' => DB::raw('Select sum(total_product_price) from invoice_details group by '. $request->order_id),
                 'customer_billing_address' => $customer->customer_billing_address,
-                'mode_of_payment' => $request->mode_of_payment
+                'mode_of_payment' => $request->mode_of_payment,
+                'created_by' => $request->created_by
             ]);
             // possible way to update price
             //$invoice->updateTotalPrice();

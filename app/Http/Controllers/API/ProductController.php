@@ -184,13 +184,26 @@ class ProductController extends Controller
 
     public function updateStock(Request $request)
     {
-        $product = $request->get('id');
-        $product_quantity = DB::table('products')
-            ->where('product_id', 'LIKE', "$product")
-            ->update(['product_quantity' => 2]);
+        //Gate::authorize('view', Product::class);
+        // adjust stock of a product
+        $product = Product::find($request->id);
+        $update_type = $request->update_type;
+        $update_quantity = $request->update_quantity;
+        if($update_type === 'add'){
+            $product->product_quantity += $update_quantity;
+            $product->save();
+        }
+        else{
+            $product->product_quantity -= $update_quantity;
+            $product->save();
+        }
+        return response()->json([
+            'message' => 'success',
+            'data' => $product->fresh()
+        ]);
 
     }
-
+// 
     public function displayProductsForCategory(Request $request){
 
         Gate::authorize('view', Product::class);

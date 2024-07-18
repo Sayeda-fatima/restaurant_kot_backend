@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceDetails;
 use App\Models\ProductStock;
 use App\Models\Product;
+use App\Models\Transaction;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -52,32 +53,49 @@ class UpdateProductStock
     }
 
     private function updateStock(NewInvoice $event){
-        /*if($invoice->status == 'SUCCESS'){
-            $product->product_quantity -= $invoiceDetails->quantity;
-            $productStock->product_update_quantity = $invoiceDetails->quantity;
-            $productStock->product_stock_after_update -= $invoiceDetails->quantity; 
-        } */
+        
         $invoice = $event->invoice;
 
         foreach ($invoice->invoiceDetails as $detail) {
             $product = Product::find($detail->product_id);
-
+            
             if ($product && $product->product_quantity >= $detail->quantity) {
-                $product->product_quantity -= $detail->quantity;
-                $product->save();
-
                 // Record stock change
                 ProductStock::create([
-                    'product_id' => $product->id,
+                    'invoice_details_id' => $detail->id,
+                    'product_id' => $detail->product_id,
                     'product_name' => $product->product_name,
+                    'product_stock_before_update' => $product->product_quantity,
                     'product_update_quantity' => $detail->quantity,
                     'product_update_type' => 'sale',
                     'product_stock_after_update' => $product->product_quantity - $detail->quantity
+                ]);
+
+                // update the stock in product table as well
+                    $product->product_quantity -= $detail->quantity;
+                    $product->save();
+
+                // store in transaction
+                Transaction::create([
+                    'name' => $invoice->customer_name,
+                    'product_id' => $detail->product_id,
+                    'type' => 'customer',
+                    'customer_id' => $invoice->customer_id,
+                    'product_name' => $product->product_name,
+                    'product_quantity' => $detail->quantity,
+                    'product_price' => $product->mrp,
+                    'total_price' => ($product->mrp * $detail->quantity),
+                    'mode_of_payment' => $invoice->mode_of_payment,
+                    'transaction_type' => 'sale'
                 ]);
             } else {
                 // Handle insufficient stock or product not found
 
             }
         }
+    }
+
+    private function updateTransaction(NewInvoice $event){
+        // store in transaction after successful invoice generation
     }
 }

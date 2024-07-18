@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\InvoiceDetails;
 use App\Models\Product;
 use App\Models\Invoice;
+use App\Events\NewInvoice;
 use App\Http\Requests\api\StoreInvoiceDetailsRequest;
 use App\Http\Requests\api\UpdateInvoiceDetailsRequest;
 use App\Http\Controllers\Controller;
@@ -112,6 +113,8 @@ class InvoiceDetailsController extends Controller
             // update total price in invoice table
             $invoice->total_price = $invoice->invoiceDetails->sum('total_product_price');
             $invoice->save();
+
+            event(new NewInvoice($invoice, $invoice->status));
 
             return response()->json([
                 'message' => 'success',

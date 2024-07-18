@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();  
-            $table->string('name');   //pick from customers table? 
+            $table->string('name');   //pick from customers table or supplier table 
             $table->set('type', ['customer', 'supplier']);
             $table->unsignedBigInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade')->nullable();  //customers table

@@ -44,6 +44,8 @@ Route::put('/product/{product}/update', [ProductController::class, 'update'])->n
 Route::get('/product/{search}/search', [ProductController::class, 'searchProduct'])->name('product.search')->middleware('auth:api');
 // route for deleting product
 Route::delete('/product/{product}/delete', [ProductController::class, 'destroy'])->name('product.delete')->middleware('auth:api');
+// route for updating stock/quantity of a product
+Route::put('/product/{product}/updateStock', [ProductController::class, 'updateStock'])->name('product.update.stock');
 // route for all products
 Route::get('/product/all', [ProductController::class, 'allProducts'])->name('product.all')->middleware('auth:api');
 // route for displaying products for a certain category

@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->string('product_name');
+            $table->integer('product_stock_before_update');
             $table->integer('product_update_quantity');
-            //$table->integer('product_quantity');
             $table->set('product_update_type', ['add', 'sale']);
             $table->integer('product_stock_after_update');
             $table->timestamps();

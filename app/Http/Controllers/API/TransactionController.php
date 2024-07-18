@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Transaction;
+use App\Models\Product;
 use App\Http\Requests\api\StoreTransactionRequest;
 use App\Http\Requests\api\UpdateTransactionRequest;
 use App\Http\Controllers\Controller;
@@ -45,10 +46,21 @@ class TransactionController extends Controller
     {
         Gate::authorize('create', Transaction::class);
         try{
+            $product = Product::find($request->product_id);
             $transaction = Transaction::create([
-                'total_price' => $request->total_price,
+                'name' => $request->customer_name,
+                'product_id' => $request->product_id,
+                'type' => $request->type,
+                'customer_id' => $request->customer_id,
+                'product_name' => $product->product_name,
+                'product_quantity' => $request->quantity,
+                'product_price' => $product->mrp,
+                'total_price' => ($product->mrp * $request->quantity),
+                'mode_of_payment' => $request->mode_of_payment,
+                'transaction_type' => $request->transaction_type
+                /*'total_price' => $request->total_price,
                 'amount_received' => $request->amount_received,
-                'change_amount' => ($request->total_price - $request->amount_received)
+                'change_amount' => ($request->total_price - $request->amount_received) */
             ]);
             return response()->json([
                 'message' => 'success',

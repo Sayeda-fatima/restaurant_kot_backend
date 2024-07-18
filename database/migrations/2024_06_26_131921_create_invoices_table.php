@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('customer_billing_address');
             $table->enum('status',['IN_CART', 'PENDING', 'SUCCESS', 'FAILED']);
             $table->set('mode_of_payment', ['bank', 'cash', 'cheque']);
+            $table->unsignedBigInteger('created_by');
+            $table->foreign('created_by')->references('users')->on('id');
             $table->timestamps();
         });
     }

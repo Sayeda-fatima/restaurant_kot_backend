@@ -42,8 +42,8 @@ class Product extends Model
     public function productImage(): HasMany{
         return $this->hasMany(ProductImage::class);
     }
-    public function productStock(): HasOne {
-        return $this->hasOne(ProductStock::class);
+    public function productStock(): HasMany {
+        return $this->hasMany(ProductStock::class);
     }
     public function invoice(): HasManyThrough{
         return $this->hasManyThrough(Invoice::class, InvoiceDetails::class);
