@@ -13,14 +13,17 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('api_token', 80)->unique()->nullable()->default(null);
+            $table->set('access_type', ['ADMIN', 'FULL', 'SALES']);
+            $table->boolean('is_deleted')->default(0);
             $table->rememberToken();
             $table->timestamps();
-            $table->string('api_token', 80)->after('password')->unique()->nullable()->default(null);
-            $table->set('access_type', ['ADMIN', 'FULL', 'SALES']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

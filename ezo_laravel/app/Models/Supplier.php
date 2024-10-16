@@ -10,20 +10,21 @@ class Supplier extends Model
     use HasFactory;
 
     protected $fillable = [
-        'supplier_name',
-        'supplier_phone_no',
-        'supplier_category',
-        'supplier_billing_address',
-        'supplier_billing_province',
-        'supplier_billing_postal_code',
-        'supplier_delivery_address',
-        'supplier_delivery_province',
-        'supplier_delivery_postal_code',
-        'supplier_gst_number',
-        'supplier_billing_term',
-        'supplier_billing_type',
-        'supplier_date_of_birth',
-        'supplier_whatsapp_alert'
+        'organization_id',
+        'name',
+        'phone_no',
+        'category',
+        'billing_address',
+        'billing_province',
+        'billing_postal_code',
+        'delivery_address',
+        'delivery_province',
+        'delivery_postal_code',
+        'gst_number',
+        'billing_term',
+        'billing_type',
+        'date_of_birth',
+        'whatsapp_alert'
     ];
 
     public function invoice(){

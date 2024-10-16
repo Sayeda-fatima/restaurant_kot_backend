@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
             $table->string('product_category')->unique();
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

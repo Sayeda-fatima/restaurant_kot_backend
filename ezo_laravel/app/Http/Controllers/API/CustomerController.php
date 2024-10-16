@@ -21,9 +21,9 @@ class CustomerController extends Controller
         try{
         // display list of customers
         $customers = DB::table('customers')
-                    ->select('customer_name', 'customer_phone_no', 'customer_billing_type')
-                    ->orderBy('customer_category', 'asc')
-                    ->orderBy('customer_name')
+                    ->select('name', 'phone_no', 'billing_type')
+                    ->orderBy('category', 'asc')
+                    ->orderBy('name')
                     ->get();
         
         //return view('customers.index', ['customer'=>$customers]);
@@ -56,19 +56,20 @@ class CustomerController extends Controller
         Gate::authorize('create', Customer::class);
         try{
             $customer = Customer::create([
-                'customer_name' => $request->input('customer_name'),
-                'customer_phone_no' => $request->input('customer_phone_no'),
-                'customer_category' => $request->input('customer_category'),
-                'customer_billing_address' => $request->input('customer_billing_address'),
-                'customer_billing_province' => $request->input('customer_billing_province'),
-                'customer_billing_postal_code' => $request->input('customer_billing_postal_code'),
-                'customer_delivery_address' => $request->input('customer_delivery_address'),
-                'customer_delivery_province' => $request->input('customer_delivery_province'),
-                'customer_delivery_postal_code' => $request->input('customer_delivery_postal_code'),
-                'customer_gst_number' => $request->input('customer_gst_number'),
-                'customer_billing_term' => $request->input('customer_billing_term'),
-                'customer_billing_type' => $request->input('customer_billing_type'),
-                'customer_date_of_birth' => $request->input('customer_date_of_birth'),
+                'organization_id' => $request->input('organization_id'),
+                'name' => $request->input('name'),
+                'phone_no' => $request->input('phone_no'),
+                'category' => $request->input('category'),
+                'billing_address' => $request->input('billing_address'),
+                'billing_province' => $request->input('billing_province'),
+                'billing_postal_code' => $request->input('billing_postal_code'),
+                'delivery_address' => $request->input('delivery_address'),
+                'delivery_province' => $request->input('delivery_province'),
+                'delivery_postal_code' => $request->input('delivery_postal_code'),
+                'gst_number' => $request->input('gst_number'),
+                'billing_term' => $request->input('billing_term'),
+                'billing_type' => $request->input('billing_type'),
+                'date_of_birth' => $request->input('date_of_birth'),
                 'whatsapp_alert' => $request->input('whatsapp_alert')
             ]);
             return response()->json([
@@ -151,11 +152,13 @@ class CustomerController extends Controller
         
     }
 
-    public function allCustomers(){
+    public function allCustomers(Request $request){
         // display customers in for invoice
-        $customer = Customer::select('customer_name', 'customer_phone_no')
+        $organization_id = $request->organization_id;
+        $customer = Customer::select('name', 'phone_no')
+                            ->whereRaw('organization_id=?',[$organization_id] )
                             ->orderBy('id', 'DESC')
-                            ->orderby('customer_category')
+                            ->orderby('category')
                             ->get();
         
         return response()->json([
@@ -164,11 +167,13 @@ class CustomerController extends Controller
     }
 
     public function searchCustomer(Request $request){
+        $organization_id = $request->organization_id;
         $search = $request->get('search_term');
         if($search!=NULL){
-            $customer = Customer::where('customer_id', 'LIKE', "%$search%")
-                                ->orWhere('customer_name', 'LIKE', "%$search%")
-                                ->orWhere('customer_phone_no', 'LIKE', "$search%")
+            $customer = Customer::where('id', 'LIKE', "%$search%")
+                                ->orWhere('name', 'LIKE', "%$search%")
+                                ->orWhere('phone_no', 'LIKE', "$search%")
+                                ->havingRaw('organization_id=?',[$organization_id])
                                 ->get();
             return response()->json([
                 'data' => $customer,
@@ -184,11 +189,11 @@ class CustomerController extends Controller
     public function detailReport(Request $request){
 
         Gate::authorize('view', Customer::class);
-
+        $organization_id = $request->organization_id;
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
-        $query = DB::select('SELECT customer_name, customer_phone_no, customer_category, customer_billing_address, customer_billing_type,customer_billing_province, customer_billing_postal_code, customer_delivery_address, customer_delivery_province, customer_delivery_postal_code, customer_billing_term, customer_date_of_birth from customers where date(created_at) between ? and ?;', [$date_from, $date_to]);
+        $query = DB::select('SELECT name, phone_no, category, billing_address, billing_type, billing_province, billing_postal_code, delivery_address, delivery_province, delivery_postal_code, billing_term, date_of_birth from customers where organization_id=? and date(created_at) between ? and ?;', [$organization_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',
@@ -201,6 +206,7 @@ class CustomerController extends Controller
         // specify access
         Gate::authorize('view', Customer::class);
 
+        $organization_id = $request->organization_id;
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $customer_id = $request->customer_id;
@@ -208,8 +214,8 @@ class CustomerController extends Controller
                 invoices.id as invoice_no, 
                 invoices.total_price as credit 
             from invoices 
-            where customer_id=? and date(invoices.created_at) between ? and ?
-            group by invoices.id', [$customer_id, $date_from, $date_to]);
+            where organization_id=? and customer_id=? and date(invoices.created_at) between ? and ?
+            group by invoices.id', [$organization_id, $customer_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',
@@ -222,6 +228,7 @@ class CustomerController extends Controller
         // specify access type 
         Gate::authorize('view', Customer::class);
         
+        $organization_id = $request->organization_id;
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $customer_id = $request->customer_id;
@@ -233,7 +240,7 @@ class CustomerController extends Controller
                 invoice_details.unit_product_price, 
                 invoice_details.total_product_price 
             from invoices right join invoice_details on invoices.id=invoice_details.invoice_id 
-            where invoices.customer_id=? and invoice_details.invoice_id=? and date(invoices.created_at) between ? and ?', [$customer_id, $invoice_id, $date_from, $date_to]);
+            where invoices.organization_id=? and invoices.customer_id=? and invoice_details.invoice_id=? and date(invoices.created_at) between ? and ?', [$organization_id, $customer_id, $invoice_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',

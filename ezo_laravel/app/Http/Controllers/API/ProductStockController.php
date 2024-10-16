@@ -16,11 +16,13 @@ class ProductStockController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('viewAny', ProductStock::class);
+        $organization_id = $request->organization_id;
         $productStock = DB::table('product_stocks')
                         ->select('invoice_details_id', 'product_name', 'product_stock_before_update', 'product_update_quantity', 'product_stock_after_update')
+                        ->whereRaw('organization_id=?', $organization_id)
                         ->orderby('invoice_details_id')
                         ->get();
         return response()->json([
@@ -52,6 +54,7 @@ class ProductStockController extends Controller
                 : $product->product_quantity - $request->product_update_quantity;
 
             $productStock = ProductStock::create([
+                'organization_id' => $request->organization_id,
                 'invoice_details_id' => $request->invoice_details_id,
                 'product_id' => $request->product_id,
                 'product_name' => $product->product_name,
@@ -112,7 +115,7 @@ class ProductStockController extends Controller
             ]);
 
             // update quantity in the products table
-            $product->product_quantity = $productStock->product_stock_after_update;
+            $product->quantity = $productStock->product_stock_after_update;
 
             return response()->json([
                 'message' => 'success',
@@ -150,9 +153,11 @@ class ProductStockController extends Controller
     public function stockReport(Request $request){
         Gate::authorize('view', ProductStock::class);
         
+        $organization_id = $request->organization_id;
+
         $date_from = $request->date_from;
         $date_to = $request->date_to;
-        $query = DB::select('SELECT * from product_stocks where date(created_at) between ? and ?', [$date_from, $date_to]);
+        $query = DB::select('SELECT * from product_stocks where organization_id=? and date(created_at) between ? and ?', [$organization_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',

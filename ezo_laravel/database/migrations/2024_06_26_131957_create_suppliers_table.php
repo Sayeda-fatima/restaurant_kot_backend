@@ -13,21 +13,24 @@ return new class extends Migration
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
-            $table->string('supplier_name');
-            $table->string('supplier_phone_no');
-            $table->string('supplier_category');
-            $table->string('supplier_billing_address');
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
+            $table->string('name');
+            $table->string('phone_no');
+            $table->string('category');
+            $table->string('billing_address');
             // optional 
-            $table->string('supplier_billing_province')->nullable();
-            $table->string('supplier_billing_postal_code')->nullable();
-            $table->string('supplier_delivery_address')->nullable();
-            $table->string('supplier_delivery_province')->nullable();
-            $table->string('supplier_delivery_postal_code')->nullable();
-            $table->string('supplier_gst_number')->nullable();
-            $table->string('supplier_billing_term')->nullable();
-            $table->string('supplier_billing_type')->nullable();
-            $table->date('supplier_date_of_birth')->nullable();
-            $table->enum('supplier_whatsapp_alert', ['Y','N'])->nullable();
+            $table->string('billing_province')->nullable();
+            $table->string('billing_postal_code')->nullable();
+            $table->string('delivery_address')->nullable();
+            $table->string('delivery_province')->nullable();
+            $table->string('delivery_postal_code')->nullable();
+            $table->string('gst_number')->nullable();
+            $table->string('billing_term')->nullable();
+            $table->string('billing_type')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('whatsapp_alert', ['Y','N'])->nullable();
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

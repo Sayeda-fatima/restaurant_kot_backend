@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            //$table->integer('order_id')->unique();
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
             $table->unsignedBigInteger('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('customer_name');
@@ -22,7 +23,8 @@ return new class extends Migration
             $table->enum('status',['IN_CART', 'PENDING', 'SUCCESS', 'FAILED']);
             $table->set('mode_of_payment', ['bank', 'cash', 'cheque']);
             $table->unsignedBigInteger('created_by');
-            $table->foreign('created_by')->references('users')->on('id');
+            $table->foreign('created_by')->references('id')->on('users');
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

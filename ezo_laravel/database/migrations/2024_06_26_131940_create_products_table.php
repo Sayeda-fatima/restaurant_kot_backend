@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('product_image')->nullable();
-            $table->string('product_name')->required;
-            $table->decimal('product_sell_price', 8, 2)->required;
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
+            $table->string('image')->nullable();
+            $table->string('name')->required;
+            $table->decimal('sell_price', 8, 2)->required;
             $table->string('measuring_unit');
-            $table->string('product_category');
-            $table->foreign('product_category')->references('product_categories')->on('product_category');
-            $table->integer('product_quantity')->required;
+            $table->string('category');
+            $table->foreign('category')->references('product_category')->on('product_categories');
+            $table->integer('quantity')->required;
             $table->decimal('mrp', 8,2)->required;
             $table->decimal('purchase_price',8,2);
             $table->decimal('ac_sale_price',8,2);
@@ -31,16 +33,17 @@ return new class extends Migration
             $table->enum('price_with_tax', ['Y', 'N'])->nullable();
             $table->integer('cess');
             $table->string('hsn_code');
-            $table->text('product_description');
+            $table->text('description');
             //inventory details (optional)
             $table->integer('low_stock_alert');
-            $table->string('product_storage_location');
+            $table->string('storage_location');
             $table->string('bulk_purchase_unit');
             $table->decimal('retail_sale_unit_per_bulk_purchase');
             $table->decimal('bulk_purchase_unit_per_retail_sale');
             $table->date('expiry_date');
             // product display (optional)
             $table->enum('show_product_online_store', ['Yes', 'No']);
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

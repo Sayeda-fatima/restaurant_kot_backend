@@ -23,9 +23,9 @@ class ProductController extends Controller
 
         // display list of products
         $product = DB::table('products')
-            ->select('product_image','product_name', 'product_sell_price', 'product_quantity')
-            ->orderby('product_name')
-            ->orderby('product_category')
+            ->select('image','name', 'sell_price', 'quantity')
+            ->orderby('name')
+            ->orderby('category')
             ->get();
 
         return response()->json([
@@ -54,16 +54,17 @@ class ProductController extends Controller
        
         try {
             // Generate unique filename
-            $imageName = time() . '_' . $request->file('product_image')->getClientOriginalName();  
-            $image = $request->file('product_image')->storeAs('productImages', $imageName);  
+            $imageName = time() . '_' . $request->file('image')->getClientOriginalName();  
+            $image = $request->file('image')->storeAs('productImages', $imageName);  
 
             $product = Product::create([
-                'product_image' => $image,
-                'product_name' => $request->input('product_name'),
-                'product_sell_price' => $request->input('product_sell_price'),
+                'organization_id' => $request->organization_id,
+                'image' => $image,
+                'name' => $request->input('name'),
+                'sell_price' => $request->input('sell_price'),
                 'measuring_unit' => $request->input('measuring_unit'),
-                'product_category' => $request->input('product_category'),
-                'product_quantity' => $request->input('product_quantity'),
+                'category' => $request->input('category'),
+                'quantity' => $request->input('quantity'),
                 'mrp' => $request->input('mrp'),
                 'purchase_price' => $request->input('purchase_price'),
                 'ac_sale_price' => $request->input('ac_sale_price'),
@@ -74,16 +75,16 @@ class ProductController extends Controller
                 'price_with_tax' => $request->input('price_with_tax'),
                 'cess' => $request->input('cess'),
                 'hsn_code' => $request->input('hsn_code'),
-                'product_description' => $request->input('product_description'),
+                'description' => $request->input('description'),
                 'low_stock_alert' => $request->input('low_stock_alert'),
-                'product_storage_location' => $request->input('product_storage_location'),
+                'storage_location' => $request->input('storage_location'),
                 'bulk_purchase_unit' => $request->input('bulk_purchase_unit'),
                 'retail_sale_unit_per_bulk_purchase' => $request->input('retail_sale_unit_per_bulk_purchase'),
                 'bulk_purchase_unit_per_retail_sale' => $request->input('bulk_purchase_unit_per_retail_sale'),
                 'expiry_date' => $request->input('expiry_date'),
                 'show_product_online_store' => $request->input('show_product_online_store')
             ]);
-            $product->product_image = $image;
+            $product->image = $image;
             $product->save();
             return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
         } catch (\Exception $e) {
@@ -153,12 +154,14 @@ class ProductController extends Controller
         }
         //return Redirect::route('products.index')->with('success', 'Product deleted successfully');
     }
-    public function allProducts()
+    public function allProducts(Request $request)
     {
         Gate::authorize('viewAny', Product::class);
-        //display all product for invoive
-        $product = Product::orderBy('product_name', 'DESC')
-            ->orderBy('product_category')
+        $organization_id = $request->organization_id;
+        //display all product for invoice
+        $product = Product::whereRaw('organization_id=?', [$organization_id])
+            ->orderBy('name', 'DESC')
+            ->orderBy('category')
             ->get();
         return response()->json([
             'product' => $product
@@ -169,11 +172,13 @@ class ProductController extends Controller
     {
         Gate::authorize('view', Product::class);
 
+        $organization_id = $request->organization_id;
         $search = $request->get('search_term');
         if ($search != NULL) {
             $product = Product::where('id', 'LIKE', "%$search%")
-                ->orwhere('product_name', 'LIKE', "%$search%")
-                ->orwhere('product_description', 'LIKE', "%$search%")
+                ->orwhere('name', 'LIKE', "%$search%")
+                ->orwhere('description', 'LIKE', "%$search%")
+                ->havingRaw('organization_id=?', [$organization_id])
                 ->get()
                 ->paginate(25);
             return response()->json([
@@ -195,11 +200,11 @@ class ProductController extends Controller
         $update_type = $request->update_type;
         $update_quantity = $request->update_quantity;
         if($update_type === 'add'){
-            $product->product_quantity += $update_quantity;
+            $product->quantity += $update_quantity;
             $product->save();
         }
         else{
-            $product->product_quantity -= $update_quantity;
+            $product->quantity -= $update_quantity;
             $product->save();
         }
         return response()->json([
@@ -213,12 +218,13 @@ class ProductController extends Controller
 
         Gate::authorize('view', Product::class);
 
-        $search = $request->get('product_category');
-        print_r($search);
+        $organization_id = $request->organization_id;
+        $search = $request->get('category');
         if($search){
             $product = DB::table('products')
-                        ->select('product_name', 'product_sell_price', 'product_quantity')
-                        ->where('product_category', '=', "$search")
+                        ->select('name', 'sell_price', 'quantity')
+                        ->whereRaw('organization_id=?', [$organization_id])
+                        ->where('category', '=', "$search")
                         ->get();
             return response()->json([
                 'message' => 'success',
@@ -235,22 +241,24 @@ class ProductController extends Controller
     // product report -> product sale report
     public function productSaleReport(Request $request){
         Gate::authorize('view', Product::class);
+
+        $organization_id = $request->organization_id;
         $date_from = $request->date_from;
         $date_to = $request->date_to;
-        $query = DB::select('SELECT invoice_details.product_name, 
-                products.product_category, 
+        $query = DB::select('SELECT invoice_details.name, 
+                products.category, 
                 sum(invoice_details.quantity) as total_sale_quantity, 
-                sum(total_product_price) as total_sale_amount 
+                sum(total_price) as total_sale_amount 
             from invoice_details 
-            left join products on invoice_details.product_id=products.id 
-            where date(invoice_details.created_at) between ? and ? 
-            group by invoice_details.product_id', [$date_from, $date_to]);
+            left join products on invoice_details.id=products.id 
+            where products.organization_id=? and date(invoice_details.created_at) between ? and ? 
+            group by invoice_details.id', [$organization_id, $date_from, $date_to]);
 
         $total_data = DB::select('SELECT sum(invoice_details.quantity) as total_sale_quantity, 
-                sum(total_product_price) as total_sale_amount 
+                sum(total_price) as total_sale_amount 
             from invoice_details 
-            left join products on invoice_details.product_id=products.id 
-            where date(invoice_details.created_at) between ? and ?', [$date_from, $date_to]);
+            left join products on invoice_details.id=products.id 
+            where products.organization_id=? and date(invoice_details.created_at) between ? and ?', [$organization_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',
@@ -264,12 +272,13 @@ class ProductController extends Controller
 
         Gate::authorize('view', Product::class);
 
+        $organization_id = $request->organization_id;
         $date_from = $request->date_from;
         $date_to = $request->date_to;
 
-        $query = DB::select('SELECT product_name, product_category, product_quantity as current_stock, mrp as sale_price, purchase_price, (product_quantity * mrp) as stock_valuation from products where date(created_at) between ? and ?;', [$date_from, $date_to]);
+        $query = DB::select('SELECT name, category, quantity as current_stock, mrp as sale_price, purchase_price, (quantity * mrp) as stock_valuation from products where organization_id=? and date(created_at) between ? and ?;', [$organization_id, $date_from, $date_to]);
 
-        $total_data = DB::select('SELECT count(id) as total_unique_items, (SELECT product_quantity from products where product_quantity <= low_stock_alert) as total_low_stock_items from products where date(created_at) between ? and ? ;', [$date_from, $date_to]);
+        $total_data = DB::select('SELECT count(id) as total_unique_items, (SELECT quantity from products where quantity <= low_stock_alert) as total_low_stock_items from products where organization_id=? and date(created_at) between ? and ? ;', [$organization_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',
@@ -283,9 +292,10 @@ class ProductController extends Controller
 
         Gate::authorize('view', Product::class);
 
+        $organization_id = $request->organization_id;
         $date_from = $request->date_from;
         $date_to = $request->date_to;
-        $query = DB::select('SELECT * from products where date(created_at) between ? and ?', [$date_from, $date_to]);
+        $query = DB::select('SELECT * from products where organization_id=? and date(created_at) between ? and ?', [$organization_id, $date_from, $date_to]);
 
         return response()->json([
             'message' => 'success',

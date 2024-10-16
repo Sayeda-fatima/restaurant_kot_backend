@@ -13,6 +13,7 @@ class InvoiceDetails extends Model
     use HasFactory;
 
     protected $fillable = [
+        'organization_id',
         'invoice_id',
         'product_id',
         'product_name',

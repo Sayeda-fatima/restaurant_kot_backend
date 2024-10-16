@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
             $table->unsignedBigInteger('supplier_id');
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->string('supplier_name');
@@ -22,6 +24,7 @@ return new class extends Migration
             $table->decimal('amount_due',8,2);
             $table->text('Note');
             $table->set('mode_of_payment', ['bank', 'cash', 'cheque']);
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

@@ -14,7 +14,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id();  
+            $table->id();
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');  
             $table->string('name');   //pick from customers table or supplier table 
             $table->set('type', ['customer', 'supplier']);
             $table->unsignedBigInteger('customer_id');
@@ -31,6 +33,7 @@ return new class extends Migration
             //$table->decimal('amount_received',8,2);
             //$table->decimal('change_amount',8,2);
             $table->set('transaction_type', ['sale', 'purchase']);
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

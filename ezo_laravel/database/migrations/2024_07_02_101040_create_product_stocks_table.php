@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('product_stocks', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
             $table->unsignedBigInteger('invoice_details_id')->nullable();
             $table->foreign('invoice_details_id')->references('id')->on('invoice_details');
             $table->unsignedBigInteger('product_id');
@@ -22,6 +24,7 @@ return new class extends Migration
             $table->integer('product_update_quantity');
             $table->set('product_update_type', ['add', 'sale']);
             $table->integer('product_stock_after_update');
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

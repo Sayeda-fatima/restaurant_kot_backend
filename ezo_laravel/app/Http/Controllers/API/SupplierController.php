@@ -15,13 +15,15 @@ class SupplierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('viewAny', Supplier::class);
+        $organization_id = $request->organization_id;
         $supplier = DB::table('suppliers')
-                        ->select('supplier_name', 'supplier_phone_no', 'supplier_billing_type')
-                        ->orderby('supplier_name')
-                        ->orderby('supplier_category')
+                        ->select('name', 'phone_no', 'billing_type')
+                        ->whereRaw('organization_id=?', [$organization_id])
+                        ->orderby('name')
+                        ->orderby('category')
                         ->get();
         //return view('supplier.index', ['supplier'=>$supplier]);
         return response()->json([
@@ -46,20 +48,21 @@ class SupplierController extends Controller
         Gate::authorize('create', Supplier::class);
         try{
             $supplier = Supplier::create([
-                'supplier_name' => $request->supplier_name,
-                'supplier_phone_no' => $request->supplier_phone_no,
-                'supplier_category' => $request->supplier_category,
-                'supplier_billing_address' => $request->supplier_billing_address,
-                'supplier_billing_province' => $request->supplier_billing_province,
-                'supplier_billing_postal_code' => $request->supplier_billing_postal_code,
-                'supplier_delivery_address' => $request->supplier_delivery_address,
-                'supplier_delivery_province' => $request->supplier_delivery_province,
-                'supplier_delivery_postal_code' => $request->supplier_delivery_postal_code,
-                'supplier_gst_number' => $request->supplier_gst_number,
-                'supplier_billing_term' => $request->supplier_billing_term,
-                'supplier_billing_type' => $request->supplier_billing_type,
-                'supplier_date_of_birth' => $request->supplier_date_of_birth,
-                'supplier_whatsapp_alert' => $request->supplier_whatsapp_alert
+                'organization_id' => $request->organization_id,
+                'name' => $request->name,
+                'phone_no' => $request->phone_no,
+                'category' => $request->category,
+                'billing_address' => $request->billing_address,
+                'billing_province' => $request->billing_province,
+                'billing_postal_code' => $request->billing_postal_code,
+                'delivery_address' => $request->delivery_address,
+                'delivery_province' => $request->delivery_province,
+                'delivery_postal_code' => $request->delivery_postal_code,
+                'gst_number' => $request->gst_number,
+                'billing_term' => $request->billing_term,
+                'billing_type' => $request->billing_type,
+                'date_of_birth' => $request->date_of_birth,
+                'whatsapp_alert' => $request->whatsapp_alert
             ]);
             return response()->json([
                 'message' => 'supplier added successfully',
@@ -141,11 +144,13 @@ class SupplierController extends Controller
         
         Gate::authorize('view', Supplier::class);
 
+        $organization_id = $request->organization_id;
         $search = $request->get('search_term');
         if($search!=NULL){
-            $supplier = Supplier::where('supplier_name', 'LIKE', "%$search%")
+            $supplier = Supplier::where('name', 'LIKE', "%$search%")
                                 ->orwhere('id', 'LIKE', "%$search")
-                                ->orwhere('supplier_phone_no', 'LIKE', "$search%")
+                                ->orwhere('phone_no', 'LIKE', "$search%")
+                                ->havingRaw('organization_id=?', [$organization_id])
                                 ->get();
             return response()->json([
                 'supplier' => $supplier,

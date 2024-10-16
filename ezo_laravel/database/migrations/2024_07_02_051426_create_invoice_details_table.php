@@ -14,15 +14,17 @@ return new class extends Migration
     {
         Schema::create('invoice_details', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('organization_id');
+            $table->foreign('organization_id')->references('id')->on('organizations');
             //$table->integer('order_id');
             $table->unsignedBigInteger('invoice_id');
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->string('product_name');
             $table->integer('quantity');
             $table->decimal('unit_product_price', 8,2);
             $table->decimal('total_product_price', 8,2);
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }
