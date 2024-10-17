@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
 )
@@ -8,7 +9,7 @@ import (
 type CustomerRepository interface{
 	GetCustomerList (customers *[]model.Customer, organizationID uint) error
 	CreateCustomer (customer *model.Customer) error
-	UpdateCustomer (customer *model.Customer, id uint, customerUpdate *model.CustomerResponse) error
+	UpdateCustomer (customer *model.Customer, id uint) error
 	DeleteCustomer (customer *model.Customer, id uint) error
 }
 
@@ -37,9 +38,11 @@ func (cr *customerRepository) CreateCustomer(customer *model.Customer) error {
 	return nil
 }
 
-func (cr *customerRepository) UpdateCustomer (customer *model.Customer, id uint, customerUpdate *model.CustomerResponse) error {
+func (cr *customerRepository) UpdateCustomer (customer *model.Customer, id uint) error {
 
-	result := cr.db.Model(customer).Where("id=?", id).Updates(customerUpdate)
+	//print("data: %s")
+	common.Logger.LogInfo().Fields(map[string]interface{}{"data":customer}).Msg("test")
+	result := cr.db.Model(customer).Where("id=?", id).Updates(customer)
 	if err := result.Error; err!=nil{
 		return err
 	}

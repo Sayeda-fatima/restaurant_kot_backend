@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
-
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/usecase"
 	"github.com/golang-jwt/jwt/v5"
@@ -69,15 +69,16 @@ func (cc *customerController) UpdateCustomer (c echo.Context) error {
 	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	customerID, _ := strconv.Atoi(id)
+	common.Logger.LogInfo().Msg(id)
 
 	customer := model.Customer{}
-	resCustomer := model.CustomerResponse{}
 
 	if err := c.Bind(&customer); err!=nil{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	customer.OrganizationID = uint(organizationID.(float64))
-	customerRes, err := cc.cu.UpdateCustomer(customer, uint(customerID), resCustomer) 
+	customer.ID = uint(customerID)
+	customerRes, err := cc.cu.UpdateCustomer(customer, uint(customerID)) 
 
 	if err!=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())

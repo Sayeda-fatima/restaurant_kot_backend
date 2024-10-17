@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/repository"
 	"github.com/NazishAhsan/easy_busy_book_go/validator"
@@ -10,7 +11,7 @@ type(
 	CustomerUsecase interface{
 		GetCustomerList (organizationID uint) ([]model.CustomerResponse, error)
 		CreateCustomer(customer model.Customer) (model.CustomerResponse, error)
-		UpdateCustomer (customer model.Customer, id uint, customerUpdate model.CustomerResponse) (model.CustomerResponse, error)
+		UpdateCustomer (customer model.Customer, id uint) (model.CustomerResponse, error)
 		DeleteCustomer (customer model.Customer, id uint) (error)
 	}
 
@@ -29,6 +30,7 @@ func (cu *customerUsecase) GetCustomerList (organizationID uint) ([]model.Custom
 	customers := []model.Customer{}
 	 
 	if err := cu.cr.GetCustomerList(&customers, organizationID); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return nil, err
 	}
 
@@ -60,10 +62,12 @@ func (cu *customerUsecase) GetCustomerList (organizationID uint) ([]model.Custom
 func (cu *customerUsecase) CreateCustomer (customer model.Customer) (model.CustomerResponse, error) {
 
 	if err := cu.cv.CustomerValidate(customer); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return model.CustomerResponse{}, err
 	}
 
 	if err := cu.cr.CreateCustomer(&customer); err!=nil {
+		common.Logger.LogError().Msg(err.Error())
 		return model.CustomerResponse{}, err
 	}
 
@@ -87,13 +91,15 @@ func (cu *customerUsecase) CreateCustomer (customer model.Customer) (model.Custo
 	return resCustomer, nil
 }
 
-func (cu *customerUsecase) UpdateCustomer (customer model.Customer, id uint, customerUpdate model.CustomerResponse) (model.CustomerResponse, error) {
+func (cu *customerUsecase) UpdateCustomer (customer model.Customer, id uint) (model.CustomerResponse, error) {
 	
 	if err := cu.cv.CustomerValidate(customer); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return model.CustomerResponse{}, err
 	}
 
-	if err := cu.cr.UpdateCustomer(&customer, id, &customerUpdate); err!=nil{
+	if err := cu.cr.UpdateCustomer(&customer, id); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return model.CustomerResponse{}, err
 	}
 
@@ -121,6 +127,7 @@ func (cu *customerUsecase) UpdateCustomer (customer model.Customer, id uint, cus
 func (cu *customerUsecase) DeleteCustomer (customer model.Customer, id uint) error {
 
 	if err := cu.cr.DeleteCustomer(&customer, id); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return err
 	}
 	return nil
