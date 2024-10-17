@@ -23,7 +23,7 @@ func NewCustomerRepository (db *gorm.DB) CustomerRepository {
 
 func (cr *customerRepository) GetCustomerList(customers *[]model.Customer, organizationID uint) error {
 
-	if err := cr.db.Where("organization_id=?", organizationID).Find(customers).Error; err!=nil{
+	if err := cr.db.Where("organization_id=? and is_deleted=0", organizationID).Find(customers).Error; err!=nil{
 		return err
 	}
 	return nil

@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"time"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/go-playground/validator"
 )
@@ -24,7 +23,7 @@ type (
 		CustomerGstNumber			string		`json:"customer_gst_number" validator:"omitempty"`
 		CustomerBillingTerm			string		`json:"customer_billing_term" validator:"omitempty"`
 		CustomerBillingType			string		`json:"customer_billing_type" validator:"omitempty"`
-		CustomerDateOfBirth			time.Time	`json:"customer_date_of_birth" validator:"omitempty"`
+		CustomerDateOfBirth			string	`json:"customer_date_of_birth" validator:"omitempty"`
 		WhatsappAlert				string		`json:"whatsapp_alert" validator:"omitempty"`	
 	}
 

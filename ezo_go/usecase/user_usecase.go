@@ -3,7 +3,7 @@ package usecase
 import (
 	"os"
 	"time"
-
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/repository"
 	"github.com/NazishAhsan/easy_busy_book_go/validator"
@@ -32,15 +32,18 @@ func NewUserUsecase(ur repository.UserRepository, uv validator.UserValidator) Us
 func (uu *userUsecase) SignUp (user model.User) (model.UserResponse, error) {
 
 	if err := uu.uv.UserValidate(user); err != nil{
+		common.Logger.LogError().Msg(err.Error())
 		return model.UserResponse{}, err
 	} 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return model.UserResponse{}, err
 	}
 
-	newUser := model.User{Email: user.Email,Name: user.Name, Password: string(hash)}
+	newUser := model.User{Email: user.Email,Name: user.Name, OrganizationID: user.OrganizationID, Password: string(hash), AccessType: user.AccessType}
 	if err := uu.ur.CreateUser(&newUser); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return model.UserResponse{}, err
 	}
 
@@ -56,31 +59,38 @@ func (uu *userUsecase) SignUp (user model.User) (model.UserResponse, error) {
 func (uu *userUsecase) Login (user model.User) (string, error){
 
 	if err := uu.uv.UserValidate(user); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
 
 	storedUser := model.User{}
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password))
 	if err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": storedUser.ID,
-		"exp": time.Now(),
+		"organization_id": storedUser.OrganizationID,
+		"access_type": storedUser.AccessType,
+		"exp": time.Now().Add(time.Hour * 1).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte (os.Getenv("SECRET")))
 
 	if err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
 	// store jwt token to db 
 	if err := uu.ur.UpdateUser(&storedUser, tokenString); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
 	return tokenString, nil
@@ -92,9 +102,11 @@ func (uu *userUsecase) Logout (user model.User) (error){
 	storedUser := model.User{}
 
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return err
 	}
 	if err := uu.ur.UpdateUser(&storedUser, ""); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
 		return err
 	}
 

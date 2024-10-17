@@ -10,8 +10,8 @@ type(
 	CustomerUsecase interface{
 		GetCustomerList (organizationID uint) ([]model.CustomerResponse, error)
 		CreateCustomer(customer model.Customer) (model.CustomerResponse, error)
-		UpdateCustomer (customer model.Customer, id uint) (model.CustomerResponse, error)
-		DeleteCustomer (customer model.Customer, id uint) (model.CustomerResponse, error)
+		UpdateCustomer (customer model.Customer, id uint, customerUpdate model.CustomerResponse) (model.CustomerResponse, error)
+		DeleteCustomer (customer model.Customer, id uint) (error)
 	}
 
 	customerUsecase struct{
@@ -28,20 +28,33 @@ func (cu *customerUsecase) GetCustomerList (organizationID uint) ([]model.Custom
 
 	customers := []model.Customer{}
 	 
-	if err := cu.cr.GetCustomerList(&customers, organizationID).Error; err!=nil{
-		return []model.CustomerResponse{}, err
+	if err := cu.cr.GetCustomerList(&customers, organizationID); err!=nil{
+		return nil, err
 	}
 
-	for _, v range customers{
+	resCustomers := []model.CustomerResponse{}
+	for _, v:= range customers{
 		res := model.CustomerResponse{
-			CustomerName: v.CustomerName,
-			CustomerPhoneNo: v.CustomerPhoneNo,
+			ID: v.ID,
+			Name: v.Name,
+			PhoneNo: v.PhoneNo,
+			Category: v.Category,
+			BillingAddress: v.BillingAddress,
+			BillingProvince: v.BillingProvince,
+			BillingPostalCode: v.BillingPostalCode,
+			DeliveryAddress: v.DeliveryAddress,
+			DeliveryProvince: v.DeliveryProvince,
+			DeliveryPostalCode: v.DeliveryPostalCode,
+			GstNumber: v.GstNumber,
+			BillingTerm: v.BillingTerm,
+			BillingType: v.BillingType,
+			DateOfBirth: v.DateOfBirth,
+			WhatsappAlert: v.WhatsappAlert,
 		}
-
-		resCustomer := append(resCustomer, res)
+		resCustomers = append(resCustomers, res);
 	}
 
-	return resCustomer, nil
+	return resCustomers, nil
 }
 
 func (cu *customerUsecase) CreateCustomer (customer model.Customer) (model.CustomerResponse, error) {
@@ -49,13 +62,67 @@ func (cu *customerUsecase) CreateCustomer (customer model.Customer) (model.Custo
 	if err := cu.cv.CustomerValidate(customer); err!=nil{
 		return model.CustomerResponse{}, err
 	}
+
+	if err := cu.cr.CreateCustomer(&customer); err!=nil {
+		return model.CustomerResponse{}, err
+	}
+
+	resCustomer := model.CustomerResponse{
+		ID: customer.ID,
+		Name: customer.Name,
+		PhoneNo: customer.PhoneNo,
+		Category: customer.Category,
+		BillingAddress: customer.BillingAddress,
+		BillingProvince: customer.BillingProvince,
+		BillingPostalCode: customer.BillingPostalCode,
+		DeliveryAddress: customer.DeliveryAddress,
+		DeliveryProvince: customer.DeliveryProvince,
+		DeliveryPostalCode: customer.DeliveryPostalCode,
+		GstNumber: customer.GstNumber,
+		BillingTerm: customer.BillingTerm,
+		BillingType: customer.BillingType,
+		DateOfBirth: customer.DateOfBirth,
+		WhatsappAlert: customer.WhatsappAlert,
+	}
+	return resCustomer, nil
 }
 
-func (cu *customerUsecase) UpdateCustomer (customer model.Customer, id uint) (model.CustomerResponse, error) {
-
+func (cu *customerUsecase) UpdateCustomer (customer model.Customer, id uint, customerUpdate model.CustomerResponse) (model.CustomerResponse, error) {
 	
+	if err := cu.cv.CustomerValidate(customer); err!=nil{
+		return model.CustomerResponse{}, err
+	}
+
+	if err := cu.cr.UpdateCustomer(&customer, id, &customerUpdate); err!=nil{
+		return model.CustomerResponse{}, err
+	}
+
+	resCustomer := model.CustomerResponse{
+		ID: customer.ID,
+		Name: customer.Name,
+		PhoneNo: customer.PhoneNo,
+		Category: customer.Category,
+		BillingAddress: customer.BillingAddress,
+		BillingProvince: customer.BillingProvince,
+		BillingPostalCode: customer.BillingPostalCode,
+		DeliveryAddress: customer.DeliveryAddress,
+		DeliveryProvince: customer.DeliveryProvince,
+		DeliveryPostalCode: customer.DeliveryPostalCode,
+		GstNumber: customer.GstNumber,
+		BillingTerm: customer.BillingTerm,
+		BillingType: customer.BillingType,
+		DateOfBirth: customer.DateOfBirth,
+		WhatsappAlert: customer.WhatsappAlert,
+	}
+
+	return resCustomer, nil
 }
 
-func (cu *customerUsecase) DeleteCustomer (customer model.Customer, id uint) (model.CustomerResponse, error){
+func (cu *customerUsecase) DeleteCustomer (customer model.Customer, id uint) error {
+
+	if err := cu.cr.DeleteCustomer(&customer, id); err!=nil{
+		return err
+	}
+	return nil
 
 }
