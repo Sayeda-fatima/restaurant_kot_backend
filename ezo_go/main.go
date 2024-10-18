@@ -19,6 +19,14 @@ func main(){
 	common.Newlogger()
 	db := database.NewDB()
 	e := echo.New()
+
+	// organization
+	organizationValidator := validator.NewOrganizationValidator()
+	organizationRepository := repository.NewOrganizationRepository(db)
+	organizationUseCase := usecase.NewOrganizationUsecase(organizationRepository, organizationValidator)
+	organizationController := controller.NewOrganizationController(organizationUseCase)
+
+	// user
 	userValidator := validator.NewUserValidator()
 	userRepository := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUsecase(userRepository, userValidator)
@@ -44,5 +52,6 @@ func main(){
 	//routes 
 	routes.UserRoutes(e, userController)
 	routes.CustomerRoutes(e, customerController)
+	routes.OrganizationRoutes(e, organizationController)
 	e.Logger.Fatal(e.Start(":8000"))
 }
