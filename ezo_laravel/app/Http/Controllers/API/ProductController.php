@@ -63,7 +63,7 @@ class ProductController extends Controller
                 'name' => $request->input('name'),
                 'sell_price' => $request->input('sell_price'),
                 'measuring_unit' => $request->input('measuring_unit'),
-                'category' => $request->input('category'),
+                'category_id' => $request->input('category_id'),
                 'quantity' => $request->input('quantity'),
                 'mrp' => $request->input('mrp'),
                 'purchase_price' => $request->input('purchase_price'),
@@ -161,7 +161,7 @@ class ProductController extends Controller
         //display all product for invoice
         $product = Product::whereRaw('organization_id=?', [$organization_id])
             ->orderBy('name', 'DESC')
-            ->orderBy('category')
+            ->orderBy('category_id')
             ->get();
         return response()->json([
             'product' => $product
@@ -224,7 +224,7 @@ class ProductController extends Controller
             $product = DB::table('products')
                         ->select('name', 'sell_price', 'quantity')
                         ->whereRaw('organization_id=?', [$organization_id])
-                        ->where('category', '=', "$search")
+                        ->where('category_id', '=', "$search")
                         ->get();
             return response()->json([
                 'message' => 'success',
@@ -246,11 +246,12 @@ class ProductController extends Controller
         $date_from = $request->date_from;
         $date_to = $request->date_to;
         $query = DB::select('SELECT invoice_details.name, 
-                products.category, 
+                products.category_id, product_categories.product_category,
                 sum(invoice_details.quantity) as total_sale_quantity, 
                 sum(total_price) as total_sale_amount 
             from invoice_details 
             left join products on invoice_details.id=products.id 
+            left join product_catgories on product_categories.id=products.category_id
             where products.organization_id=? and date(invoice_details.created_at) between ? and ? 
             group by invoice_details.id', [$organization_id, $date_from, $date_to]);
 

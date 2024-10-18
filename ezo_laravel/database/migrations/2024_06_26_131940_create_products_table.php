@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('name')->required;
             $table->decimal('sell_price', 8, 2)->required;
             $table->string('measuring_unit');
-            $table->string('category');
-            $table->foreign('category')->references('product_category')->on('product_categories');
+            $table->unsignedBigInteger('category_id');
+            $table->foreign('category_id')->references('id')->on('product_categories');
             $table->integer('quantity')->required;
             $table->decimal('mrp', 8,2)->required;
             $table->decimal('purchase_price',8,2);

@@ -29,7 +29,7 @@ func (ou *organizationUsecase) GetOrganizationList () ([]model.OrganizationRespo
 
 	organizations := []model.Organization{}
 	if err := ou.or.GetOrganizationList(&organizations); err!=nil{
-		common.Logger.LogError().Msg(err.Error())
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("GetOrganizationList")
 		return nil, err
 	}
 

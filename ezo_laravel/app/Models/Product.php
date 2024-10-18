@@ -19,7 +19,7 @@ class Product extends Model
         'image',
         'sell_price',
         'measuring_unit',
-        'category',
+        'category_id',
         'quantity',
         'mrp',
         'purchase_price',
