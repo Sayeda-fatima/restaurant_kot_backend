@@ -5,31 +5,24 @@ import (
 	"github.com/go-playground/validator"
 )
 
-type OrganizationValidator interface{
-	OrganizationValidate (organization model.Organization) error
+type OrganizationValidator interface {
+	OrganizationValidate(organization model.Organization) error
 }
 
-type (
-	Organization struct{
-	Name		string		`json:"name" validate:"required"`
-	AccessGiven	int64		`json:"access_given" validate:"required"`
-	}
+type organizationValidator struct {
+	validator *validator.Validate
+}
 
-	organizationValidator struct{
-		validator *validator.Validate
-	}
-)
-
-func NewOrganizationValidator() OrganizationValidator{
+func NewOrganizationValidator() OrganizationValidator {
 	return &organizationValidator{
 		validator: validator.New(),
 	}
 }
 
-func (or *organizationValidator) OrganizationValidate (organization model.Organization) error {
+func (or *organizationValidator) OrganizationValidate(organization model.Organization) error {
 
-	if err := or.validator.Struct(&organization); err!=nil{
-		return err;
+	if err := or.validator.Struct(&organization); err != nil {
+		return err
 	}
 	return nil
 }

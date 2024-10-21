@@ -9,27 +9,19 @@ type UserValidator interface {
 	UserValidate(user model.User) error
 }
 
+type userValidator struct {
+	validator *validator.Validate
+}
 
-type (
-	User struct {
-		Name string `json:"name" validate:"required" `
-		Email string `json:"email" validate:"required, email"`
-	}
-	userValidator struct {
-		validator *validator.Validate
-	}
-)
-
-
-func NewUserValidator () UserValidator{
+func NewUserValidator() UserValidator {
 	return &userValidator{
 		validator: validator.New(),
 	}
 }
 
-func (ur *userValidator) UserValidate (user model.User) error {
-	if err := ur.validator.Struct(&user); err!=nil{
+func (ur *userValidator) UserValidate(user model.User) error {
+	if err := ur.validator.Struct(&user); err != nil {
 		return err
-	} 
+	}
 	return nil
 }
