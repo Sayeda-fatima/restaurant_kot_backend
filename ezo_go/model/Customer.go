@@ -6,7 +6,7 @@ import (
 
 type Customer struct {
 	OrganizationID     uint         `json:"organization_id"`
-	Organization       Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-"`
+	Organization       Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-" validate:"-"`
 	ID                 uint         `json:"id" gorm:"primaryKey"`
 	Name               string       `json:"name" validate:"required"`
 	PhoneNo            string       `json:"phone_no" gorm:"unique" validate:"required"`
@@ -24,6 +24,7 @@ type Customer struct {
 	WhatsappAlert      string       `json:"whatsapp_alert" validate:"omitempty"`
 	CreatedAt          time.Time    `json:"created_at"`
 	UpdatedAt          time.Time    `json:"updated_at"`
+	IsDeleted          bool         `json:"is_deleted"`
 }
 
 type CustomerResponse struct {

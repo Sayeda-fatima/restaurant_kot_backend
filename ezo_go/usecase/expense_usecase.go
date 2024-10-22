@@ -1,0 +1,110 @@
+package usecase
+
+import (
+	"github.com/NazishAhsan/easy_busy_book_go/model"
+	"github.com/NazishAhsan/easy_busy_book_go/repository"
+	"github.com/NazishAhsan/easy_busy_book_go/validator"
+)
+
+type (
+	ExpenseUsecase interface {
+		GetExpenseList(organizationID uint) ([]model.ExpenseResponse, error)
+		CreateExpense(expense model.Expense) (model.ExpenseResponse, error)
+		UpdateExpense(expense model.Expense, id uint) (model.ExpenseResponse, error)
+		DeleteExpense(expense model.Expense, id uint) error
+	}
+
+	expenseUsecase struct {
+		er repository.ExpenseRepository
+		ev validator.ExpenseValidator
+	}
+)
+
+func NewExpenseUsecase(er repository.ExpenseRepository, ev validator.ExpenseValidator) ExpenseUsecase {
+	return &expenseUsecase{er, ev}
+}
+
+func (eu *expenseUsecase) GetExpenseList(organizationID uint) ([]model.ExpenseResponse, error) {
+
+	expenses := []model.Expense{}
+	if err := eu.er.GetExpenseList(&expenses, organizationID); err != nil {
+		return nil, err
+	}
+
+	resExpenses := []model.ExpenseResponse{}
+	for _, v := range expenses {
+		res := model.ExpenseResponse{
+			OrganizationID:  v.OrganizationID,
+			ID:              v.ID,
+			SupplierID:      v.SupplierID,
+			SupplierName:    v.SupplierName,
+			ExpenseCategory: v.ExpenseCategory,
+			TotalAmount:     v.TotalAmount,
+			AmountPaid:      v.AmountPaid,
+			AmountDue:       v.AmountDue,
+			Note:            v.Note,
+			ModeOfPayment:   v.ModeOfPayment,
+		}
+		resExpenses = append(resExpenses, res)
+	}
+
+	return resExpenses, nil
+}
+
+func (eu *expenseUsecase) CreateExpense(expense model.Expense) (model.ExpenseResponse, error) {
+
+	if err := eu.ev.ExpenseValidate(expense); err != nil {
+		return model.ExpenseResponse{}, err
+	}
+
+	if err := eu.er.CreateExpense(&expense); err != nil {
+		return model.ExpenseResponse{}, err
+	}
+
+	resExpense := model.ExpenseResponse{
+		ID:              expense.ID,
+		OrganizationID:  expense.OrganizationID,
+		SupplierID:      expense.SupplierID,
+		SupplierName:    expense.SupplierName,
+		ExpenseCategory: expense.ExpenseCategory,
+		TotalAmount:     expense.TotalAmount,
+		AmountPaid:      expense.AmountPaid,
+		AmountDue:       expense.AmountDue,
+		Note:            expense.Note,
+		ModeOfPayment:   expense.ModeOfPayment,
+	}
+	return resExpense, nil
+}
+
+func (eu *expenseUsecase) UpdateExpense(expense model.Expense, id uint) (model.ExpenseResponse, error) {
+
+	if err := eu.ev.ExpenseValidate(expense); err != nil {
+		return model.ExpenseResponse{}, err
+	}
+
+	if err := eu.er.UpdateExpense(&expense, id); err != nil {
+		return model.ExpenseResponse{}, err
+	}
+
+	resExpense := model.ExpenseResponse{
+		ID:              expense.ID,
+		OrganizationID:  expense.OrganizationID,
+		SupplierID:      expense.SupplierID,
+		SupplierName:    expense.SupplierName,
+		ExpenseCategory: expense.ExpenseCategory,
+		TotalAmount:     expense.TotalAmount,
+		AmountPaid:      expense.AmountPaid,
+		AmountDue:       expense.AmountDue,
+		Note:            expense.Note,
+		ModeOfPayment:   expense.ModeOfPayment,
+	}
+	return resExpense, nil
+}
+
+func (eu *expenseUsecase) DeleteExpense(expense model.Expense, id uint) error {
+
+	if err := eu.er.DeleteExpense(&expense, id); err != nil {
+		return err
+	}
+	return nil
+}

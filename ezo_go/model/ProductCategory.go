@@ -6,11 +6,12 @@ import (
 
 type ProductCategory struct {
 	OrganizationID uint         `json:"organization_id"`
-	Organization   Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-"`
+	Organization   Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-" validate:"-"`
 	ID             uint         `json:"id" gorm:"primaryKey"`
 	Category       string       `json:"category" gorm:"unique" validate:"required"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
+	IsDeleted      bool         `json:"is_deleted"`
 }
 
 type ProductCategoryResponse struct {

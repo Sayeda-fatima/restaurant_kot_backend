@@ -24,22 +24,23 @@ type Supplier struct {
 	WhatsappAlert      string       `json:"whatsapp_alert" validate:"omitempty"`
 	CreatedAt          time.Time    `json:"created_at"`
 	UpdatedAt          time.Time    `json:"updated_at"`
+	IsDeleted          bool         `json:"is_deleted"`
 }
 
-type SupplierResponse struct{
-	ID                 uint         `json:"id" gorm:"primaryKey"`
-	Name               string       `json:"name"`
-	PhoneNo            string       `json:"phone_no" gorm:"unique"`
-	Category           string       `json:"category"`
-	BillingAddress     string       `json:"billing_address"`
-	BillingProvince    string       `json:"billing_province"`
-	BillingPostalCode  string       `json:"billing_postal_code"`
-	DeliveryAddress    string       `json:"delivery_address"`
-	DeliveryProvince   string       `json:"delivery_province"`
-	DeliveryPostalCode string       `json:"delivery_postal_code"`
-	GstNumber          string       `json:"gst_number"`
-	BillingTerm        string       `json:"billing_term"`
-	BillingType        string       `json:"billing_type"`
-	DateOfBirth        string       `json:"date_of_birth"`
-	WhatsappAlert      string       `json:"whatsapp_alert"`
+type SupplierResponse struct {
+	ID                 uint   `json:"id" gorm:"primaryKey"`
+	Name               string `json:"name"`
+	PhoneNo            string `json:"phone_no" gorm:"unique"`
+	Category           string `json:"category"`
+	BillingAddress     string `json:"billing_address"`
+	BillingProvince    string `json:"billing_province"`
+	BillingPostalCode  string `json:"billing_postal_code"`
+	DeliveryAddress    string `json:"delivery_address"`
+	DeliveryProvince   string `json:"delivery_province"`
+	DeliveryPostalCode string `json:"delivery_postal_code"`
+	GstNumber          string `json:"gst_number"`
+	BillingTerm        string `json:"billing_term"`
+	BillingType        string `json:"billing_type"`
+	DateOfBirth        string `json:"date_of_birth"`
+	WhatsappAlert      string `json:"whatsapp_alert"`
 }
