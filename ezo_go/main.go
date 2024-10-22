@@ -49,6 +49,12 @@ func main(){
 	productCategoryRepository := repository.NewProductCategoryRepository(db)
 	productCategoryUsecase := usecase.NewProductCategoryUsecase(productCategoryRepository, productCategoryValidator)
 	productCategoryController := controller.NewProductCategoryController(productCategoryUsecase)
+
+	// supplier
+	supplierValidator := validator.NewSupplierValidator()
+	supplierRepository := repository.NewSupplierRepository(db)
+	supplierUseCase := usecase.NewSupplierUsecase(supplierRepository, supplierValidator)
+	supplierController := controller.NewSupplierController(supplierUseCase)
 	
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:8080", os.Getenv("APP_URL")},
@@ -67,5 +73,6 @@ func main(){
 	routes.OrganizationRoutes(e, organizationController)
 	routes.ProductRoutes(e, productController)
 	routes.ProductCategoryRoutes(e, productCategoryController)
+	routes.SupplierRoutes(e, supplierController)
 	e.Logger.Fatal(e.Start(":8000"))
 }
