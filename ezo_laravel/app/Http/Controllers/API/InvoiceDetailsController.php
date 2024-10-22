@@ -174,7 +174,6 @@ class InvoiceDetailsController extends Controller
     public function estimatePrice(Request $request){
         //$product = Product::find($request->product_id);
         $products = $request->input('products');
-        $estimateData = [];
         $totalCost = 0;
         foreach($products as $productData){
             $product = Product::find($productData['product_id']);
@@ -184,7 +183,7 @@ class InvoiceDetailsController extends Controller
                 'quantity' => $request->quantity,
                 'unit_product_price' => $product->mrp,
                 'discount' => $request->discount,
-                'total_product_price' => ($product->mrp * $request->quantity * $request->discount/100),
+                'total_product_price' => ($product->mrp * $request->quantity * (1-$request->discount/100))
             ];
         }
         $estimateData[] = $data;
