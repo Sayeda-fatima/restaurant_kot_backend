@@ -1,0 +1,28 @@
+package model
+
+import "time"
+
+type Invoice struct {
+	OrganizationID         uint         `json:"organization_id"`
+	Organization           Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-" validate:"-"`
+	ID                     uint         `json:"id" gorm:"primaryKey"`
+	CartID                 uint         `json:"cart_id" validate:"required"`
+	Cart                   Cart         `gorm:"foreignKey:CartID;references:ID" json:"-"`
+	CustomerID             uint         `json:"customer_id" validate:"required"`
+	Customer               Customer     `gorm:"foreignKey:CustomerID;references:ID" json:"-" validate:"-"`
+	TotalPrice             float64      `json:"total_price" validate:"required"`
+	CustomerBillingAddress string       `json:"customer_billing_address" validate:"required"`
+	ModeOfPayment          string       `json:"mode_of_payment" validate:"required"`
+	CreatedAt              time.Time    `json:"created_at"`
+	UpdatedAt              time.Time    `json:"updated_at"`
+}
+
+type InvoiceResponse struct {
+	OrganizationID         uint    `json:"organization_id"`
+	ID                     uint    `json:"id"`
+	CartID                 uint    `json:"cart_id" validate:"required"`
+	CustomerID             uint    `json:"customer_id"`
+	TotalPrice             float64 `json:"total_price"`
+	CustomerBillingAddress string  `json:"customer_billing_address"`
+	ModeOfPayment          string  `json:"mode_of_payment"`
+}
