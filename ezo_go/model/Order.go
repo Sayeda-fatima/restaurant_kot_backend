@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type Invoice struct {
+type Order struct {
 	OrganizationID         uint         `json:"organization_id"`
 	Organization           Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-" validate:"-"`
 	ID                     uint         `json:"id" gorm:"primaryKey"`
@@ -13,11 +13,13 @@ type Invoice struct {
 	TotalPrice             float64      `json:"total_price" validate:"required"`
 	CustomerBillingAddress string       `json:"customer_billing_address" validate:"required"`
 	ModeOfPayment          string       `json:"mode_of_payment" validate:"required"`
+	OrderItems             []OrderItem  `json:"order_items" gorm:"foreignKey:OrderID"`
 	CreatedAt              time.Time    `json:"created_at"`
 	UpdatedAt              time.Time    `json:"updated_at"`
+	IsDeleted              bool         `json:"is_deleted"`
 }
 
-type InvoiceResponse struct {
+type OrderResponse struct {
 	OrganizationID         uint    `json:"organization_id"`
 	ID                     uint    `json:"id"`
 	CartID                 uint    `json:"cart_id" validate:"required"`
