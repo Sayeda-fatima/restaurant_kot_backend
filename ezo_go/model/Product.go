@@ -13,7 +13,7 @@ type Product struct {
 	SellPrice                     float64         `json:"sell_price" validate:"required"`
 	MeasuringUnit                 string          `json:"measuring_unit" validate:"required"`
 	CategoryID                    uint            `json:"category_id" validate:"required"`
-	Category                      ProductCategory `gorm:"foreignKey:CategoryID;references:ID" json:"-"`
+	Category                      ProductCategory `gorm:"foreignKey:CategoryID;references:ID" json:"-" validate:"-"`
 	Quantity                      int64           `json:"quantity" validate:"required"`
 	Mrp                           float64         `json:"mrp" validate:"required"`
 	PurchasePrice                 float64         `json:"purchase_price" validate:"required"`

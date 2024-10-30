@@ -23,6 +23,6 @@ func CartRoutes(e *echo.Echo, cc controller.CartController, ic controller.CartIt
 
 	c.GET("/:id/item", ic.GetCartItemList)
 	c.POST("/:id/item", ic.CreateCartItem)
-	c.PUT("/item/:id", ic.UpdateCartItem)
-	c.DELETE("/item/:id", ic.DeleteCartItem)
+	c.PUT("/:cart/item/:id", ic.UpdateCartItem)
+	c.DELETE("/:cart/item/:id", ic.DeleteCartItem)
 }

@@ -51,10 +51,19 @@ func (cu *cartUsecase) GetCartList(organizationID uint) ([]model.CartResponse, e
 func (cu *cartUsecase) CreateCart(cart model.Cart) (model.CartResponse, error) {
 
 	if err := cu.cv.CartValidate(cart); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateCart")
 		return model.CartResponse{}, err
 	}
 
+	// Assigning organizationID to cart items
+	for i := range cart.CartItems {
+		cart.CartItems[i].OrganizationID = cart.OrganizationID
+		// getting total quantity of product
+		cart.TotalQuantity += cart.CartItems[i].ProductQuantity 
+	}
+
 	if err := cu.cr.CreateCart(&cart); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateCart")
 		return model.CartResponse{}, err
 	}
 
@@ -62,6 +71,7 @@ func (cu *cartUsecase) CreateCart(cart model.Cart) (model.CartResponse, error) {
 		ID:             cart.ID,
 		OrganizationID: cart.OrganizationID,
 		CustomerID:     cart.CustomerID,
+		CartItems:      cart.CartItems,
 		TotalQuantity:  cart.TotalQuantity,
 	}
 
@@ -71,17 +81,27 @@ func (cu *cartUsecase) CreateCart(cart model.Cart) (model.CartResponse, error) {
 func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint) (model.CartResponse, error) {
 
 	if err := cu.cv.CartValidate(cart); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCart")
 		return model.CartResponse{}, err
 	}
 
+	// Assigning organizationID to cart items
+	for i := range cart.CartItems {
+		cart.CartItems[i].OrganizationID = cart.OrganizationID
+		// getting total quantity of product
+		cart.TotalQuantity += cart.CartItems[i].ProductQuantity 
+	}
+
 	if err := cu.cr.UpdateCart(&cart, id); err != nil {
-		return model.CartResponse{}, nil
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCart")
+		return model.CartResponse{}, err
 	}
 
 	resCart := model.CartResponse{
 		ID:             cart.ID,
 		OrganizationID: cart.OrganizationID,
 		CustomerID:     cart.CustomerID,
+		CartItems:      cart.CartItems,
 		TotalQuantity:  cart.TotalQuantity,
 	}
 
@@ -91,6 +111,7 @@ func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint) (model.CartResponse,
 func (cu *cartUsecase) DeleteCart(cart model.Cart, id uint) error {
 
 	if err := cu.cr.DeleteCart(&cart, id); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteCart")
 		return err
 	}
 	return nil

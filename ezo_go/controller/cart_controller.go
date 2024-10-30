@@ -64,7 +64,7 @@ func (cc *cartController) CreateCart(c echo.Context) error {
 
 func (cc *cartController) UpdateCart(c echo.Context) error {
 
-	user := c.Get("users").(*jwt.Token)
+	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	organizationID := claims["organization_id"]
 

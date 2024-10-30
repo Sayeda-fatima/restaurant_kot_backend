@@ -56,6 +56,9 @@ func (cu *cartItemUsecase) CreateCartItem(cartItem model.CartItem) (model.CartIt
 		return model.CartItemResponse{}, err
 	}
 
+	cart := model.Cart{}
+	cart.TotalQuantity += cartItem.ProductQuantity;
+
 	resCartitem := model.CartItemResponse{
 		ID:              cartItem.ID,
 		OrganizationID:  cartItem.OrganizationID,

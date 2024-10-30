@@ -76,6 +76,8 @@ func (cc *cartItemController) UpdateCartItem(c echo.Context) error {
 
 	id := c.Param("id")
 	cartItemID, _ := strconv.Atoi(id)
+	cart :=c.Param("cart")
+	cartID, _ := strconv.Atoi(cart)
 
 	cartItem := model.CartItem{}
 	if err := c.Bind(&cartItem); err != nil {
@@ -83,6 +85,7 @@ func (cc *cartItemController) UpdateCartItem(c echo.Context) error {
 	}
 
 	cartItem.ID = uint(cartItemID)
+	cartItem.CartID = uint(cartID)
 	cartItem.OrganizationID = uint(organizationID.(float64))
 	cartItemRes, err := cc.cu.UpdateCartItem(cartItem, uint(cartItemID))
 

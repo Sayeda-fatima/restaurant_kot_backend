@@ -37,7 +37,7 @@ func (ou *orderUsecase) GetOrderList(organizationID uint) ([]model.OrderResponse
 		res := model.OrderResponse{
 			ID:                     v.ID,
 			OrganizationID:         v.OrganizationID,
-			CartID:                 v.CartID,
+			//CartID:                 v.CartID,
 			CustomerID:             v.CustomerID,
 			TotalPrice:             v.TotalPrice,
 			CustomerBillingAddress: v.CustomerBillingAddress,
@@ -61,7 +61,7 @@ func (ou *orderUsecase) CreateOrder(order model.Order) (model.OrderResponse, err
 	resOrder := model.OrderResponse{
 		ID:                     order.ID,
 		OrganizationID:         order.OrganizationID,
-		CartID:                 order.CartID,
+		//CartID:                 order.CartID,
 		CustomerID:             order.CustomerID,
 		TotalPrice:             order.TotalPrice,
 		CustomerBillingAddress: order.CustomerBillingAddress,
@@ -84,7 +84,7 @@ func (ou *orderUsecase) UpdateOrder(order model.Order, id uint) (model.OrderResp
 	resOrder := model.OrderResponse{
 		ID:                     order.ID,
 		OrganizationID:         order.OrganizationID,
-		CartID:                 order.CartID,
+		//CartID:                 order.CartID,
 		CustomerID:             order.CustomerID,
 		TotalPrice:             order.TotalPrice,
 		CustomerBillingAddress: order.CustomerBillingAddress,
