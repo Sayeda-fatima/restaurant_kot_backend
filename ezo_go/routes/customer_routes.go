@@ -21,4 +21,5 @@ func CustomerRoutes(e *echo.Echo, cc controller.CustomerController){
 	c.POST("", cc.CreateCustomer)
 	c.PUT("/:id", cc.UpdateCustomer)
 	c.PUT("/:id/soft-delete", cc.DeleteCustomer)
+	c.GET("/search", cc.SearchCustomer)
 }

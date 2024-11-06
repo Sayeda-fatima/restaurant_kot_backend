@@ -12,7 +12,8 @@ type(
 		GetCustomerList (organizationID uint) ([]model.CustomerResponse, error)
 		CreateCustomer(customer model.Customer) (model.CustomerResponse, error)
 		UpdateCustomer (customer model.Customer, id uint) (model.CustomerResponse, error)
-		DeleteCustomer (customer model.Customer, id uint) (error)
+		DeleteCustomer (customer model.Customer, id uint) error
+		SearchCustomer (organizationID uint, term string) ([]model.CustomerResponse, error)
 	}
 
 	customerUsecase struct{
@@ -132,4 +133,36 @@ func (cu *customerUsecase) DeleteCustomer (customer model.Customer, id uint) err
 	}
 	return nil
 
+}
+
+func (cu *customerUsecase) SearchCustomer(organizationID uint, term string) ([]model.CustomerResponse, error){
+
+	customers := []model.Customer{}
+
+	if err := cu.cr.SearchCustomer(&customers, organizationID, term); err!=nil{
+		return nil, err
+	}
+	resCustomers := []model.CustomerResponse{}
+	for _, v:= range customers{
+		res := model.CustomerResponse{
+			ID: v.ID,
+			Name: v.Name,
+			PhoneNo: v.PhoneNo,
+			Category: v.Category,
+			BillingAddress: v.BillingAddress,
+			BillingProvince: v.BillingProvince,
+			BillingPostalCode: v.BillingPostalCode,
+			DeliveryAddress: v.DeliveryAddress,
+			DeliveryProvince: v.DeliveryProvince,
+			DeliveryPostalCode: v.DeliveryPostalCode,
+			GstNumber: v.GstNumber,
+			BillingTerm: v.BillingTerm,
+			BillingType: v.BillingType,
+			DateOfBirth: v.DateOfBirth,
+			WhatsappAlert: v.WhatsappAlert,
+		}
+		resCustomers = append(resCustomers, res);
+	}
+
+	return resCustomers, nil
 }

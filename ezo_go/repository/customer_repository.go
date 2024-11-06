@@ -11,6 +11,7 @@ type CustomerRepository interface{
 	CreateCustomer (customer *model.Customer) error
 	UpdateCustomer (customer *model.Customer, id uint) error
 	DeleteCustomer (customer *model.Customer, id uint) error
+	SearchCustomer (customer *[]model.Customer, organizationID uint, term string) error
 }
 
 type customerRepository struct{
@@ -54,6 +55,14 @@ func (cr *customerRepository) DeleteCustomer (customer *model.Customer, id uint)
 	result := cr.db.Model(customer).Where("id=?", id).Update("is_deleted", 1)
 
 	if err := result.Error; err!=nil{
+		return err
+	}
+	return nil
+}
+
+func (cr *customerRepository) SearchCustomer (customers *[]model.Customer, organizationID uint, term string) error{
+
+	if err := cr.db.Where("id LIKE ? or name LIKE ? or phone_no LIKE ?", "%"+term+"%", "%"+term+"%", "%"+term+"%").Having("organization_id=? and is_deleted=0", organizationID).Find(customers).Error; err!=nil{
 		return err
 	}
 	return nil
