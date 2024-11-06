@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/repository"
 	"github.com/NazishAhsan/easy_busy_book_go/validator"
@@ -28,6 +29,7 @@ func (eu *expenseUsecase) GetExpenseList(organizationID uint) ([]model.ExpenseRe
 
 	expenses := []model.Expense{}
 	if err := eu.er.GetExpenseList(&expenses, organizationID); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("GetExpenseList")
 		return nil, err
 	}
 
@@ -54,10 +56,12 @@ func (eu *expenseUsecase) GetExpenseList(organizationID uint) ([]model.ExpenseRe
 func (eu *expenseUsecase) CreateExpense(expense model.Expense) (model.ExpenseResponse, error) {
 
 	if err := eu.ev.ExpenseValidate(expense); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateExpense")
 		return model.ExpenseResponse{}, err
 	}
 
 	if err := eu.er.CreateExpense(&expense); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateExpense")
 		return model.ExpenseResponse{}, err
 	}
 
@@ -79,10 +83,12 @@ func (eu *expenseUsecase) CreateExpense(expense model.Expense) (model.ExpenseRes
 func (eu *expenseUsecase) UpdateExpense(expense model.Expense, id uint) (model.ExpenseResponse, error) {
 
 	if err := eu.ev.ExpenseValidate(expense); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateExpense")
 		return model.ExpenseResponse{}, err
 	}
 
 	if err := eu.er.UpdateExpense(&expense, id); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateExpense")
 		return model.ExpenseResponse{}, err
 	}
 
@@ -104,6 +110,7 @@ func (eu *expenseUsecase) UpdateExpense(expense model.Expense, id uint) (model.E
 func (eu *expenseUsecase) DeleteExpense(expense model.Expense, id uint) error {
 
 	if err := eu.er.DeleteExpense(&expense, id); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteExpense")
 		return err
 	}
 	return nil

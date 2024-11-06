@@ -40,7 +40,7 @@ func (cr *cartRepository) CreateCart(cart *model.Cart) error {
 
 func (cr *cartRepository) UpdateCart(cart *model.Cart, id uint) error {
 
-	result := cr.db.Session(&gorm.Session{FullSaveAssociations: true}).Where("id=?", id).Updates(cart)
+	result := cr.db.Model(cart).Where("id=?", id).Updates(cart)
 	if err := result.Error; err != nil {
 		return err
 	}

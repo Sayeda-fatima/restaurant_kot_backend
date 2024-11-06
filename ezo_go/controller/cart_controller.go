@@ -78,6 +78,9 @@ func (cc *cartController) UpdateCart(c echo.Context) error {
 
 	cart.OrganizationID = uint(organizationID.(float64))
 	cart.ID = uint(cartID)
+	for i := range cart.CartItems{
+		cart.TotalQuantity += cart.CartItems[i].ProductQuantity
+	}
 
 	cartRes, err := cc.cu.UpdateCart(cart, uint(cartID))
 

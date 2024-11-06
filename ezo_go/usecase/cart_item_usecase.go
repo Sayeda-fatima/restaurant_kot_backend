@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/repository"
 	"github.com/NazishAhsan/easy_busy_book_go/validator"
@@ -28,6 +29,7 @@ func (cu *cartItemUsecase) GetCartItemList(organizationID uint, cartID uint) ([]
 
 	cartItems := []model.CartItem{}
 	if err := cu.cr.GetCartItemList(&cartItems, organizationID, cartID); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("GetCartItemList")
 		return nil, err
 	}
 
@@ -38,6 +40,7 @@ func (cu *cartItemUsecase) GetCartItemList(organizationID uint, cartID uint) ([]
 			OrganizationID:  v.OrganizationID,
 			CartID:          v.CartID,
 			ProductID:       v.ProductID,
+			Product:         v.Product,
 			ProductQuantity: v.ProductQuantity,
 		}
 		resCartItems = append(resCartItems, res)
@@ -49,21 +52,21 @@ func (cu *cartItemUsecase) GetCartItemList(organizationID uint, cartID uint) ([]
 func (cu *cartItemUsecase) CreateCartItem(cartItem model.CartItem) (model.CartItemResponse, error) {
 
 	if err := cu.cv.CartItemValidate(cartItem); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateCartItem")
 		return model.CartItemResponse{}, err
 	}
 
 	if err := cu.cr.CreateCartItem(&cartItem); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateCartItem")
 		return model.CartItemResponse{}, err
 	}
-
-	cart := model.Cart{}
-	cart.TotalQuantity += cartItem.ProductQuantity;
 
 	resCartitem := model.CartItemResponse{
 		ID:              cartItem.ID,
 		OrganizationID:  cartItem.OrganizationID,
 		CartID:          cartItem.CartID,
 		ProductID:       cartItem.ProductID,
+		Product:         cartItem.Product,
 		ProductQuantity: cartItem.ProductQuantity,
 	}
 
@@ -73,10 +76,12 @@ func (cu *cartItemUsecase) CreateCartItem(cartItem model.CartItem) (model.CartIt
 func (cu *cartItemUsecase) UpdateCartItem(cartItem model.CartItem, id uint) (model.CartItemResponse, error) {
 
 	if err := cu.cv.CartItemValidate(cartItem); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCartItem")
 		return model.CartItemResponse{}, err
 	}
 
 	if err := cu.cr.UpdateCartItem(&cartItem, id); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCartItem")
 		return model.CartItemResponse{}, err
 	}
 
@@ -94,6 +99,7 @@ func (cu *cartItemUsecase) UpdateCartItem(cartItem model.CartItem, id uint) (mod
 func (cu *cartItemUsecase) DeleteCartItem(cartItem model.CartItem, id uint) error {
 
 	if err := cu.cr.DeleteCartItem(&cartItem, id); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteCartItem")
 		return err
 	}
 

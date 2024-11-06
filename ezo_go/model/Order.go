@@ -6,8 +6,6 @@ type Order struct {
 	OrganizationID         uint         `json:"organization_id"`
 	Organization           Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-" validate:"-"`
 	ID                     uint         `json:"id" gorm:"primaryKey"`
-	//CartID                 uint         `json:"cart_id" validate:"required"`
-	//Cart                   Cart         `gorm:"foreignKey:CartID;references:ID" json:"-"`
 	CustomerID             uint         `json:"customer_id" validate:"required"`
 	Customer               Customer     `gorm:"foreignKey:CustomerID;references:ID" json:"-" validate:"-"`
 	TotalPrice             float64      `json:"total_price" validate:"required"`
@@ -20,11 +18,11 @@ type Order struct {
 }
 
 type OrderResponse struct {
-	OrganizationID         uint    `json:"organization_id"`
-	ID                     uint    `json:"id"`
-	//CartID                 uint    `json:"cart_id" validate:"required"`
-	CustomerID             uint    `json:"customer_id"`
-	TotalPrice             float64 `json:"total_price"`
-	CustomerBillingAddress string  `json:"customer_billing_address"`
-	ModeOfPayment          string  `json:"mode_of_payment"`
+	OrganizationID         uint        `json:"organization_id"`
+	ID                     uint        `json:"id"`
+	CustomerID             uint        `json:"customer_id"`
+	TotalPrice             float64     `json:"total_price"`
+	OrderItems             []OrderItem `json:"order_item"`
+	CustomerBillingAddress string      `json:"customer_billing_address"`
+	ModeOfPayment          string      `json:"mode_of_payment"`
 }

@@ -7,7 +7,7 @@ type OrderItem struct {
 	OrganizationID    uint         `json:"organization_id"`
 	Organization      Organization `gorm:"foreignKey:OrganizationID;references:ID" json:"-" validate:"-"`
 	OrderID           uint         `json:"order_id" validate:"required"`
-	Order             Order        `gorm:"foreignKey:OrderID;references:ID" json:"-" validate:"-"`
+	//Order             Order        `gorm:"foreignKey:OrderID;references:ID" json:"-" validate:"-"`
 	ProductID         uint         `json:"product_id" validate:"required"`
 	Product           Product      `gorm:"foreignKey:ProductID;references:ID" json:"-" validate:"-"`
 	ProductQuantity   float64      `json:"product_quantity" validate:"required"`

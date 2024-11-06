@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/repository"
 	"github.com/NazishAhsan/easy_busy_book_go/validator"
@@ -29,6 +30,7 @@ func (ou *orderItemUsecase) GetOrderItemList(organizationID uint, orderID uint) 
 	orderItems := []model.OrderItem{}
 
 	if err := ou.or.GetOrderItemList(&orderItems, organizationID, orderID); err!=nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("GetOrderItemList")
 		return nil, err
 	}
 
@@ -52,10 +54,12 @@ func (ou *orderItemUsecase) GetOrderItemList(organizationID uint, orderID uint) 
 func (ou *orderItemUsecase) CreateOrderItem(orderItem model.OrderItem) (model.OrderItemResponse, error){
 
 	if err := ou.ov.OrderItemValidate(orderItem); err!=nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateOrderItem")
 		return model.OrderItemResponse{}, err
 	}
 
 	if err := ou.or.CreateOrderItem(&orderItem); err!=nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateOrderItem")
 		return model.OrderItemResponse{}, err
 	}
 
@@ -75,10 +79,12 @@ func (ou *orderItemUsecase) CreateOrderItem(orderItem model.OrderItem) (model.Or
 func (ou *orderItemUsecase) UpdateOrderItem(orderItem model.OrderItem, id uint) (model.OrderItemResponse, error){
 
 	if err := ou.ov.OrderItemValidate(orderItem); err!=nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateOrderItem")
 		return model.OrderItemResponse{}, err
 	}
 
 	if err := ou.or.UpdateOrderItem(&orderItem, id); err!=nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateOrderItem")
 		return model.OrderItemResponse{}, err
 	}
 
@@ -98,6 +104,7 @@ func (ou *orderItemUsecase) UpdateOrderItem(orderItem model.OrderItem, id uint) 
 func (ou *orderItemUsecase) DeleteOrderItem(orderItem model.OrderItem, id uint) error{
 
 	if err := ou.or.DeleteOrderItem(&orderItem, id); err!=nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteOrderItem")
 		return err
 	}
 	return nil

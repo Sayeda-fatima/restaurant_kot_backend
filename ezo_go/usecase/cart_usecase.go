@@ -55,6 +55,10 @@ func (cu *cartUsecase) CreateCart(cart model.Cart) (model.CartResponse, error) {
 		return model.CartResponse{}, err
 	}
 
+	// var cartItems []CartItem
+	// for _, cartItem := range cartItems{
+	// 	cart.TotalQuantity += cartItem.ProductQuantity
+	// }
 	// Assigning organizationID to cart items
 	for i := range cart.CartItems {
 		cart.CartItems[i].OrganizationID = cart.OrganizationID
@@ -89,7 +93,7 @@ func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint) (model.CartResponse,
 	for i := range cart.CartItems {
 		cart.CartItems[i].OrganizationID = cart.OrganizationID
 		// getting total quantity of product
-		cart.TotalQuantity += cart.CartItems[i].ProductQuantity 
+		//cart.TotalQuantity += cart.CartItems[i].ProductQuantity 
 	}
 
 	if err := cu.cr.UpdateCart(&cart, id); err != nil {
