@@ -13,7 +13,6 @@ func ProductRoutes(e *echo.Echo, pc controller.ProductController){
 	p := e.Group("/api/product")
 	p.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(os.Getenv("SECRET")),
-		TokenLookup: "header:x-auth",
 	}))
 
 	// product routes

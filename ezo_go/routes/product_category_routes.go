@@ -13,7 +13,6 @@ func ProductCategoryRoutes(e *echo.Echo, pc controller.ProductCategoryController
 	p := e.Group("/api/product/category")
 	p.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:  []byte(os.Getenv("SECRET")),
-		TokenLookup: "header:x-auth",
 	}))
 
 	p.GET("", pc.GetProductCategoryList)

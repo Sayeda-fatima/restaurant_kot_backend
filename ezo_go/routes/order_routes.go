@@ -13,7 +13,6 @@ func OrderRoutes(e *echo.Echo, oc controller.OrderController, ic controller.Orde
 	o := e.Group("/api/order")
 	o.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(os.Getenv("SECRET")),
-		TokenLookup: "header:x-auth",
 	}))
 
 	o.GET("", oc.GetOrderList)

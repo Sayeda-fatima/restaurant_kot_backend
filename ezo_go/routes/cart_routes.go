@@ -13,7 +13,7 @@ func CartRoutes(e *echo.Echo, cc controller.CartController, ic controller.CartIt
 	c := e.Group("/api/cart")
 	c.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:  []byte(os.Getenv("SECRET")),
-		TokenLookup: "header:x-auth",
+		//TokenLookup: "header:x-auth",
 	}))
 
 	c.GET("", cc.GetCartList)

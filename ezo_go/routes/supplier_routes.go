@@ -13,7 +13,6 @@ func SupplierRoutes( e *echo.Echo, sc controller.SupplierController){
 	s := e.Group("/api/supplier")
 	s.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(os.Getenv("SECRET")),
-		TokenLookup: "header:x-auth",
 	}))
 
 	s.GET("", sc.GetSupplierList)

@@ -13,7 +13,7 @@ func CustomerRoutes(e *echo.Echo, cc controller.CustomerController){
 	c := e.Group("/api/customer")
 	c.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:  []byte(os.Getenv("SECRET")),
-		TokenLookup: "header:x-auth",
+		//TokenLookup: "header:x-auth",
 	}))
 
 	// customer routes
