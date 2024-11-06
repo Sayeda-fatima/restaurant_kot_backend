@@ -16,6 +16,7 @@ type (
 		CreateProductCategory(c echo.Context) error
 		UpdateProductCategory(c echo.Context) error
 		DeleteProductCategory(c echo.Context) error
+		SearchProductCategory(c echo.Context) error
 	}
 
 	productCategoryController struct {
@@ -102,4 +103,20 @@ func (pc *productCategoryController) DeleteProductCategory(c echo.Context) error
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func (pc *productCategoryController) SearchProductCategory(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	term := c.QueryParam("term")
+
+	productCategoryRes, err := pc.pu.SearchProductCategory(uint(organizationID.(float64)), term)
+
+	if err!=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, productCategoryRes)
 }

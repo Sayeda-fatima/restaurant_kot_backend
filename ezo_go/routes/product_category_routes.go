@@ -19,4 +19,5 @@ func ProductCategoryRoutes(e *echo.Echo, pc controller.ProductCategoryController
 	p.POST("", pc.CreateProductCategory)
 	p.PUT("/:id", pc.UpdateProductCategory)
 	p.PUT("/:id/soft-delete", pc.DeleteProductCategory)
+	p.GET("/search", pc.SearchProductCategory)
 }

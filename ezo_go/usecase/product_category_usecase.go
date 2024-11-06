@@ -13,6 +13,7 @@ type(
 		CreateProductCategory (productCategory model.ProductCategory) (model.ProductCategoryResponse, error)
 		UpdateProductCategory (productCategory model.ProductCategory, id uint) (model.ProductCategoryResponse, error)
 		DeleteProductCategory (productCategory model.ProductCategory, id uint) error
+		SearchProductCategory (organizationID uint, term string) ([]model.ProductCategoryResponse, error)
 	}
 
 	productCategoryUsecase struct{
@@ -101,4 +102,25 @@ func (pu *productCategoryUsecase) DeleteProductCategory (productCategory model.P
 		return err
 	}
 	return nil
+}
+
+func (pu *productCategoryUsecase) SearchProductCategory (organizationID uint, term string) ([]model.ProductCategoryResponse, error){
+
+	productCategory := []model.ProductCategory{}
+
+	if err := pu.pr.SearchProductCategory(&productCategory, organizationID, term); err!=nil{
+		return nil, err
+	}
+
+	resProductCategory := []model.ProductCategoryResponse{}
+	for _, v := range(productCategory){
+		res := model.ProductCategoryResponse{
+			ID: v.ID,
+			Category: v.Category,
+			CreatedAt: v.CreatedAt,
+			UpdatedAt: v.UpdatedAt,
+		}
+		resProductCategory = append(resProductCategory, res)
+	}
+	return resProductCategory, nil
 }

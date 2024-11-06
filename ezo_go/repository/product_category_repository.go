@@ -11,6 +11,7 @@ type (
 		CreateProductCategory(productCategory *model.ProductCategory) error
 		UpdateProductCategory(productCategory *model.ProductCategory, id uint) error
 		DeleteProductCategory(productCategory *model.ProductCategory, id uint) error
+		SearchProductCategory(productCategory *[]model.ProductCategory, organizationID uint, term string) error
 	}
 
 	productCategoryRepository struct {
@@ -53,6 +54,14 @@ func (pr *productCategoryRepository) DeleteProductCategory(productCategory *mode
 	result := pr.db.Model(productCategory).Where("id=?", id).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *productCategoryRepository) SearchProductCategory(productCategory *[]model.ProductCategory, organizationID uint, term string) error{
+
+	if err := pr.db.Where("id LIKE ? or category LIKE ?", "%"+term+"%", "%"+term+"%").Having("organization_id=? and is_deleted=0", organizationID).Find(productCategory).Error; err!=nil{
 		return err
 	}
 	return nil
