@@ -20,4 +20,5 @@ func ProductRoutes(e *echo.Echo, pc controller.ProductController){
 	p.POST("", pc.CreateProduct)
 	p.PUT("/:id", pc.UpdateProduct)
 	p.PUT("/:id/soft-delete", pc.DeleteProduct)
+	p.GET("/search", pc.SearchProduct)
 }

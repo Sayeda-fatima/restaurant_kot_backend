@@ -13,6 +13,7 @@ type (
 		CreateProduct (product model.Product) (model.ProductResponse, error)
 		UpdateProduct (product model.Product, id uint) (model.ProductResponse, error)
 		DeleteProduct (product model.Product, id uint) error
+		SearchProduct(organizationID uint, term string) ([]model.ProductResponse, error)
 	}
 
 	productUsecase struct{
@@ -146,4 +147,28 @@ func (pu *productUsecase) DeleteProduct (product model.Product, id uint) error{
 		return err
 	}
 	return nil
+}
+
+func (pu *productUsecase) SearchProduct(organizationID uint, term string) ([]model.ProductResponse, error){
+
+	products := []model.Product{}
+	if err := pu.pr.SearchProduct(&products, organizationID, term); err!=nil{
+		return nil, err
+	}
+
+	resProducts := []model.ProductResponse{}
+	for _, v := range products{
+		res := model.ProductResponse{
+			OrganizationID: v.OrganizationID,
+			ID: v.ID,
+			Name: v.Name,
+			Image: v.Image,
+			SellPrice: v.SellPrice,
+			Quantity: v.Quantity,
+			CategoryID: v.CategoryID,
+		}
+		resProducts = append(resProducts, res)
+	}
+
+	return resProducts, nil
 }

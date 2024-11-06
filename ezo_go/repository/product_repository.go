@@ -11,6 +11,7 @@ type ProductRepository interface {
 	CreateProduct(product *model.Product) error
 	UpdateProduct(product *model.Product, id uint) error
 	DeleteProduct(product *model.Product, id uint) error
+	SearchProduct(products *[]model.Product, organizationID uint, term string) error
 }
 
 type productRepository struct {
@@ -52,6 +53,14 @@ func (pr *productRepository) DeleteProduct(product *model.Product, id uint) erro
 	common.Logger.LogInfo().Fields(map[string]interface{}{"data":product}).Msg("test")
 	result := pr.db.Model(product).Where("id=?", id).Update("is_deleted", 1)
 	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *productRepository) SearchProduct(products *[]model.Product, organizationID uint, term string) error{
+
+	if err := pr.db.Where("id LIKE ? or name LIKE ? or description LIKE ?", "%"+term+"%", "%"+term+"%", "%"+term+"%").Having("organization_id=? and is_deleted=0", organizationID).Find(products).Error; err!=nil{
 		return err
 	}
 	return nil

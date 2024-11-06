@@ -17,6 +17,7 @@ type(
 		CreateProduct (c echo.Context) error
 		UpdateProduct (c echo.Context) error
 		DeleteProduct (c echo.Context) error
+		SearchProduct (c echo.Context) error
 	}
 
 	productController struct{
@@ -109,4 +110,21 @@ func (pc *productController) DeleteProduct (c echo.Context) error{
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func (pc *productController) SearchProduct(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	term := c.QueryParam("term")
+
+	productRes, err := pc.pu.SearchProduct(uint(organizationID.(float64)), term)
+
+	if err!=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, productRes)
 }
