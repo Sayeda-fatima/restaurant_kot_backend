@@ -11,6 +11,7 @@ type(
 		CreateSupplier (supplier *model.Supplier) error
 		UpdateSupplier (supplier *model.Supplier, id uint) error
 		DeleteSupplier (supplier *model.Supplier, id uint) error
+		SearchSupplier (suppliers *[]model.Supplier, organizationID uint, term string) error
 	}
 
 	supplierRepository struct{
@@ -55,6 +56,14 @@ func (sr *supplierRepository) DeleteSupplier(supplier *model.Supplier, id uint) 
 	result := sr.db.Model(supplier).Where("id=?", id).Update("is_deleted", 1)
 
 	if err := result.Error; err!=nil{
+		return err
+	}
+	return nil
+}
+
+func (sr *supplierRepository) SearchSupplier(supplier *[]model.Supplier, organizationID uint, term string) error{
+
+	if err := sr.db.Where("id LIKE ? or name LIKE ? or phone_no LIKE ?", "%"+term+"%", "%"+term+"%", "%"+term+"%").Find(supplier).Error; err!=nil{
 		return err
 	}
 	return nil

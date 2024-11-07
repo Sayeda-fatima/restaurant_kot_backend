@@ -13,6 +13,7 @@ type (
 		CreateSupplier(supplier model.Supplier) (model.SupplierResponse, error)
 		UpdateSupplier(supplier model.Supplier, id uint) (model.SupplierResponse, error)
 		DeleteSupplier(supplier model.Supplier, id uint) error
+		SearchSupplier(organizationID uint, term string) ([]model.SupplierResponse, error)
 	}
 
 	supplierUsecase struct {
@@ -130,4 +131,36 @@ func (su *supplierUsecase) DeleteSupplier(supplier model.Supplier, id uint) erro
 		return err
 	}
 	return nil
+}
+
+func (su *supplierUsecase) SearchSupplier(organizationID uint, term string) ([]model.SupplierResponse, error){
+
+	suppliers := []model.Supplier{}
+	if err := su.sr.SearchSupplier(&suppliers, organizationID, term); err!=nil{
+		return nil, err
+	}
+
+	resSupplier := []model.SupplierResponse{}
+	for _, v := range(suppliers){
+		res := model.SupplierResponse{
+			ID:                 v.ID,
+			Name:               v.Name,
+			PhoneNo:            v.PhoneNo,
+			Category:           v.Category,
+			BillingAddress:     v.BillingAddress,
+			BillingProvince:    v.BillingProvince,
+			BillingPostalCode:  v.BillingPostalCode,
+			DeliveryAddress:    v.DeliveryAddress,
+			DeliveryProvince:   v.DeliveryProvince,
+			DeliveryPostalCode: v.DeliveryPostalCode,
+			GstNumber:          v.GstNumber,
+			BillingTerm:        v.BillingTerm,
+			BillingType:        v.BillingType,
+			DateOfBirth:        v.DateOfBirth,
+			WhatsappAlert:      v.WhatsappAlert,
+		}
+		resSupplier = append(resSupplier, res)
+	}
+
+	return resSupplier, nil
 }

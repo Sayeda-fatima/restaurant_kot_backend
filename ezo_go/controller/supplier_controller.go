@@ -17,6 +17,7 @@ type (
 		CreateSupplier(c echo.Context) error
 		UpdateSupplier(c echo.Context) error
 		DeleteSupplier(c echo.Context) error
+		SearchSupplier(c echo.Context) error
 	}
 
 	supplierController struct {
@@ -104,4 +105,21 @@ func (sc *supplierController) DeleteSupplier(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (sc *supplierController) SearchSupplier(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	term := c.QueryParam("term")
+
+	supplierRes, err := sc.su.SearchSupplier(uint(organizationID.(float64)), term)
+
+	if err!=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, supplierRes)
 }

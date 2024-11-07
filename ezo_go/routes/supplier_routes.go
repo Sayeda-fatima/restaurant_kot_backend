@@ -19,4 +19,5 @@ func SupplierRoutes( e *echo.Echo, sc controller.SupplierController){
 	s.POST("", sc.CreateSupplier)
 	s.PUT("/:id", sc.UpdateSupplier)
 	s.PUT("/:id/soft-delete", sc.DeleteSupplier)
+	s.GET("/search", sc.SearchSupplier)
 }
