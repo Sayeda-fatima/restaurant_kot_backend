@@ -16,6 +16,7 @@ type CustomerController interface {
 	UpdateCustomer (c echo.Context) error
 	DeleteCustomer ( c echo.Context) error
 	SearchCustomer (c echo.Context) error
+	DetailReport (c echo.Context) error
 }
 
 type customerController struct {
@@ -122,5 +123,23 @@ func (cc *customerController) SearchCustomer(c echo.Context) error{
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	return c.JSON(http.StatusOK, customerRes)
+}
+
+func (cc *customerController) DetailReport(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+
+	customerRes, err := cc.cu.DetailReport(uint(organizationID.(float64)), dateFrom, dateTo)
+
+	if err !=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, customerRes)
 }

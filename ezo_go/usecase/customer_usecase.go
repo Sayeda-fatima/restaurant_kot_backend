@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	//"time"
+
 	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/repository"
@@ -14,6 +16,7 @@ type(
 		UpdateCustomer (customer model.Customer, id uint) (model.CustomerResponse, error)
 		DeleteCustomer (customer model.Customer, id uint) error
 		SearchCustomer (organizationID uint, term string) ([]model.CustomerResponse, error)
+		DetailReport(organizationID uint, dateFrom string, dateTo string)([]model.CustomerResponse, error)
 	}
 
 	customerUsecase struct{
@@ -164,5 +167,37 @@ func (cu *customerUsecase) SearchCustomer(organizationID uint, term string) ([]m
 		resCustomers = append(resCustomers, res);
 	}
 
+	return resCustomers, nil
+}
+
+func (cu *customerUsecase) DetailReport(organizationID uint, dateFrom string, dateTo string)([]model.CustomerResponse, error){
+
+	customers := []model.Customer{}
+
+	if err := cu.cr.DetailReport(&customers, organizationID, dateFrom, dateTo); err!=nil{
+		return nil, err
+	}
+
+	resCustomers := []model.CustomerResponse{}
+	for _, v := range(customers){
+		res := model.CustomerResponse{
+			ID: v.ID,
+			Name: v.Name,
+			PhoneNo: v.PhoneNo,
+			Category: v.Category,
+			BillingAddress: v.BillingAddress,
+			BillingProvince: v.BillingProvince,
+			BillingPostalCode: v.BillingPostalCode,
+			DeliveryAddress: v.DeliveryAddress,
+			DeliveryProvince: v.DeliveryProvince,
+			DeliveryPostalCode: v.DeliveryPostalCode,
+			GstNumber: v.GstNumber,
+			BillingTerm: v.BillingTerm,
+			BillingType: v.BillingType,
+			DateOfBirth: v.DateOfBirth,
+			WhatsappAlert: v.WhatsappAlert,
+		}
+		resCustomers = append(resCustomers, res)
+	}
 	return resCustomers, nil
 }
