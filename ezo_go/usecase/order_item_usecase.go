@@ -13,6 +13,7 @@ type (
 		CreateOrderItem(orderItem model.OrderItem) (model.OrderItemResponse, error)
 		UpdateOrderItem(orderItem model.OrderItem, id uint) (model.OrderItemResponse, error)
 		DeleteOrderItem(orderItem model.OrderItem, id uint) error
+		InvoiceCustomer(organizationID uint, orderID uint, dateFrom string, dateTo string)([]model.OrderItemResponse, error)
 	}
 
 	orderItemUsecase struct{
@@ -108,4 +109,16 @@ func (ou *orderItemUsecase) DeleteOrderItem(orderItem model.OrderItem, id uint) 
 		return err
 	}
 	return nil
+}
+
+func (ou *orderItemUsecase) InvoiceCustomer(organizationID uint, orderID uint, dateFrom string, dateTo string)([]model.OrderItemResponse, error){
+
+	orderItems := []model.OrderItem{}
+
+	if err := ou.or.InvoiceCustomer(&orderItems, organizationID, orderID, dateFrom, dateTo); err!=nil{
+		return nil, err
+	}
+
+	resOrderItem := []model.OrderItemResponse{}
+	return resOrderItem, nil
 }

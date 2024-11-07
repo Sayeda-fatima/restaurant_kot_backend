@@ -12,6 +12,7 @@ type Order struct {
 	CustomerBillingAddress string       `json:"customer_billing_address" validate:"required"`
 	ModeOfPayment          string       `json:"mode_of_payment" validate:"required"`
 	OrderItems             []OrderItem  `json:"order_items" gorm:"foreignKey:OrderID"`
+	CreatedBy				uint		`json:"created_by"`
 	CreatedAt              time.Time    `json:"created_at"`
 	UpdatedAt              time.Time    `json:"updated_at"`
 	IsDeleted              bool         `json:"is_deleted"`

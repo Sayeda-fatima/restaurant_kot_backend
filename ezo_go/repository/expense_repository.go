@@ -11,6 +11,7 @@ type (
 		CreateExpense(expense *model.Expense) error
 		UpdateExpense(expense *model.Expense, id uint) error
 		DeleteExpense(expense *model.Expense, id uint) error
+		ExpenseReport(expense *[]model.Expense, organizationID uint, dateFrom string, dateTo string) error
 	}
 
 	expenseRepository struct {
@@ -54,6 +55,14 @@ func (er *expenseRepository) DeleteExpense(expense *model.Expense, id uint) erro
 	result := er.db.Model(expense).Where("id=?", id).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (er *expenseRepository) ExpenseReport(expense *[]model.Expense, organizationID uint, dateFrom string, dateTo string) error{
+
+	if err := er.db.Where("organization_id=? and is_deleted=0 and date(created_at) between ? and ?", organizationID, dateFrom, dateTo).Find(expense).Error; err!=nil{
 		return err
 	}
 	return nil

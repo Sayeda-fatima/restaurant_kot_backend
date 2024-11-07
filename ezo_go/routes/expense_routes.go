@@ -19,4 +19,5 @@ func ExpenseRoutes(e *echo.Echo, ec controller.ExpenseController){
 	c.POST("", ec.CreateExpense)
 	c.PUT("/:id", ec.UpdateExpense)
 	c.PUT("/:id/soft-delete", ec.DeleteExpense)
+	c.GET("/report", ec.ExpenseReport)
 }

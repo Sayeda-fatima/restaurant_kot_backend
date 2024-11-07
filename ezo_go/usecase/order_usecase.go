@@ -13,6 +13,7 @@ type (
 		CreateOrder(order model.Order) (model.OrderResponse, error)
 		UpdateOrder(order model.Order, id uint) (model.OrderResponse, error)
 		DeleteOrder(order model.Order, id uint) error
+		InvoiceReportCustomer(organizationID uint, customerID uint, dateFrom string, dateTo string) ([]model.OrderResponse, error)
 	}
 
 	orderUsecase struct {
@@ -116,3 +117,26 @@ func (ou *orderUsecase) DeleteOrder(order model.Order, id uint) error {
 // 	}
 // 	return model.OrderResponse{}, nil
 // }
+
+func (ou *orderUsecase) InvoiceReportCustomer(organizationID uint, customerID uint, dateFrom string, dateTo string) ([]model.OrderResponse, error){
+
+	orders := []model.Order{}
+
+	if err := ou.or.InvoiceReportCustomer(&orders, organizationID, customerID, dateFrom, dateTo); err!=nil{
+		return nil, err
+	}
+
+	resOrder := []model.OrderResponse{}
+	for _, v := range(orders){
+		res := model.OrderResponse{
+			ID: v.ID,
+			OrganizationID: v.OrganizationID,
+			CustomerID: v.CustomerID,
+			TotalPrice: v.TotalPrice,
+			CustomerBillingAddress: v.CustomerBillingAddress,
+			ModeOfPayment: v.ModeOfPayment,
+		}
+		resOrder = append(resOrder, res)
+	}
+	return resOrder, nil
+}

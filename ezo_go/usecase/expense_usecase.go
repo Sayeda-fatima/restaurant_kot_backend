@@ -13,6 +13,7 @@ type (
 		CreateExpense(expense model.Expense) (model.ExpenseResponse, error)
 		UpdateExpense(expense model.Expense, id uint) (model.ExpenseResponse, error)
 		DeleteExpense(expense model.Expense, id uint) error
+		ExpenseReport(organizationID uint, dateFrom string, dateTo string)([]model.ExpenseResponse, error)
 	}
 
 	expenseUsecase struct {
@@ -114,4 +115,30 @@ func (eu *expenseUsecase) DeleteExpense(expense model.Expense, id uint) error {
 		return err
 	}
 	return nil
+}
+
+func (eu *expenseUsecase) ExpenseReport(organizationID uint, dateFrom string, dateTo string)([]model.ExpenseResponse, error){
+
+	expenses := []model.Expense{}
+	if err := eu.er.ExpenseReport(&expenses, organizationID, dateFrom, dateTo); err!=nil{
+		return nil, err
+	}
+
+	resExpense := []model.ExpenseResponse{}
+	for _, v := range(expenses){
+		res := model.ExpenseResponse{
+			ID: v.ID,
+			OrganizationID: v.OrganizationID,
+			SupplierID: v.SupplierID,
+			SupplierName: v.SupplierName,
+			ExpenseCategory: v.ExpenseCategory,
+			TotalAmount: v.TotalAmount,
+			AmountPaid: v.AmountPaid,
+			AmountDue: v.AmountDue,
+			Note: v.Note,
+			ModeOfPayment: v.ModeOfPayment,
+		}
+		resExpense = append(resExpense, res)
+	}
+	return resExpense, nil
 }

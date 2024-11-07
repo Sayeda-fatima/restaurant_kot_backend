@@ -16,6 +16,7 @@ type (
 		CreateExpense(c echo.Context) error
 		UpdateExpense(c echo.Context) error
 		DeleteExpense(c echo.Context) error
+		ExpenseReport(c echo.Context) error
 	}
 
 	expenseController struct {
@@ -103,4 +104,21 @@ func (ec *expenseController) DeleteExpense(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (ec *expenseController) ExpenseReport(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+	expenseRes, err := ec.eu.ExpenseReport(uint(organizationID.(float64)), dateFrom, dateTo)
+
+	if err !=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, expenseRes)
 }

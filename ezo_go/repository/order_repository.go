@@ -11,6 +11,7 @@ type (
 		CreateOrder(order *model.Order) error
 		UpdateOrder(order *model.Order, id uint) error
 		DeleteOrder(order *model.Order, id uint) error
+		InvoiceReportCustomer (order *[]model.Order, organizationID uint, customerID uint, dateFrom string, dateTo string) error
 	}
 
 	orderRepository struct {
@@ -22,25 +23,25 @@ func NewOrderRepository(db *gorm.DB) OrderRepository {
 	return &orderRepository{db}
 }
 
-func (ir *orderRepository) GetOrderList(orders *[]model.Order, organizationID uint) error {
+func (or *orderRepository) GetOrderList(orders *[]model.Order, organizationID uint) error {
 
-	if err := ir.db.Where("organization_id=? and is_deleted=0", organizationID).Find(orders).Error; err != nil {
+	if err := or.db.Where("organization_id=? and is_deleted=0", organizationID).Find(orders).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ir *orderRepository) CreateOrder(order *model.Order) error {
+func (or *orderRepository) CreateOrder(order *model.Order) error {
 
-	if err := ir.db.Create(order).Error; err != nil {
+	if err := or.db.Create(order).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ir *orderRepository) UpdateOrder(order *model.Order, id uint) error {
+func (or *orderRepository) UpdateOrder(order *model.Order, id uint) error {
 
-	result := ir.db.Model(order).Where("id=?", id).Updates(order)
+	result := or.db.Model(order).Where("id=?", id).Updates(order)
 
 	if err := result.Error; err != nil {
 		return err
@@ -48,11 +49,19 @@ func (ir *orderRepository) UpdateOrder(order *model.Order, id uint) error {
 	return nil
 }
 
-func (ir *orderRepository) DeleteOrder(order *model.Order, id uint) error {
+func (or *orderRepository) DeleteOrder(order *model.Order, id uint) error {
 
-	result := ir.db.Model(order).Where("id=?", id).Update("is_deleted", 1)
+	result := or.db.Model(order).Where("id=?", id).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (or *orderRepository) InvoiceReportCustomer(order *[]model.Order, organizationID uint, customerID uint, dateFrom string, dateTo string) error{
+
+	if err := or.db.Where("organization_id=? and customer_id=? and date(created_at) between ? and ?", organizationID, customerID, dateFrom, dateTo).Find(order).Error; err!=nil{
 		return err
 	}
 	return nil

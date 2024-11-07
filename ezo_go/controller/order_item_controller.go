@@ -16,6 +16,7 @@ type (
 		CreateOrderItem(c echo.Context) error
 		UpdateOrderItem(c echo.Context) error
 		DeleteOrderItem(c echo.Context) error
+		InvoiceCustomer(c echo.Context) error
 	}
 
 	orderItemController struct{
@@ -109,4 +110,22 @@ func (oc *orderItemController) DeleteOrderItem(c echo.Context) error{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (oc *orderItemController) InvoiceCustomer(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	id := c.Param("id")
+	orderID, _ := strconv.Atoi(id)
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+
+	orderRes, err := oc.ou.InvoiceCustomer(uint(organizationID.(float64)), uint(orderID), dateFrom, dateTo)
+	if err!=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, orderRes)
 }
