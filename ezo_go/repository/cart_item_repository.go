@@ -24,7 +24,7 @@ func NewCartItemRepository(db *gorm.DB) CartItemRepository {
 
 func (cr *cartItemRepository) GetCartItemList(cartItems *[]model.CartItem, organizationID uint, cartID uint) error {
 
-	if err := cr.db.Preload("Product", func (db *gorm.DB) *gorm.DB{return db.Select("id", "name", "image", "mrp")}).Where("organization_id=? and cart_id=?", organizationID, cartID).Find(cartItems).Error; err != nil {
+	if err := cr.db.Preload("Product", func(db *gorm.DB) *gorm.DB { return db.Select("id", "name", "image", "mrp") }).Select("id", "organization_id", "cart_id", "product_id", "product_quantity").Where("organization_id=? and cart_id=?", organizationID, cartID).Find(cartItems).Error; err != nil {
 		return err
 	}
 	return nil

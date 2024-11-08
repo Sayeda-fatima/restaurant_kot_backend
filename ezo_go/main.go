@@ -50,6 +50,12 @@ func main(){
 	productCategoryUsecase := usecase.NewProductCategoryUsecase(productCategoryRepository, productCategoryValidator)
 	productCategoryController := controller.NewProductCategoryController(productCategoryUsecase)
 
+	// product stock
+	productStockValidator := validator.NewProductStockValidator()
+	productStockRepository := repository.NewProductStockRepository(db)
+	productStockUseCase := usecase.NewProductStockUsecase(productStockRepository, productStockValidator)
+	productStockController := controller.NewProductStockController(productStockUseCase)
+
 	// supplier
 	supplierValidator := validator.NewSupplierValidator()
 	supplierRepository := repository.NewSupplierRepository(db)
@@ -99,7 +105,7 @@ func main(){
 	routes.UserRoutes(e, userController)
 	routes.CustomerRoutes(e, customerController)
 	routes.OrganizationRoutes(e, organizationController)
-	routes.ProductRoutes(e, productController)
+	routes.ProductRoutes(e, productController, productStockController)
 	routes.ProductCategoryRoutes(e, productCategoryController)
 	routes.SupplierRoutes(e, supplierController)
 	routes.ExpenseRoutes(e, expenseController)
