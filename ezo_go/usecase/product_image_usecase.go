@@ -49,7 +49,7 @@ func (pu *productImageUsecase) GetProductImageList(organizationID uint, productI
 
 func (pu *productImageUsecase) AddProductImage(file *multipart.FileHeader, organizationID uint, productID uint) (model.ProductImageResponse, error) {
 
-	imagePath, err := pu.ic.UploadImage(file, "uploads/product_images/")
+	imagePath, err := pu.ic.UploadImage(file, "public/product_images/")
 	if err != nil {
 		return model.ProductImageResponse{}, err
 	}

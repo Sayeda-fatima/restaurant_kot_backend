@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func ProductRoutes(e *echo.Echo, pc controller.ProductController, pr controller.ProductStockController){
+func ProductRoutes(e *echo.Echo, pc controller.ProductController, pr controller.ProductStockController, pi controller.ProductImageController){
 
 	p := e.Group("/api/product")
 	p.Use(echojwt.WithConfig(echojwt.Config{
@@ -27,4 +27,9 @@ func ProductRoutes(e *echo.Echo, pc controller.ProductController, pr controller.
 	p.POST("/stock", pr.CreateProductStock)
 	p.PUT("/stock/:id", pr.UpdateProductStock)
 	p.PUT("/stock/:id/soft-delete", pr.DeleteProductStock)
+
+	// product image
+	p.GET("/:id/image", pi.GetProductImageList)
+	p.POST("/:id/image", pi.AddProductImage)
+	p.PUT("/image/:id", pi.DeleteProductImage)
 }

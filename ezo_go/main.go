@@ -56,6 +56,13 @@ func main(){
 	productStockUseCase := usecase.NewProductStockUsecase(productStockRepository, productStockValidator)
 	productStockController := controller.NewProductStockController(productStockUseCase)
 
+	// product image
+	productImageValidator := validator.NewProductImageValidator()
+	productImageUpload := common.NewImageUpload()
+	productImageRepository := repository.NewProductImageRepository(db)
+	productImageUseCase := usecase.NewProductImageUsecase(productImageRepository, productImageValidator, productImageUpload)
+	productImageController := controller.NewProductImageController(productImageUseCase)
+
 	// supplier
 	supplierValidator := validator.NewSupplierValidator()
 	supplierRepository := repository.NewSupplierRepository(db)
@@ -105,7 +112,7 @@ func main(){
 	routes.UserRoutes(e, userController)
 	routes.CustomerRoutes(e, customerController)
 	routes.OrganizationRoutes(e, organizationController)
-	routes.ProductRoutes(e, productController, productStockController)
+	routes.ProductRoutes(e, productController, productStockController, productImageController)
 	routes.ProductCategoryRoutes(e, productCategoryController)
 	routes.SupplierRoutes(e, supplierController)
 	routes.ExpenseRoutes(e, expenseController)

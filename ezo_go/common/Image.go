@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type ImageUpload interface {
@@ -15,7 +16,7 @@ type imageUpload struct{
 
 }
 
-func NewImageCommon () ImageUpload{
+func NewImageUpload () ImageUpload{
 	return &imageUpload{}
 }
 
@@ -28,7 +29,8 @@ func (ic *imageUpload) UploadImage(file *multipart.FileHeader, path string) (str
 	}
 	defer src.Close()
 
-	fileName := file.Filename
+	timeNow := time.Now().Format("2006-0102T15_0405_070000")
+	fileName := timeNow + "_" + file.Filename
 	fullPath := filepath.Join(path, fileName)
 
 	// destination file
