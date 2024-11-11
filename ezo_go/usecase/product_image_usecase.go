@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"mime/multipart"
+	"os"
+	"path/filepath"
 
 	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
@@ -40,7 +42,7 @@ func (pu *productImageUsecase) GetProductImageList(organizationID uint, productI
 			ID:             v.ID,
 			OrganizationID: v.OrganizationID,
 			ProductID:      v.ProductID,
-			Url:            v.Url,
+			Url:            filepath.Join(os.Getenv("APP_DOMAIN"), v.Url),
 		}
 		resProductImage = append(resProductImage, res)
 	}

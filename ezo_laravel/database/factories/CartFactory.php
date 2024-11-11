@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Organization;
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,9 @@ class CartFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'organization_id' => Organization::factory("id"),
+            'customer_id' => Customer::factory(),
+            'total_quantity' => $this->faker->numberBetween(1, 40)
         ];
     }
 }

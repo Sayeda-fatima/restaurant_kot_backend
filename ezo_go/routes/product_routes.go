@@ -31,5 +31,5 @@ func ProductRoutes(e *echo.Echo, pc controller.ProductController, pr controller.
 	// product image
 	p.GET("/:id/image", pi.GetProductImageList)
 	p.POST("/:id/image", pi.AddProductImage)
-	p.PUT("/image/:id", pi.DeleteProductImage)
+	p.DELETE("/image/:id", pi.DeleteProductImage)
 }
