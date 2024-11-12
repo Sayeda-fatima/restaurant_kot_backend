@@ -10,10 +10,13 @@ import (
 
 func OrderRoutes(e *echo.Echo, oc controller.OrderController, ic controller.OrderItemController) {
 
-	o := e.Group("/api/order")
-	o.Use(echojwt.WithConfig(echojwt.Config{
+	e.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(os.Getenv("SECRET")),
 	}))
+	// checkout 
+	e.POST("/api/:customer/cart/:id/checkout", oc.Checkout)
+
+	o := e.Group("/api/order")
 
 	o.GET("", oc.GetOrderList)
 	o.POST("", oc.CreateOrder)

@@ -89,13 +89,15 @@ func main(){
 	// order
 	orderValidator := validator.NewOrderValidator()
 	orderRepository := repository.NewOrderRepository(db)
-	orderUsecase := usecase.NewOrderUsecase(orderRepository, orderValidator)
-	orderController := controller.NewOrderController(orderUsecase)
+	
 	// order item
 	orderItemValidator := validator.NewOrderItemValidator()
 	orderItemRepository := repository.NewOrderItemRepository(db)
 	orderItemUsecase := usecase.NewOrderItemUsecase(orderItemRepository, orderItemValidator)
 	orderItemController := controller.NewOrderItemController(orderItemUsecase)
+
+	orderUsecase := usecase.NewOrderUsecase(orderRepository, orderValidator, db, cartItemUseCase, orderItemRepository)
+	orderController := controller.NewOrderController(orderUsecase)
 	
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:8080", os.Getenv("APP_URL")},

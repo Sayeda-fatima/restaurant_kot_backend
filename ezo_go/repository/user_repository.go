@@ -44,8 +44,8 @@ func (ur *userRepository) UpdateUser(user *model.User, jwt string) error {
 
 	result :=ur.db.Model(user).Update("api_token", jwt)
 
-	if result.Error != nil{
-		return result.Error
+	if err := result.Error; err != nil{
+		return err
 	}
 
 	if result.RowsAffected < 1{

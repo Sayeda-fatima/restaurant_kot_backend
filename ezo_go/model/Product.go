@@ -22,6 +22,7 @@ type Product struct {
 	OnlineDeliverySellPrice       float64         `json:"online_delivery_sell_price" validate:"required"`
 	OnlineSellPrice               float64         `json:"online_sell_price" validate:"required"`
 	Tax                           string          `json:"tax" validate:"omitempty"`
+	TaxAmount                     float64         `json:"tax_amount"`
 	PriceWithTax                  string          `json:"price_with_tax" validate:"omitempty"`
 	Cess                          int64           `json:"cess" validate:"omitempty"`
 	HsnCode                       string          `json:"hsn_code" validate:"omitempty"`

@@ -16,6 +16,7 @@ type (
 		CreateOrder(c echo.Context) error
 		UpdateOrder(c echo.Context) error
 		DeleteOrder(c echo.Context) error
+		Checkout(c echo.Context) error
 		InvoiceReportCustomer(c echo.Context) error
 	}
 
@@ -108,6 +109,31 @@ func (oc *orderController) DeleteOrder(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (oc *orderController) Checkout(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	customer := c.Param("customer")
+	customerID, _ := strconv.Atoi(customer)
+	id := c.Param("id")
+	cartID, _ := strconv.Atoi(id)
+
+	order := model.Order{}
+	if err := c.Bind(&order); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	order.OrganizationID = uint(organizationID.(float64))
+	order.CustomerID = uint(customerID)
+	orderRes, err := oc.ou.Checkout(order, uint(organizationID.(float64)), uint(cartID))
+	if err !=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, orderRes)
 }
 
 func (oc *orderController) InvoiceReportCustomer(c echo.Context) error{
