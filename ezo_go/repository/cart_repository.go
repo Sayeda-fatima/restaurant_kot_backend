@@ -10,7 +10,7 @@ type (
 		GetCartList(carts *[]model.Cart, organizationID uint) error
 		CreateCart(cart *model.Cart) error
 		UpdateCart(cart *model.Cart, id uint) error
-		DeleteCart(cart *model.Cart, id uint) error
+		DeleteCart(id uint) error
 	}
 
 	cartRepository struct {
@@ -47,9 +47,9 @@ func (cr *cartRepository) UpdateCart(cart *model.Cart, id uint) error {
 	return nil
 }
 
-func (cr *cartRepository) DeleteCart(cart *model.Cart, id uint) error {
+func (cr *cartRepository) DeleteCart(id uint) error {
 
-	result := cr.db.Model(cart).Where("id=?", id).Delete(cart)
+	result := cr.db.Where("id=?", id).Delete(&model.Cart{})
 
 	if err := result.Error; err != nil {
 		return err

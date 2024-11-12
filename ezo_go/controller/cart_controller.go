@@ -96,17 +96,11 @@ func (cc *cartController) DeleteCart(c echo.Context) error {
 	id := c.Param("id")
 	cartID, _ := strconv.Atoi(id)
 
-	cart := model.Cart{}
-
-	if err := c.Bind(&cart); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	err := cc.cu.DeleteCart(cart, uint(cartID))
+	err := cc.cu.DeleteCart(uint(cartID))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }

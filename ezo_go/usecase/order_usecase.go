@@ -25,12 +25,12 @@ type (
 		ov validator.OrderValidator
 		db *gorm.DB
 		cr CartItemUsecase
-		oi repository.OrderItemRepository
+		cu CartUsecase
 	}
 )
 
-func NewOrderUsecase(or repository.OrderRepository, ov validator.OrderValidator, db *gorm.DB, cr CartItemUsecase, oi repository.OrderItemRepository) OrderUsecase {
-	return &orderUsecase{or, ov, db, cr, oi}
+func NewOrderUsecase(or repository.OrderRepository, ov validator.OrderValidator, db *gorm.DB, cr CartItemUsecase, cu CartUsecase) OrderUsecase {
+	return &orderUsecase{or, ov, db, cr, cu}
 }
 
 func (ou *orderUsecase) GetOrderList(organizationID uint) ([]model.OrderResponse, error) {
@@ -135,10 +135,7 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, cartID 
 		tx.Rollback()
 		return model.OrderResponse{}, err
 	}
-	// if err := tx.Create(&order).Error; err != nil {
-	// 	tx.Rollback()
-	// 	return model.OrderResponse{}, err
-	// }
+
 	orderItems := []model.OrderItem{}
 	for _, cartItem := range cartItems {
 		orderItem := model.OrderItem{
@@ -160,6 +157,12 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, cartID 
 
 	// Update order with total price
 	if err := tx.Model(&order).Update("total_price", order.TotalPrice).Error; err != nil {
+		tx.Rollback()
+		return model.OrderResponse{}, err
+	}
+	
+	// delete cart and cart items
+	if err := ou.cu.DeleteCart(cartID); err != nil{
 		tx.Rollback()
 		return model.OrderResponse{}, err
 	}
