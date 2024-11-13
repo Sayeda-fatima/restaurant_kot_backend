@@ -39,6 +39,8 @@ func (ou *organizationUsecase) GetOrganizationList () ([]model.OrganizationRespo
 		res := model.OrganizationResponse{
 			ID: v.ID,
 			Name: v.Name,
+			Address: v.Address,
+			PhoneNo: v.PhoneNo,
 			AccessGiven: v.AccessGiven,
 		}
 		resOrganizations = append(resOrganizations, res)
@@ -62,6 +64,8 @@ func (ou *organizationUsecase) CreateOrganization (organization model.Organizati
 	resOrganization := model.OrganizationResponse{
 		ID: organization.ID,
 		Name: organization.Name,
+		Address: organization.Address,
+		PhoneNo: organization.PhoneNo,
 		AccessGiven: organization.AccessGiven,
 	}
 
@@ -83,6 +87,8 @@ func (ou *organizationUsecase) UpdateOrganization (organization model.Organizati
 	resOrganization := model.OrganizationResponse{
 		ID: organization.ID,
 		Name: organization.Name,
+		Address: organization.Address,
+		PhoneNo: organization.PhoneNo,
 		AccessGiven: organization.AccessGiven,
 	}
 	return resOrganization, nil
