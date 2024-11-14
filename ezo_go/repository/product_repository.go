@@ -9,9 +9,11 @@ import (
 type ProductRepository interface {
 	GetProductList(products *[]model.Product, organizationID uint) error
 	CreateProduct(product *model.Product) error
+	GetProduct(product *model.Product, id uint) error
 	UpdateProduct(product *model.Product, id uint) error
 	DeleteProduct(product *model.Product, id uint) error
 	SearchProduct(products *[]model.Product, organizationID uint, term string) error
+	UpdateStockOfProduct (product *model.Product, id uint, quantity int) error
 }
 
 type productRepository struct {
@@ -33,6 +35,14 @@ func (pr *productRepository) GetProductList(products *[]model.Product, organizat
 func (pr *productRepository) CreateProduct(product *model.Product) error {
 
 	if err := pr.db.Create(product).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *productRepository) GetProduct(product *model.Product, id uint) error{
+
+	if err := pr.db.Where("id=?", id).First(product).Error; err != nil{
 		return err
 	}
 	return nil
@@ -61,6 +71,14 @@ func (pr *productRepository) DeleteProduct(product *model.Product, id uint) erro
 func (pr *productRepository) SearchProduct(products *[]model.Product, organizationID uint, term string) error {
 
 	if err := pr.db.Where("id LIKE ? or name LIKE ? or description LIKE ?", "%"+term+"%", "%"+term+"%", "%"+term+"%").Having("organization_id=? and is_deleted=0", organizationID).Find(products).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *productRepository) UpdateStockOfProduct(product *model.Product, id uint, quantity int) error{
+
+	if err := pr.db.Model(product).Where("id=?", id).Update("quantity", quantity).Error; err != nil{
 		return err
 	}
 	return nil

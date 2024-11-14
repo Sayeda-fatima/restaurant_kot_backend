@@ -18,6 +18,7 @@ type (
 		DeleteOrder(order model.Order, id uint) error
 		Checkout(order model.Order, organizationID uint, cartID uint) (model.OrderResponse, error)
 		InvoiceReportCustomer(organizationID uint, customerID uint, dateFrom string, dateTo string) ([]model.OrderResponse, error)
+		GetInvoice(id uint) (model.OrderResponse, error)
 	}
 
 	orderUsecase struct {
@@ -138,16 +139,47 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, cartID 
 
 	orderItems := []model.OrderItem{}
 	for _, cartItem := range cartItems {
+		// check if order quantity doesn't exceed product stock
+		newStock := cartItem.Product.Quantity - int64(cartItem.ProductQuantity)
+		if newStock < 0 {
+			tx.Rollback()
+			return model.OrderResponse{}, fmt.Errorf("insufficient stock for product id %d", cartItem.ProductID)
+		}
+
 		orderItem := model.OrderItem{
 			OrderID:           order.ID,
 			OrganizationID:    cartItem.OrganizationID,
 			ProductID:         cartItem.ProductID,
+			Product:           cartItem.Product,
 			ProductQuantity:   cartItem.ProductQuantity,
 			UnitProductPrice:  cartItem.Product.Mrp,
 			Tax:               cartItem.Product.TaxAmount,
 			TotalProductPrice: cartItem.ProductQuantity * cartItem.Product.Mrp,
 		}
+		// add product Stock changes
+		productStock := model.ProductStock{
+			ProductID:                cartItem.ProductID,
+			ProductName:              cartItem.Product.Name,
+			OrderID:                  order.ID,
+			OrganizationID:           cartItem.OrganizationID,
+			ProductStockBeforeUpdate: float64(cartItem.Product.Quantity),
+			ProductUpdateQuantity:    cartItem.ProductQuantity,
+			ProductUpdateType:        "sale",
+			ProductStockAfterUpdate:  float64(cartItem.Product.Quantity - int64(cartItem.ProductQuantity)),
+		}
+
 		if err := tx.Create(&orderItem).Error; err != nil {
+			tx.Rollback()
+			return model.OrderResponse{}, err
+		}
+
+		if err := tx.Create(&productStock).Error; err != nil {
+			tx.Rollback()
+			return model.OrderResponse{}, err
+		}
+
+		// update product quantity in product table
+		if err := tx.Model(&cartItem.Product).Where("id=?", cartItem.ProductID).Update("quantity", productStock.ProductStockAfterUpdate).Error; err != nil {
 			tx.Rollback()
 			return model.OrderResponse{}, err
 		}
@@ -160,9 +192,8 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, cartID 
 		tx.Rollback()
 		return model.OrderResponse{}, err
 	}
-	
 	// delete cart and cart items
-	if err := ou.cu.DeleteCart(cartID); err != nil{
+	if err := ou.cu.DeleteCart(cartID); err != nil {
 		tx.Rollback()
 		return model.OrderResponse{}, err
 	}
@@ -190,6 +221,7 @@ func (ou *orderUsecase) InvoiceReportCustomer(organizationID uint, customerID ui
 	orders := []model.Order{}
 
 	if err := ou.or.InvoiceReportCustomer(&orders, organizationID, customerID, dateFrom, dateTo); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("InvoiceReportCustomer")
 		return nil, err
 	}
 
@@ -204,6 +236,26 @@ func (ou *orderUsecase) InvoiceReportCustomer(organizationID uint, customerID ui
 			ModeOfPayment:          v.ModeOfPayment,
 		}
 		resOrder = append(resOrder, res)
+	}
+	return resOrder, nil
+}
+
+func (ou *orderUsecase) GetInvoice(id uint) (model.OrderResponse, error) {
+
+	order := model.Order{}
+	if err := ou.or.GetInvoice(&order, id); err != nil {
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("GetInvoice")
+		return model.OrderResponse{}, err
+	}
+
+	resOrder := model.OrderResponse{
+		ID:                     order.ID,
+		OrganizationID:         order.OrganizationID,
+		CustomerID:             order.CustomerID,
+		TotalPrice:             order.TotalPrice,
+		CustomerBillingAddress: order.CustomerBillingAddress,
+		ModeOfPayment:          order.ModeOfPayment,
+		OrderItems:             order.OrderItems,
 	}
 	return resOrder, nil
 }

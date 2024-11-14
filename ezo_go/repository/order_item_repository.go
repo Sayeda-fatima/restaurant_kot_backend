@@ -25,7 +25,7 @@ func NewOrderItemRepository(db *gorm.DB) OrderItemRepository {
 
 func (or *orderItemRepository) GetOrderItemList(orderItem *[]model.OrderItem, organizationID uint, orderID uint) error {
 
-	if err := or.db.Where("organization_id=? and order_id=? and is_deleted=0", organizationID, orderID).Find(orderItem).Error; err != nil {
+	if err := or.db.Preload("Product", func(db *gorm.DB) *gorm.DB { return db.Select("id", "name", "image", "mrp") }).Where("organization_id=? and order_id=? and is_deleted=0", organizationID, orderID).Find(orderItem).Error; err != nil {
 		return err
 	}
 	return nil

@@ -41,6 +41,7 @@ func (ou *orderItemUsecase) GetOrderItemList(organizationID uint, orderID uint) 
 			ID: v.ID,
 			OrganizationID: v.OrganizationID,
 			ProductID: v.ProductID,
+			Product: v.Product,
 			ProductQuantity: v.ProductQuantity,
 			UnitProductPrice: v.UnitProductPrice,
 			Tax: v.Tax,

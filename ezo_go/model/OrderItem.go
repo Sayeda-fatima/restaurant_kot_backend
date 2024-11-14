@@ -9,7 +9,7 @@ type OrderItem struct {
 	OrderID           uint         `json:"order_id" validate:"required"`
 	//Order             Order        `gorm:"foreignKey:OrderID;references:ID" json:"-" validate:"-"`
 	ProductID         uint         `json:"product_id" validate:"required"`
-	Product           Product      `gorm:"foreignKey:ProductID;references:ID" json:"-" validate:"-"`
+	Product           Product      `gorm:"foreignKey:ProductID;references:ID" json:"product" validate:"-"`
 	ProductQuantity   float64      `json:"product_quantity" validate:"required"`
 	UnitProductPrice  float64      `json:"unit_product_price" validate:"required"`
 	Tax               float64      `json:"tax" validate:"required"`
@@ -23,6 +23,7 @@ type OrderItemResponse struct {
 	OrganizationID    uint    `json:"organization_id"`
 	OrderID           uint    `json:"order_id"`
 	ProductID         uint    `json:"product_id"`
+	Product			  Product `json:"product"`
 	ProductQuantity   float64 `json:"product_quantity"`
 	UnitProductPrice  float64 `json:"unit_product_price"`
 	Tax               float64 `json:"tax" validate:"required"`

@@ -12,6 +12,7 @@ type (
 		UpdateOrder(order *model.Order, id uint) error
 		DeleteOrder(order *model.Order, id uint) error
 		InvoiceReportCustomer (order *[]model.Order, organizationID uint, customerID uint, dateFrom string, dateTo string) error
+		GetInvoice(order *model.Order, id uint) error
 	}
 
 	orderRepository struct {
@@ -62,6 +63,14 @@ func (or *orderRepository) DeleteOrder(order *model.Order, id uint) error {
 func (or *orderRepository) InvoiceReportCustomer(order *[]model.Order, organizationID uint, customerID uint, dateFrom string, dateTo string) error{
 
 	if err := or.db.Where("organization_id=? and customer_id=? and date(created_at) between ? and ?", organizationID, customerID, dateFrom, dateTo).Find(order).Error; err!=nil{
+		return err
+	}
+	return nil
+}
+
+func (or *orderRepository) GetInvoice(order *model.Order, id uint) error{
+
+	if err := or.db.Preload("OrderItems.Product").Where("id=?", id).First(order).Error; err!=nil{
 		return err
 	}
 	return nil

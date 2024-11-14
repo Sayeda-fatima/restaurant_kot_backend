@@ -18,6 +18,7 @@ type(
 		UpdateProduct (c echo.Context) error
 		DeleteProduct (c echo.Context) error
 		SearchProduct (c echo.Context) error
+		UpdateStockOfProduct (c echo.Context) error
 	}
 
 	productController struct{
@@ -126,5 +127,21 @@ func (pc *productController) SearchProduct(c echo.Context) error{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
+	return c.JSON(http.StatusOK, productRes)
+}
+
+func (pc *productController) UpdateStockOfProduct(c echo.Context) error{
+
+	id := c.Param("id")
+	productID, _ := strconv.Atoi(id)
+	quantity := c.FormValue("quantity")
+	productQuantity, _ := strconv.Atoi(quantity)
+
+	product := model.Product{}
+	productRes, err := pc.pu.UpdateStockOfProduct(product, uint(productID), productQuantity)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 	return c.JSON(http.StatusOK, productRes)
 }

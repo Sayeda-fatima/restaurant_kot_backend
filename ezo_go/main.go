@@ -53,7 +53,7 @@ func main(){
 	// product stock
 	productStockValidator := validator.NewProductStockValidator()
 	productStockRepository := repository.NewProductStockRepository(db)
-	productStockUseCase := usecase.NewProductStockUsecase(productStockRepository, productStockValidator)
+	productStockUseCase := usecase.NewProductStockUsecase(productStockRepository, productStockValidator, productUseCase, db)
 	productStockController := controller.NewProductStockController(productStockUseCase)
 
 	// product image

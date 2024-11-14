@@ -11,9 +11,11 @@ type (
 	ProductUsecase interface{
 		GetProductList (organizationID uint) ([]model.ProductResponse, error)
 		CreateProduct (product model.Product) (model.ProductResponse, error)
+		GetProduct (id uint) (model.ProductResponse, error)
 		UpdateProduct (product model.Product, id uint) (model.ProductResponse, error)
 		DeleteProduct (product model.Product, id uint) error
 		SearchProduct(organizationID uint, term string) ([]model.ProductResponse, error)
+		UpdateStockOfProduct(product model.Product, id uint, quantity int) (model.ProductResponse, error)
 	}
 
 	productUsecase struct{
@@ -62,6 +64,45 @@ func (pu *productUsecase) CreateProduct (product model.Product) (model.ProductRe
 
 	if err := pu.pr.CreateProduct(&product); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("CreateProduct")
+		return model.ProductResponse{}, err
+	}
+
+	resProduct := model.ProductResponse{
+		ID: product.ID,
+		OrganizationID: product.OrganizationID,
+		Name: product.Name,
+		Image: product.Image,
+		SellPrice: product.SellPrice,
+		MeasuringUnit: product.MeasuringUnit,
+		CategoryID: product.CategoryID,
+		Quantity: product.Quantity,
+		Mrp: product.Mrp,
+		PurchasePrice: product.PurchasePrice,
+		AcSalePrice: product.AcSalePrice,
+		NonAcSalePrice: product.NonAcSalePrice,
+		OnlineDeliverySellPrice: product.OnlineDeliverySellPrice,
+		OnlineSellPrice: product.OnlineSellPrice,
+		Tax: product.Tax,
+		PriceWithTax: product.PriceWithTax,
+		Cess: product.Cess,
+		HsnCode: product.HsnCode,
+		Description: product.Description,
+		LowStockAlert: product.LowStockAlert,
+		StorageLocation: product.StorageLocation,
+		BulkPurchaseUnit: product.BulkPurchaseUnit,
+		RetailSaleUnitPerBulkPurchase: product.RetailSaleUnitPerBulkPurchase,
+		BulkPurchaseUnitPerRetailSale: product.BulkPurchaseUnitPerRetailSale,
+		ExpiryDate: product.ExpiryDate,
+		ShowProductOnlineStore: product.ShowProductOnlineStore,
+	}
+
+	return resProduct, nil
+}
+
+func (pu *productUsecase) GetProduct(id uint) (model.ProductResponse, error){
+
+	product := model.Product{}
+	if err := pu.pr.GetProduct(&product, id); err != nil{
 		return model.ProductResponse{}, err
 	}
 
@@ -171,4 +212,24 @@ func (pu *productUsecase) SearchProduct(organizationID uint, term string) ([]mod
 	}
 
 	return resProducts, nil
+}
+
+func (pu *productUsecase) UpdateStockOfProduct(product model.Product, id uint, quantity int) (model.ProductResponse, error){
+
+	if err := pu.pr.UpdateStockOfProduct(&product, id, quantity); err != nil{
+		return model.ProductResponse{}, err
+	}
+
+	resProduct := model.ProductResponse{
+		ID: product.ID,
+		OrganizationID: product.OrganizationID,
+		Name: product.Name,
+		Image: product.Image,
+		SellPrice: product.SellPrice,
+		MeasuringUnit: product.MeasuringUnit,
+		CategoryID: product.CategoryID,
+		Quantity: product.Quantity,
+		Mrp: product.Mrp,
+	}
+	return resProduct, nil
 }

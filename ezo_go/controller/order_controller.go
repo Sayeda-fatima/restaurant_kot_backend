@@ -18,6 +18,7 @@ type (
 		DeleteOrder(c echo.Context) error
 		Checkout(c echo.Context) error
 		InvoiceReportCustomer(c echo.Context) error
+		GetInvoice(c echo.Context) error
 	}
 
 	orderController struct {
@@ -152,5 +153,24 @@ func (oc *orderController) InvoiceReportCustomer(c echo.Context) error{
 	if err !=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	return c.JSON(http.StatusOK, orderRes)
+}
+
+func (oc *orderController) GetInvoice(c echo.Context) error{
+
+	id := c.Param("id")
+	orderID, _ := strconv.Atoi(id)
+
+	order := model.Order{}
+	if err := c.Bind(&order); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	orderRes, err := oc.ou.GetInvoice(uint(orderID))
+
+	if err!=nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, orderRes)
 }

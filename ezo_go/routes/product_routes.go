@@ -24,7 +24,7 @@ func ProductRoutes(e *echo.Echo, pc controller.ProductController, pr controller.
 
 	// product stock
 	p.GET("/stock", pr.GetProductStockList)
-	p.POST("/stock", pr.CreateProductStock)
+	p.POST("/:id/stock", pr.CreateProductStock)
 	p.PUT("/stock/:id", pr.UpdateProductStock)
 	p.PUT("/stock/:id/soft-delete", pr.DeleteProductStock)
 

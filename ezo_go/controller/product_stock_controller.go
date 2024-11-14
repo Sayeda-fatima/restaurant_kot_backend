@@ -43,17 +43,12 @@ func (pc *productStockController) GetProductStockList(c echo.Context) error{
 
 func (pc *productStockController) CreateProductStock(c echo.Context) error{
 
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	organizationID := claims["organization_id"]
-
-	productStock := model.ProductStock{}
-	if err := c.Bind(&productStock); err!=nil{
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	productStock.OrganizationID = uint(organizationID.(float64))
-	productStockRes, err := pc.pu.CreateProductStock(productStock)
+	id := c.Param("id")
+	productID, _ := strconv.Atoi(id)
+	quantity := c.FormValue("quantity")
+	productQuantity, _ := strconv.Atoi(quantity)
+	
+	productStockRes, err := pc.pu.CreateProductStock(uint(productID), productQuantity)
 
 	if err!=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
