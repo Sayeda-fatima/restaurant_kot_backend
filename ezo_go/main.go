@@ -18,6 +18,7 @@ func main(){
 
 	common.Newlogger()
 	db := database.NewDB()
+	//email := common.NewEmailService()
 	e := echo.New()
 
 	// organization
