@@ -82,17 +82,36 @@ func (uu *userUsecase) Login (user model.User) (string, error){
 		"exp": time.Now().Add(time.Hour * 100).Unix(),
 	})
 
+	// refreshToken := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+	// 	"user_id": storedUser.ID,
+	// 	"organization_id": storedUser.OrganizationID,
+	// 	"access_type": storedUser.AccessType,
+	// 	"exp": time.Now().Add(time.Hour * 1000).Unix(),
+	// })
+
 	tokenString, err := token.SignedString([]byte (os.Getenv("SECRET")))
 
 	if err!=nil{
 		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
+	
+	// refreshTokenString, err := refreshToken.SignedString([]byte(os.Getenv("SECRET")))
+
+	// if err != nil{
+	// 	common.Logger.LogError().Msg(err.Error())
+	// 	return "", err
+	// }
 	// store jwt token to db 
 	if err := uu.ur.UpdateUser(&storedUser, tokenString); err!=nil{
 		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
+
+	// // store refresh token to db
+	// if err := uu.ur.UpdateUserRefreshToken(&storedUser, refreshTokenString); err != nil{
+	// 	return "", err
+	// }
 	return tokenString, nil
 }
 

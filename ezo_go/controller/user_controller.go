@@ -47,7 +47,7 @@ func (uc *userController) Login (c echo.Context) error {
 	tokenString, err := uc.uu.Login(user)
 
 	if err!=nil{
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusUnauthorized, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{

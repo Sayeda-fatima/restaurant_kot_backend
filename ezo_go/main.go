@@ -100,7 +100,7 @@ func main(){
 	orderItemController := controller.NewOrderItemController(orderItemUsecase)
 	
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:8080", os.Getenv("APP_URL")},
+		AllowOrigins: []string{"http://localhost:8000", os.Getenv("APP_URL")},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowHeaders,
 			echo.HeaderXCSRFToken},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},

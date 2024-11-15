@@ -203,6 +203,20 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, cartID 
 		return model.OrderResponse{}, err
 	}
 
+	// // make email asynchronous 
+	// go func(){
+	// 	body := `<html>
+    //         <body>
+    //             <h1>Invoice</h1>
+    //             <p><b>Hello!</b> Your invoice is attached below.</p>
+    //             <p>Thanks,<br>Mailtrap</p>
+    //         </body>
+    //     </html>`
+	// if err := ou.es.SendEmail("sayedafatima20@gmail.com", "Order Placed", body); err != nil{
+	// 	common.Logger.LogError().Msg(err.Error())
+	// }
+	// }()
+
 	resOrder := model.OrderResponse{
 		ID:                     order.ID,
 		OrganizationID:         order.OrganizationID,
