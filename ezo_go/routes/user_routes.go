@@ -16,4 +16,5 @@ func UserRoutes(e *echo.Echo, uc controller.UserController) {
 	u.POST("/login", uc.Login)
 	u.POST("/logout", uc.Logout)
 	u.GET("/csrf-token", uc.CsrfToken)
+	u.POST("/refresh-token", uc.RefreshToken)
 }

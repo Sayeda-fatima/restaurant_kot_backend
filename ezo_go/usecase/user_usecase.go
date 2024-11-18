@@ -16,6 +16,7 @@ type (
 		SignUp (user model.User) (model.UserResponse, error)
 		Login (user model.User) (string, error)
 		Logout (user model.User) (error)
+		RefreshToken (refreshToken string) (string, string, error)
 	}	
 
 	userUsecase struct{
@@ -82,12 +83,12 @@ func (uu *userUsecase) Login (user model.User) (string, error){
 		"exp": time.Now().Add(time.Hour * 100).Unix(),
 	})
 
-	// refreshToken := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
-	// 	"user_id": storedUser.ID,
-	// 	"organization_id": storedUser.OrganizationID,
-	// 	"access_type": storedUser.AccessType,
-	// 	"exp": time.Now().Add(time.Hour * 1000).Unix(),
-	// })
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": storedUser.ID,
+		"organization_id": storedUser.OrganizationID,
+		"access_type": storedUser.AccessType,
+		"exp": time.Now().Add(time.Hour * 100).Unix(),
+	})
 
 	tokenString, err := token.SignedString([]byte (os.Getenv("SECRET")))
 
@@ -96,22 +97,22 @@ func (uu *userUsecase) Login (user model.User) (string, error){
 		return "", err
 	}
 	
-	// refreshTokenString, err := refreshToken.SignedString([]byte(os.Getenv("SECRET")))
+	refreshTokenString, err := refreshToken.SignedString([]byte(os.Getenv("SECRET_REFRESH")))
 
-	// if err != nil{
-	// 	common.Logger.LogError().Msg(err.Error())
-	// 	return "", err
-	// }
+	if err != nil{
+		common.Logger.LogError().Msg(err.Error())
+		return "", err
+	}
 	// store jwt token to db 
 	if err := uu.ur.UpdateUser(&storedUser, tokenString); err!=nil{
 		common.Logger.LogError().Msg(err.Error())
 		return "", err
 	}
 
-	// // store refresh token to db
-	// if err := uu.ur.UpdateUserRefreshToken(&storedUser, refreshTokenString); err != nil{
-	// 	return "", err
-	// }
+	// store refresh token to db
+	if err := uu.ur.UpdateUserRefreshToken(&storedUser, refreshTokenString); err != nil{
+		return "", err
+	}
 	return tokenString, nil
 }
 
@@ -126,6 +127,68 @@ func (uu *userUsecase) Logout (user model.User) (error){
 	}
 	if err := uu.ur.UpdateUser(&storedUser, ""); err!=nil{
 		common.Logger.LogError().Msg(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (uu *userUsecase) RefreshToken(refreshToken string) (string, string, error){
+
+	user := model.User{}
+	if err := uu.ur.GetUserByRefreshToken(&user, refreshToken); err != nil{
+		return "", "", err
+	}
+
+	// generate new tokens
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"organization_id": user.OrganizationID,
+		"access_type": user.AccessType,
+		"exp": time.Now().Add(time.Hour * 100).Unix(),
+	})
+
+	newRefreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"organization_id": user.OrganizationID,
+		"access_type": user.AccessType,
+		"exp": time.Now().Add(time.Hour * 100).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte (os.Getenv("SECRET")))
+
+	if err!=nil{
+		common.Logger.LogError().Msg(err.Error())
+		return "", "", err
+	}
+	
+	refreshTokenString, err := newRefreshToken.SignedString([]byte(os.Getenv("SECRET_REFRESH")))
+
+	if err != nil{
+		common.Logger.LogError().Msg(err.Error())
+		return "", "", err
+	}
+
+	// store jwt token to db 
+	if err := uu.ur.UpdateUser(&user, tokenString); err!=nil{
+		common.Logger.LogError().Msg(err.Error())
+		return "", "", err
+	}
+
+	// store refresh token to db
+	if err := uu.ur.UpdateUserRefreshToken(&user, refreshTokenString); err != nil{
+		return "", "", err
+	}
+	return tokenString, refreshTokenString, nil
+}
+
+func (uu *userUsecase) ForgotPassword (user model.User) error{
+
+	storedUser := model.User{}
+	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil{
+		return err
+	}
+	if err := uu.ur.UpdateUserRefreshToken(&storedUser, user.ApiToken); err != nil{
 		return err
 	}
 

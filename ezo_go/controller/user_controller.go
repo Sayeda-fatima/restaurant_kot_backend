@@ -12,6 +12,7 @@ type UserController interface{
 	Login (c echo.Context) error
 	Logout (c echo.Context) error
 	CsrfToken (c echo.Context) error
+	RefreshToken (c echo.Context) error
 }
 
 type userController struct{
@@ -52,6 +53,27 @@ func (uc *userController) Login (c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"token": tokenString,
+	})
+}
+
+func (uc *userController) RefreshToken(c echo.Context) error{
+
+	var request struct {
+        RefreshToken string `json:"refresh_token" validate:"required"`
+    }
+
+	if err := c.Bind(&request); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	accessToken, refreshToken, err := uc.uu.RefreshToken(request.RefreshToken)
+
+	if err != nil{
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"token": accessToken,
+		"refresh_token": refreshToken,
 	})
 }
 

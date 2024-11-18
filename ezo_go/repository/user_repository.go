@@ -13,6 +13,7 @@ type UserRepository interface {
 	CreateUser(user *model.User) error
 	UpdateUser (user *model.User, jwt string) error
 	UpdateUserRefreshToken (user *model.User, jwt string) error
+	GetUserByRefreshToken (user *model.User, refreshToken string) error
 }
 
 type userRepository struct {
@@ -76,6 +77,14 @@ func (ur *userRepository) UpdateUserRefreshToken(user *model.User, jwt string) e
 
 	if result.RowsAffected < 1{
 		return fmt.Errorf("object does not exist")
+	}
+	return nil
+}
+
+func (ur *userRepository) GetUserByRefreshToken(user *model.User, refreshToken string) error{
+
+	if err := ur.db.Where("refresh_token=?", refreshToken).First(user).Error; err != nil{
+		return err
 	}
 	return nil
 }
