@@ -18,7 +18,7 @@ func main(){
 
 	common.Newlogger()
 	db := database.NewDB()
-	//email := common.NewEmailService()
+	email := common.NewEmailService()
 	e := echo.New()
 
 	// organization
@@ -30,7 +30,7 @@ func main(){
 	// user
 	userValidator := validator.NewUserValidator()
 	userRepository := repository.NewUserRepository(db)
-	userUseCase := usecase.NewUserUsecase(userRepository, userValidator)
+	userUseCase := usecase.NewUserUsecase(userRepository, userValidator, email)
 	userController := controller.NewUserController(userUseCase)
 
 	// customer

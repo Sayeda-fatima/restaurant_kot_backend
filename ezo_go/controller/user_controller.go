@@ -10,9 +10,11 @@ import (
 type UserController interface{
 	SignUp (c echo.Context) error
 	Login (c echo.Context) error
+	RefreshToken (c echo.Context) error
+	ForgotPassword (c echo.Context) error
+	ResetPassword (c echo.Context) error
 	Logout (c echo.Context) error
 	CsrfToken (c echo.Context) error
-	RefreshToken (c echo.Context) error
 }
 
 type userController struct{
@@ -75,6 +77,40 @@ func (uc *userController) RefreshToken(c echo.Context) error{
 		"token": accessToken,
 		"refresh_token": refreshToken,
 	})
+}
+
+func (uc *userController) ForgotPassword(c echo.Context) error{
+
+	user := model.User{}
+	if err := c.Bind(&user); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	if err := uc.uu.ForgotPassword(user); err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "reset password mail sent")
+}
+
+func (uc *userController) ResetPassword(c echo.Context) error{
+
+	user := model.User{}
+	if err := c.Bind(&user); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	password := c.FormValue("password")
+	email := c.FormValue("email")
+	token := c.QueryParam("token")
+
+	user.Email = email
+
+	if err := uc.uu.ResetPassword(user, password, token); err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "password reset successfully")
 }
 
 func (uc *userController) Logout (c echo.Context) error {

@@ -1,8 +1,11 @@
 package usecase
 
 import (
+	"math/rand"
+	"fmt"
 	"os"
 	"time"
+
 	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"github.com/NazishAhsan/easy_busy_book_go/repository"
@@ -17,17 +20,20 @@ type (
 		Login (user model.User) (string, error)
 		Logout (user model.User) (error)
 		RefreshToken (refreshToken string) (string, string, error)
+		ForgotPassword (user model.User) error
+		ResetPassword (user model.User, password string, token string) error
 	}	
 
 	userUsecase struct{
 		ur repository.UserRepository
 		uv validator.UserValidator
+		es common.EmailService
 	}
 )
 
 
-func NewUserUsecase(ur repository.UserRepository, uv validator.UserValidator) UserUsecase {
-	return &userUsecase{ur, uv}
+func NewUserUsecase(ur repository.UserRepository, uv validator.UserValidator, es common.EmailService) UserUsecase {
+	return &userUsecase{ur, uv, es}
 }
 
 func (uu *userUsecase) SignUp (user model.User) (model.UserResponse, error) {
@@ -188,9 +194,49 @@ func (uu *userUsecase) ForgotPassword (user model.User) error{
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil{
 		return err
 	}
-	if err := uu.ur.UpdateUserRefreshToken(&storedUser, user.ApiToken); err != nil{
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"email": storedUser.Email,
+		"organization_id": storedUser.OrganizationID,
+		"access_type": storedUser.AccessType,
+		"exp": time.Now().Add(time.Hour * 2).Unix(),
+	})
+
+	tokenString, _ := token.SignedString([]byte(os.Getenv("SECRET")))
+
+	if err := uu.ur.CreateResetPasswordToken(&model.PasswordResetToken{Email: storedUser.Email, Token: tokenString}); err != nil{
+		return err
+	}
+	
+	otp := rand.Intn(999999-100000) + 100000
+	body:= fmt.Sprintf(`otp: %d\ntoken: %s`, otp, tokenString)
+	if err := uu.es.SendEmail(storedUser.Email, "Reset Password", body); err != nil{
 		return err
 	}
 
+	return nil
+}
+
+func (uu *userUsecase) ResetPassword (user model.User, password string, token string) error{
+
+	storedUser := model.User{}
+	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil{
+		return err
+	}
+
+	if err := uu.ur.GetUserByToken(&model.PasswordResetToken{}, token); err != nil{
+		return err
+	}
+	hash, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
+	newPassword := string(hash)
+	if err := uu.ur.ResetPassword(&user, user.Email, newPassword); err !=nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("ResetPassword")
+		return err
+	}
+
+	if err := uu.ur.DeleteResetPasswordToken(&model.PasswordResetToken{}, storedUser.Email); err != nil{
+		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("ResetPassword")
+		return err
+	}
 	return nil
 }

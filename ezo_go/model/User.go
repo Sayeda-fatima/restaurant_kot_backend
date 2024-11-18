@@ -22,3 +22,9 @@ type UserResponse struct {
 	Name  string `json:"name"`
 	Email string `json:"email" gorm:"unique"`
 }
+
+type PasswordResetToken struct {
+	Email     string    `json:"email" validate:"required"`
+	Token     string    `json:"token" validate:"required"`
+	CreatedAt time.Time `json:"created_at"`
+}

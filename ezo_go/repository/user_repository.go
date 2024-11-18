@@ -11,9 +11,13 @@ type UserRepository interface {
 	GetUserByEmail(user *model.User, email string) error
 	GetUserByID(user *model.User, id uint) error
 	CreateUser(user *model.User) error
-	UpdateUser (user *model.User, jwt string) error
-	UpdateUserRefreshToken (user *model.User, jwt string) error
-	GetUserByRefreshToken (user *model.User, refreshToken string) error
+	UpdateUser(user *model.User, jwt string) error
+	UpdateUserRefreshToken(user *model.User, jwt string) error
+	GetUserByRefreshToken(user *model.User, refreshToken string) error
+	CreateResetPasswordToken (user *model.PasswordResetToken) error
+	GetUserByToken (user *model.PasswordResetToken, token string) error
+	DeleteResetPasswordToken (token *model.PasswordResetToken, email string) error
+	ResetPassword (user *model.User, email string, password string) error
 }
 
 type userRepository struct {
@@ -84,6 +88,40 @@ func (ur *userRepository) UpdateUserRefreshToken(user *model.User, jwt string) e
 func (ur *userRepository) GetUserByRefreshToken(user *model.User, refreshToken string) error{
 
 	if err := ur.db.Where("refresh_token=?", refreshToken).First(user).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepository) CreateResetPasswordToken(user *model.PasswordResetToken) error{
+
+	if err := ur.db.Create(user).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepository) GetUserByToken(user *model.PasswordResetToken, token string) error{
+	
+	if err := ur.db.Model(user).Where("token=?", token).First(user).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepository) DeleteResetPasswordToken(token *model.PasswordResetToken, email string) error{
+
+	result := ur.db.Model(token).Where("email=?", email).Delete(token)
+	if err := result.Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepository) ResetPassword(user *model.User, email string, password string) error{
+
+	result := ur.db.Model(user).Where("email=?", email).Update("password", password)
+	if err := result.Error; err != nil{
 		return err
 	}
 	return nil
