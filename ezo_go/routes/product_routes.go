@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func ProductRoutes(e *echo.Echo, pc controller.ProductController, pr controller.ProductStockController, pi controller.ProductImageController){
+func ProductRoutes(e *echo.Echo, pc controller.ProductController, ps controller.ProductStockController, pr controller.ProductImageController){
 
 	p := e.Group("/api/product")
 	p.Use(echojwt.WithConfig(echojwt.Config{
@@ -18,18 +18,20 @@ func ProductRoutes(e *echo.Echo, pc controller.ProductController, pr controller.
 	// product routes
 	p.GET("", pc.GetProductList)
 	p.POST("", pc.CreateProduct)
+	p.GET("/:id", pc.GetProduct)
 	p.PUT("/:id", pc.UpdateProduct)
 	p.PUT("/:id/soft-delete", pc.DeleteProduct)
 	p.GET("/search", pc.SearchProduct)
 
 	// product stock
-	p.GET("/stock", pr.GetProductStockList)
-	p.POST("/:id/stock", pr.CreateProductStock)
-	p.PUT("/stock/:id", pr.UpdateProductStock)
-	p.PUT("/stock/:id/soft-delete", pr.DeleteProductStock)
+	p.GET("/stock", ps.GetProductStockList)
+	p.POST("/:id/stock", ps.CreateProductStock)
+	p.PUT("/stock/:id", ps.UpdateProductStock)
+	p.PUT("/stock/:id/soft-delete", ps.DeleteProductStock)
+	p.GET("/stock/type", ps.GetProductStockListByUpdateType)
 
 	// product image
-	p.GET("/:id/image", pi.GetProductImageList)
-	p.POST("/:id/image", pi.AddProductImage)
-	p.DELETE("/image/:id", pi.DeleteProductImage)
+	p.GET("/:id/image", pr.GetProductImageList)
+	p.POST("/:id/image", pr.AddProductImage)
+	p.DELETE("/image/:id", pr.DeleteProductImage)
 }

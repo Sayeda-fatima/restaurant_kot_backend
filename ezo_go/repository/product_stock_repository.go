@@ -11,6 +11,7 @@ type (
 		CreateProductStock(productStock *model.ProductStock) error
 		UpdateProductStock(productStock *model.ProductStock, id uint) error
 		DeleteProductStock(productStock *model.ProductStock, id uint) error
+		GetProductStockListByUpdateType(productStock *[]model.ProductStock, organizationID uint, term string) error
 	}
 
 	productStockRepository struct {
@@ -53,6 +54,14 @@ func (pr *productStockRepository) DeleteProductStock(productStock *model.Product
 	result := pr.db.Model(productStock).Where("id=?", id).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *productStockRepository) GetProductStockListByUpdateType(productStock *[]model.ProductStock, organizationID uint, term string) error{
+
+	if err := pr.db.Where("organization_id=? and product_update_type=?", organizationID, term).Find(productStock).Error; err != nil{
 		return err
 	}
 	return nil

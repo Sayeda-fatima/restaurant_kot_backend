@@ -10,9 +10,10 @@ import (
 type (
 	ProductStockUsecase interface {
 		GetProductStockList(organizationID uint) ([]model.ProductStockResponse, error)
-		CreateProductStock(productID uint, quantity int) (model.ProductStockResponse, error)
+		CreateProductStock(organizationID uint, productID uint, quantity int) (model.ProductStockResponse, error)
 		UpdateProductStock(productStock model.ProductStock, id uint) (model.ProductStockResponse, error)
 		DeleteProductStock(productStock model.ProductStock, id uint) error
+		GetProductStockListByUpdateType(organizationID uint, term string)([]model.ProductStockResponse, error)
 	}
 
 	productStockUsecase struct {
@@ -52,9 +53,9 @@ func (pu *productStockUsecase) GetProductStockList(organizationID uint) ([]model
 	return resProductStock, nil
 }
 
-func (pu *productStockUsecase) CreateProductStock(productID uint, quantity int) (model.ProductStockResponse, error) {
+func (pu *productStockUsecase) CreateProductStock(organizationID uint, productID uint, quantity int) (model.ProductStockResponse, error) {
 
-	product, _ := pu.ps.GetProduct(productID) 
+	product, _ := pu.ps.GetProduct(organizationID, productID) 
 	productStock := model.ProductStock{
 		OrganizationID: product.OrganizationID,
 		ProductID: productID,
@@ -136,4 +137,31 @@ func (pu *productStockUsecase) DeleteProductStock(productStock model.ProductStoc
 		return err
 	}
 	return nil
+}
+
+func (pu *productStockUsecase) GetProductStockListByUpdateType(organizationID uint, term string) ([]model.ProductStockResponse, error){
+
+	productStocks := []model.ProductStock{}
+
+	if err := pu.pr.GetProductStockListByUpdateType(&productStocks, organizationID, term); err != nil{
+		return nil, err
+	}
+
+	resProductStock := []model.ProductStockResponse{}
+	for _, v := range(productStocks){
+		res := model.ProductStockResponse{
+			ID: v.ID,
+			OrganizationID: v.OrganizationID,
+			OrderID: v.OrderID,
+			ProductID: v.ProductID,
+			ProductName: v.ProductName,
+			ProductStockBeforeUpdate: v.ProductStockBeforeUpdate,
+			ProductUpdateQuantity: v.ProductUpdateQuantity,
+			ProductUpdateType: v.ProductUpdateType,
+			ProductStockAfterUpdate: v.ProductStockAfterUpdate,
+		}
+		resProductStock = append(resProductStock, res)
+	}
+
+	return resProductStock, nil
 }

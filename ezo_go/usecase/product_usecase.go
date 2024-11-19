@@ -9,9 +9,9 @@ import (
 
 type (
 	ProductUsecase interface{
-		GetProductList (organizationID uint) ([]model.ProductResponse, error)
+		GetProductList (organizationID uint) ([]model.ProductListResponse, error)
 		CreateProduct (product model.Product) (model.ProductResponse, error)
-		GetProduct (id uint) (model.ProductResponse, error)
+		GetProduct (organizationID uint, id uint) (model.ProductResponse, error)
 		UpdateProduct (product model.Product, id uint) (model.ProductResponse, error)
 		DeleteProduct (product model.Product, id uint) error
 		SearchProduct(organizationID uint, term string) ([]model.ProductResponse, error)
@@ -28,7 +28,7 @@ func NewProductUsecase (pr repository.ProductRepository, pv validator.ProductVal
 	return &productUsecase{pr,pv}
 }
 
-func (pu *productUsecase) GetProductList (organizationID uint) ([]model.ProductResponse, error){
+func (pu *productUsecase) GetProductList (organizationID uint) ([]model.ProductListResponse, error){
 
 	products := []model.Product{}
 
@@ -37,10 +37,10 @@ func (pu *productUsecase) GetProductList (organizationID uint) ([]model.ProductR
 		return nil, err
 	}
 
-	resProducts := []model.ProductResponse{}
+	resProducts := []model.ProductListResponse{}
 
 	for _, v := range(products){
-		res := model.ProductResponse{
+		res := model.ProductListResponse{
 			OrganizationID: v.OrganizationID,
 			ID: v.ID,
 			Name: v.Name,
@@ -87,7 +87,7 @@ func (pu *productUsecase) CreateProduct (product model.Product) (model.ProductRe
 		Cess: product.Cess,
 		HsnCode: product.HsnCode,
 		Description: product.Description,
-		LowStockAlert: product.LowStockAlert,
+		MinimumStockRequired: product.MinimumStockRequired,
 		StorageLocation: product.StorageLocation,
 		BulkPurchaseUnit: product.BulkPurchaseUnit,
 		RetailSaleUnitPerBulkPurchase: product.RetailSaleUnitPerBulkPurchase,
@@ -99,10 +99,10 @@ func (pu *productUsecase) CreateProduct (product model.Product) (model.ProductRe
 	return resProduct, nil
 }
 
-func (pu *productUsecase) GetProduct(id uint) (model.ProductResponse, error){
+func (pu *productUsecase) GetProduct(organizationID uint, id uint) (model.ProductResponse, error){
 
 	product := model.Product{}
-	if err := pu.pr.GetProduct(&product, id); err != nil{
+	if err := pu.pr.GetProduct(&product, organizationID, id); err != nil{
 		return model.ProductResponse{}, err
 	}
 
@@ -126,13 +126,14 @@ func (pu *productUsecase) GetProduct(id uint) (model.ProductResponse, error){
 		Cess: product.Cess,
 		HsnCode: product.HsnCode,
 		Description: product.Description,
-		LowStockAlert: product.LowStockAlert,
+		MinimumStockRequired: product.MinimumStockRequired,
 		StorageLocation: product.StorageLocation,
 		BulkPurchaseUnit: product.BulkPurchaseUnit,
 		RetailSaleUnitPerBulkPurchase: product.RetailSaleUnitPerBulkPurchase,
 		BulkPurchaseUnitPerRetailSale: product.BulkPurchaseUnitPerRetailSale,
 		ExpiryDate: product.ExpiryDate,
 		ShowProductOnlineStore: product.ShowProductOnlineStore,
+		ProductImages: product.ProductImages,
 	}
 
 	return resProduct, nil
@@ -170,7 +171,7 @@ func (pu *productUsecase) UpdateProduct (product model.Product, id uint) (model.
 		Cess: product.Cess,
 		HsnCode: product.HsnCode,
 		Description: product.Description,
-		LowStockAlert: product.LowStockAlert,
+		MinimumStockRequired: product.MinimumStockRequired,
 		StorageLocation: product.StorageLocation,
 		BulkPurchaseUnit: product.BulkPurchaseUnit,
 		RetailSaleUnitPerBulkPurchase: product.RetailSaleUnitPerBulkPurchase,
@@ -229,7 +230,7 @@ func (pu *productUsecase) UpdateStockOfProduct(product model.Product, id uint, q
 		MeasuringUnit: product.MeasuringUnit,
 		CategoryID: product.CategoryID,
 		Quantity: product.Quantity,
-		Mrp: product.Mrp,
+		//Mrp: product.Mrp,
 	}
 	return resProduct, nil
 }

@@ -16,6 +16,7 @@ type (
 		CreateProductStock(c echo.Context) error
 		UpdateProductStock(c echo.Context) error
 		DeleteProductStock(c echo.Context) error
+		GetProductStockListByUpdateType(c echo.Context) error
 	}
 	productStockController struct{
 		pu usecase.ProductStockUsecase
@@ -43,12 +44,15 @@ func (pc *productStockController) GetProductStockList(c echo.Context) error{
 
 func (pc *productStockController) CreateProductStock(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	productID, _ := strconv.Atoi(id)
 	quantity := c.FormValue("quantity")
 	productQuantity, _ := strconv.Atoi(quantity)
 	
-	productStockRes, err := pc.pu.CreateProductStock(uint(productID), productQuantity)
+	productStockRes, err := pc.pu.CreateProductStock(uint(organizationID.(float64)), uint(productID), productQuantity)
 
 	if err!=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -93,4 +97,20 @@ func (pc *productStockController) DeleteProductStock(c echo.Context) error{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (pc *productStockController) GetProductStockListByUpdateType(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	term := c.QueryParam("term")
+
+	productStockRes, err := pc.pu.GetProductStockListByUpdateType(uint(organizationID.(float64)), term)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, productStockRes)
 }
