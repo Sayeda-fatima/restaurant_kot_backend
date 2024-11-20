@@ -34,6 +34,7 @@ type Product struct {
 	BulkPurchaseUnitPerRetailSale float64         `json:"bulk_purchase_unit_per_retail_sale" validate:"omitempty"`
 	ExpiryDate                    string          `json:"expiry_date" validate:"omitempty"`
 	ShowProductOnlineStore        string          `json:"show_product_online_store" validate:"omitempty"`
+	Barcode 					  string		  `json:"barcode" validate:"required" gorm:"index"`
 	ProductImages                 []ProductImage  `json:"product_images" gorm:"foreignKey:ProductID"`
 	CreatedAt                     time.Time       `json:"created_at"`
 	UpdatedAt                     time.Time       `json:"updated_at"`
@@ -67,6 +68,7 @@ type ProductResponse struct {
 	BulkPurchaseUnitPerRetailSale float64        `json:"bulk_purchase_unit_per_retail_sale"`
 	ExpiryDate                    string         `json:"expiry_date"`
 	ShowProductOnlineStore        string         `json:"show_product_online_store"`
+	Barcode 					  string		 `json:"barcode"`
 	ProductImages                 []ProductImage `json:"product_images" validate:"-"`
 }
 

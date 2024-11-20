@@ -9,12 +9,13 @@ import (
 
 type (
 	ProductUsecase interface{
-		GetProductList (organizationID uint) ([]model.ProductListResponse, error)
-		CreateProduct (product model.Product) (model.ProductResponse, error)
-		GetProduct (organizationID uint, id uint) (model.ProductResponse, error)
-		UpdateProduct (product model.Product, id uint) (model.ProductResponse, error)
-		DeleteProduct (product model.Product, id uint) error
+		GetProductList(organizationID uint) ([]model.ProductListResponse, error)
+		CreateProduct(product model.Product) (model.ProductResponse, error)
+		GetProduct(organizationID uint, id uint) (model.ProductResponse, error)
+		UpdateProduct(product model.Product, id uint) (model.ProductResponse, error)
+		DeleteProduct(product model.Product, id uint) error
 		SearchProduct(organizationID uint, term string) ([]model.ProductResponse, error)
+		GetProductByBarcode(organizationID uint, barcode string)(model.ProductResponse, error)
 		UpdateStockOfProduct(product model.Product, id uint, quantity int) (model.ProductResponse, error)
 	}
 
@@ -213,6 +214,45 @@ func (pu *productUsecase) SearchProduct(organizationID uint, term string) ([]mod
 	}
 
 	return resProducts, nil
+}
+
+func (pu *productUsecase) GetProductByBarcode(organizationID uint, barcode string) (model.ProductResponse, error){
+
+	product := model.Product{}
+	if err := pu.pr.GetProductByBarcode(&product, organizationID, barcode); err != nil{
+		return model.ProductResponse{}, nil
+	}
+
+	resProduct := model.ProductResponse{
+		ID: product.ID,
+		OrganizationID: product.OrganizationID,
+		Name: product.Name,
+		Image: product.Image,
+		SellPrice: product.SellPrice,
+		MeasuringUnit: product.MeasuringUnit,
+		CategoryID: product.CategoryID,
+		Quantity: product.Quantity,
+		Mrp: product.Mrp,
+		PurchasePrice: product.PurchasePrice,
+		AcSalePrice: product.AcSalePrice,
+		NonAcSalePrice: product.NonAcSalePrice,
+		OnlineDeliverySellPrice: product.OnlineDeliverySellPrice,
+		OnlineSellPrice: product.OnlineSellPrice,
+		Tax: product.Tax,
+		PriceWithTax: product.PriceWithTax,
+		Cess: product.Cess,
+		HsnCode: product.HsnCode,
+		Description: product.Description,
+		MinimumStockRequired: product.MinimumStockRequired,
+		StorageLocation: product.StorageLocation,
+		BulkPurchaseUnit: product.BulkPurchaseUnit,
+		RetailSaleUnitPerBulkPurchase: product.RetailSaleUnitPerBulkPurchase,
+		BulkPurchaseUnitPerRetailSale: product.BulkPurchaseUnitPerRetailSale,
+		ExpiryDate: product.ExpiryDate,
+		ShowProductOnlineStore: product.ShowProductOnlineStore,
+		Barcode: product.Barcode,
+	}
+	return resProduct, nil
 }
 
 func (pu *productUsecase) UpdateStockOfProduct(product model.Product, id uint, quantity int) (model.ProductResponse, error){

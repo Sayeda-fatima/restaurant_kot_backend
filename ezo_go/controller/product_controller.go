@@ -19,6 +19,7 @@ type (
 		DeleteProduct(c echo.Context) error
 		SearchProduct(c echo.Context) error
 		GetProduct(c echo.Context) error
+		GetProductByBarcode(c echo.Context) error
 		UpdateStockOfProduct(c echo.Context) error
 	}
 
@@ -148,6 +149,28 @@ func (pc *productController) GetProduct(c echo.Context) error{
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	return c.JSON(http.StatusOK, productRes)
+}
+
+func (pc *productController) GetProductByBarcode(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	var request struct{
+		Barcode		string		`json:"barcode" validate:"required"`
+	}
+
+	if err := c.Bind(&request); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	productRes, err := pc.pu.GetProductByBarcode(uint(organizationID.(float64)), request.Barcode)
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, productRes)
 }
 

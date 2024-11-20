@@ -12,7 +12,8 @@ type ProductRepository interface {
 	UpdateProduct(product *model.Product, id uint) error
 	DeleteProduct(product *model.Product, id uint) error
 	SearchProduct(products *[]model.Product, organizationID uint, term string) error
-	UpdateStockOfProduct (product *model.Product, id uint, quantity int) error
+	GetProductByBarcode(product *model.Product, organizationID uint, barcode string) error
+	UpdateStockOfProduct(product *model.Product, id uint, quantity int) error
 }
 
 type productRepository struct {
@@ -68,6 +69,14 @@ func (pr *productRepository) DeleteProduct(product *model.Product, id uint) erro
 func (pr *productRepository) SearchProduct(products *[]model.Product, organizationID uint, term string) error {
 
 	if err := pr.db.Where("id LIKE ? or name LIKE ? or description LIKE ?", "%"+term+"%", "%"+term+"%", "%"+term+"%").Having("organization_id=? and is_deleted=0", organizationID).Find(products).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *productRepository) GetProductByBarcode(product *model.Product, organizationID uint, barcode string) error{
+
+	if err := pr.db.Where("organization_id=? and barcode=?", organizationID, barcode).First(product).Error; err != nil{
 		return err
 	}
 	return nil
