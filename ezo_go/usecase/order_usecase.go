@@ -20,6 +20,7 @@ type (
 		InvoiceReportCustomer(organizationID uint, customerID uint, dateFrom string, dateTo string) ([]model.OrderResponse, error)
 		GetInvoice(id uint) (model.OrderResponse, error)
 		SaleReport(organizationID uint, dateFrom string, dateTo string, page int) (map[string]interface{}, error)
+		ProfitReport(organizationID uint, dateFrom string, dateTO string, page int) (map[string]interface{}, error)
 	}
 
 	orderUsecase struct {
@@ -301,4 +302,21 @@ func (ou *orderUsecase) SaleReport(organizationID uint, dateFrom string, dateTo 
 		},
 	}
 	return report, nil
+}
+
+func (ou *orderUsecase) ProfitReport(organizationID uint, dateFrom string, dateTo string, page int) (map[string]interface{}, error){
+
+	var report []map[string]interface{}
+	if err := ou.or.ProfitReport(&report, organizationID, dateFrom, dateTo, page); err != nil{
+		return nil, err
+	}
+
+	var result map[string]interface{}
+	if err := ou.or.TotalProfit(&result, organizationID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+
+	result["profit_report"] = report
+
+	return result, nil
 }

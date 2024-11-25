@@ -18,6 +18,8 @@ type (
 		TotalSales(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error
 		TotalSalesQuantity(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error
 		TotalSalesAmount(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error
+		ProfitReport(result *[]map[string]interface{}, organizationID uint, dateFrom string, dateTo string, page int) error
+		TotalProfit(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error
 	}
 
 	orderRepository struct {
@@ -127,4 +129,43 @@ func (or *orderRepository) TotalSalesAmount(result *map[string]interface{}, orga
 		return err
 	}
 	return err
+}
+
+func (or *orderRepository) ProfitReport(result *[]map[string]interface{}, organizationID uint, dateFrom string, dateTo string, page int) error{
+
+	limit, offset := common.ApplyPagination(page)
+
+	err := or.db.Raw(`SELECT date(i.created_at) as date, 
+                   i.id as invoice_no, 
+                   customers.name as customer_name, 
+                   i.total_price,
+                   SUM(p.purchase_price * id.product_quantity) AS purchase_price, 
+                   (i.total_price - SUM(p.purchase_price * id.product_quantity)) AS profit
+            FROM orders AS i
+            LEFT JOIN order_items AS id ON id.order_id = i.id
+			LEFT JOIN customers on customers.id = i.customer_id
+            LEFT JOIN products AS p ON p.id = id.product_id
+            WHERE i.organization_id =? and date(i.created_at) BETWEEN ? AND ?
+            GROUP BY i.id limit ? offset ?`, organizationID, dateFrom, dateTo, limit, offset).Find(result).Error
+
+	if err != nil{
+		return err
+	}
+	return nil
+}
+
+func (or *orderRepository) TotalProfit(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error{
+
+	err := or.db.Raw(`SELECT SUM(o.total_price) as total_sales_amount,
+            SUM(p.purchase_price * od.product_quantity) AS total_purchase_price, 
+            (SUM(o.total_price) - SUM(p.purchase_price * od.product_quantity)) AS total_profit
+            FROM orders AS o
+            LEFT JOIN order_items AS od ON od.order_id = o.id
+            LEFT JOIN products AS p ON p.id = od.product_id
+            WHERE o.organization_id =? and date(o.created_at) BETWEEN ? AND ?`, organizationID, dateFrom, dateTo).Find(result).Error
+
+	if err != nil{
+		return err
+	}
+	return nil
 }

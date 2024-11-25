@@ -20,6 +20,7 @@ type (
 		InvoiceReportCustomer(c echo.Context) error
 		GetInvoice(c echo.Context) error
 		SaleReport(c echo.Context) error
+		ProfitReport(c echo.Context) error
 	}
 
 	orderController struct {
@@ -192,5 +193,25 @@ func (oc *orderController) SaleReport(c echo.Context) error{
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	return c.JSON(http.StatusOK, reportRes)
+}
+
+func (oc *orderController) ProfitReport(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+	pageNo := c.QueryParam("page")
+	page, _ := strconv.Atoi(pageNo)
+
+	reportRes, err := oc.ou.ProfitReport(uint(organizationID.(float64)), dateFrom, dateTo, page)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, reportRes)
 }
