@@ -41,13 +41,30 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 		common.Logger.LogError().Msg(err.Error())
 		return model.UserResponse{}, err
 	}
+
+	// check if users can register as per their access given
+	var totalUsers map[string]interface{}
+	if err := uu.ur.GetUserCountByOrganization(&totalUsers, user.OrganizationID); err != nil{
+		return model.UserResponse{}, err
+	}
+	if totalUsers["total_users"].(int64) >= totalUsers["access_given"].(int64){
+		return model.UserResponse{}, fmt.Errorf("you've reached your limit for signups")
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		common.Logger.LogError().Msg(err.Error())
 		return model.UserResponse{}, err
 	}
 
-	newUser := model.User{Email: user.Email, Name: user.Name, OrganizationID: user.OrganizationID, Password: string(hash), AccessType: user.AccessType}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id":         user.ID,
+		"organization_id": user.OrganizationID,
+		"access_type":     user.AccessType,
+		"exp":             time.Now().Add(time.Hour * 100).Unix(),
+	})
+	tokenString, _ := token.SignedString([]byte(os.Getenv("SECRET")))
+	newUser := model.User{Email: user.Email, Name: user.Name, OrganizationID: user.OrganizationID, Password: string(hash), AccessType: user.AccessType, ApiToken: tokenString}
 	if err := uu.ur.CreateUser(&newUser); err != nil {
 		common.Logger.LogError().Msg(err.Error())
 		return model.UserResponse{}, err

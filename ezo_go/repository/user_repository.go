@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	GetUserByEmail(user *model.User, email string) error
 	GetUserByID(user *model.User, id uint) error
+	GetUserCountByOrganization(result *map[string]interface{}, organizationID uint) error
 	CreateUser(user *model.User) error
 	UpdateUser(user *model.User, jwt string) error
 	UpdateUserRefreshToken(user *model.User, jwt string) error
@@ -45,6 +46,14 @@ func (ur *userRepository) GetUserByID(user *model.User, id uint) error {
 		return err
 	}
 
+	return nil
+}
+
+func (ur *userRepository) GetUserCountByOrganization(result *map[string]interface{}, organizationID uint) error{
+
+	if err := ur.db.Raw("SELECT count(users.id) as total_users, organizations.access_given from users left join organizations on organizations.id=users.organization_id where organization_id=?", organizationID).Find(result).Error; err != nil{
+		return err
+	}
 	return nil
 }
 

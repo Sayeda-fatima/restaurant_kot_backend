@@ -135,18 +135,18 @@ func (or *orderRepository) ProfitReport(result *[]map[string]interface{}, organi
 
 	limit, offset := common.ApplyPagination(page)
 
-	err := or.db.Raw(`SELECT date(i.created_at) as date, 
-                   i.id as invoice_no, 
+	err := or.db.Raw(`SELECT date(o.created_at) as date, 
+                   o.id as invoice_no, 
                    customers.name as customer_name, 
-                   i.total_price,
-                   SUM(p.purchase_price * id.product_quantity) AS purchase_price, 
-                   (i.total_price - SUM(p.purchase_price * id.product_quantity)) AS profit
-            FROM orders AS i
-            LEFT JOIN order_items AS id ON id.order_id = i.id
-			LEFT JOIN customers on customers.id = i.customer_id
-            LEFT JOIN products AS p ON p.id = id.product_id
-            WHERE i.organization_id =? and date(i.created_at) BETWEEN ? AND ?
-            GROUP BY i.id limit ? offset ?`, organizationID, dateFrom, dateTo, limit, offset).Find(result).Error
+                   o.total_price,
+                   SUM(p.purchase_price * od.product_quantity) AS purchase_price, 
+                   (o.total_price - SUM(p.purchase_price * od.product_quantity)) AS profit
+            FROM orders AS o
+            LEFT JOIN order_items AS od ON od.order_id = o.id
+			LEFT JOIN customers on customers.id = o.customer_id
+            LEFT JOIN products AS p ON p.id = od.product_id
+            WHERE o.organization_id =? and date(o.created_at) BETWEEN ? AND ?
+            GROUP BY o.id limit ? offset ?`, organizationID, dateFrom, dateTo, limit, offset).Find(result).Error
 
 	if err != nil{
 		return err
