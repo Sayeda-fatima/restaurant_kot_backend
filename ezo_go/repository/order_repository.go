@@ -86,15 +86,15 @@ func (or *orderRepository) GetInvoice(order *model.Order, id uint) error{
 func (or *orderRepository) SaleReport(result *[]map[string]interface{}, organizationID uint, dateFrom string, dateTo string, page int) error{
 
 	limit, offset := common.ApplyPagination(page)
-	err := or.db.Raw(`SELECT orders.created_at as date, 
-            orders.id as invoice_no, 
+	err := or.db.Raw(`SELECT o.created_at as date, 
+            o.id as invoice_no, 
             customers.name, 
             customers.phone_no, 
-            orders.total_price, 
-            (select sum(order_items.product_quantity) from order_items where order_items.order_id=orders.id group by order_items.order_id) as total_quantity
-            from orders 
-            left join customers on orders.customer_id = customers.id 
-            where orders.organization_id=? and date(orders.created_at) between ? and ? limit ? offset ?`, organizationID, dateFrom, dateTo, limit, offset).Find(result).Error
+            o.total_price, 
+            (select sum(order_items.product_quantity) from order_items where order_items.order_id=o.id group by order_items.order_id) as total_quantity
+            from orders as o
+            left join customers on o.customer_id = customers.id 
+            where o.organization_id=? and date(o.created_at) between ? and ? limit ? offset ?`, organizationID, dateFrom, dateTo, limit, offset).Find(result).Error
 	if err != nil{
 		return err
 	}

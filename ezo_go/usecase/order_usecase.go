@@ -278,30 +278,27 @@ func (ou *orderUsecase) GetInvoice(id uint) (model.OrderResponse, error) {
 
 func (ou *orderUsecase) SaleReport(organizationID uint, dateFrom string, dateTo string, page int) (map[string]interface{}, error){
 
-	var result []map[string]interface{}
-	if err := ou.or.SaleReport(&result, organizationID, dateFrom, dateTo, page); err != nil{
+	var report []map[string]interface{}
+	if err := ou.or.SaleReport(&report, organizationID, dateFrom, dateTo, page); err != nil{
 		return nil, err
 	}
 
-	var sales map[string]interface{}
-	if err := ou.or.TotalSales(&sales, organizationID, dateFrom, dateTo); err != nil{
+	var result map[string]interface{}
+	if err := ou.or.TotalSales(&result, organizationID, dateFrom, dateTo); err != nil{
 		return nil, err
 	}
 
-	if err := ou.or.TotalSalesQuantity(&sales, organizationID, dateFrom, dateTo); err != nil{
+	if err := ou.or.TotalSalesQuantity(&result, organizationID, dateFrom, dateTo); err != nil{
 		return nil, err
 	}
 
-	if err := ou.or.TotalSalesAmount(&sales, organizationID, dateFrom, dateTo); err != nil{
+	if err := ou.or.TotalSalesAmount(&result, organizationID, dateFrom, dateTo); err != nil{
 		return nil, err
 	}
-	report := map[string]interface{}{
-		"data": map[string]interface{}{
-			"total": sales,
-			"sales_report": result,
-		},
-	}
-	return report, nil
+	
+	result["sales_report"] = report
+	
+	return result, nil
 }
 
 func (ou *orderUsecase) ProfitReport(organizationID uint, dateFrom string, dateTo string, page int) (map[string]interface{}, error){
