@@ -29,7 +29,9 @@ func NewOrganizationController (ou usecase.OrganizationUsecase) OrganizationCont
 
 func (oc *organizationController) GetOrganizationList (c echo.Context) error{
 
-	organizationList, err := oc.ou.GetOrganizationList()
+	pageNo := c.QueryParam("page")
+	page, _ := strconv.Atoi(pageNo)
+	organizationList, err := oc.ou.GetOrganizationList(page)
 
 	if err!=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())

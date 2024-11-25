@@ -1,12 +1,13 @@
 package repository
 
 import (
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
 )
 
 type OrganizationRepository interface{
-	GetOrganizationList (organization *[]model.Organization) error
+	GetOrganizationList (organization *[]model.Organization, page int) error
 	CreateOrganization (organization *model.Organization) error
 	UpdateOrganization (organization *model.Organization, id uint) error
 	DeleteOrganization (organization *model.Organization, id uint) error
@@ -20,9 +21,9 @@ func NewOrganizationRepository (db *gorm.DB) OrganizationRepository {
 	return &organizationRepository{db}
 }
 
-func (or *organizationRepository) GetOrganizationList(organization *[]model.Organization) error{
+func (or *organizationRepository) GetOrganizationList(organization *[]model.Organization, page int) error{
 
-	if err := or.db.Find(organization).Error; err!=nil{
+	if err := or.db.Scopes(common.Paginate(page)).Find(organization).Error; err!=nil{
 		return err
 	}
 

@@ -9,7 +9,7 @@ import (
 
 type(
 	OrganizationUsecase interface{
-		GetOrganizationList() ([]model.OrganizationResponse, error)
+		GetOrganizationList(page int) ([]model.OrganizationResponse, error)
 		CreateOrganization (organization model.Organization) (model.OrganizationResponse, error)
 		UpdateOrganization (organization model.Organization, id uint) (model.OrganizationResponse, error)
 		DeleteOrganization (organization model.Organization, id uint) error
@@ -25,10 +25,10 @@ func NewOrganizationUsecase (or repository.OrganizationRepository, ov validator.
 	return &organizationUsecase{or,ov}
 }
 
-func (ou *organizationUsecase) GetOrganizationList () ([]model.OrganizationResponse, error) {
+func (ou *organizationUsecase) GetOrganizationList (page int) ([]model.OrganizationResponse, error) {
 
 	organizations := []model.Organization{}
-	if err := ou.or.GetOrganizationList(&organizations); err!=nil{
+	if err := ou.or.GetOrganizationList(&organizations, page); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("GetOrganizationList")
 		return nil, err
 	}

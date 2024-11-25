@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\ExpenseController;
 use App\Http\Controllers\API\InvoiceDetailsController;
+use App\Http\Controllers\API\OrganizationController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\API\ProductCategoryController;
 use App\Http\Controllers\API\Auth\AuthenticatedSessionController;
@@ -31,6 +32,8 @@ Route::post('/login',[AuthenticatedSessionController::class ,'store']);
 
 // require __DIR__.'/auth.php';
 
+// Organization
+Route::get("/organization", [OrganizationController::class, 'index']);
 // Product 
 // route for displaying products
 Route::get('/product', [ProductController::class, 'index'])->name('product.index')->middleware('auth:api');

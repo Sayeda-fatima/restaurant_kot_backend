@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
 )
@@ -11,8 +12,12 @@ type (
 		CreateOrder(order *model.Order) error
 		UpdateOrder(order *model.Order, id uint) error
 		DeleteOrder(order *model.Order, id uint) error
-		InvoiceReportCustomer (order *[]model.Order, organizationID uint, customerID uint, dateFrom string, dateTo string) error
+		InvoiceReportCustomer(order *[]model.Order, organizationID uint, customerID uint, dateFrom string, dateTo string) error
 		GetInvoice(order *model.Order, id uint) error
+		SaleReport(result *[]map[string]interface{}, organizationID uint, dateFrom string, dateTo string, page int) error
+		TotalSales(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error
+		TotalSalesQuantity(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error
+		TotalSalesAmount(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error
 	}
 
 	orderRepository struct {
@@ -74,4 +79,52 @@ func (or *orderRepository) GetInvoice(order *model.Order, id uint) error{
 		return err
 	}
 	return nil
+}
+
+func (or *orderRepository) SaleReport(result *[]map[string]interface{}, organizationID uint, dateFrom string, dateTo string, page int) error{
+
+	limit, offset := common.ApplyPagination(page)
+	err := or.db.Raw(`SELECT orders.created_at as date, 
+            orders.id as invoice_no, 
+            customers.name, 
+            customers.phone_no, 
+            orders.total_price, 
+            (select sum(order_items.product_quantity) from order_items where order_items.order_id=orders.id group by order_items.order_id) as total_quantity
+            from orders 
+            left join customers on orders.customer_id = customers.id 
+            where orders.organization_id=? and date(orders.created_at) between ? and ? limit ? offset ?`, organizationID, dateFrom, dateTo, limit, offset).Find(result).Error
+	if err != nil{
+		return err
+	}
+	return nil
+}
+
+func (or *orderRepository) TotalSales(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error{
+
+	err := or.db.Raw(`SELECT count(id) as total_sales from orders where organization_id=? and date(created_at) between ? and ?`, organizationID, dateFrom, dateTo).Find(result).Error
+
+	if err != nil{
+		return err
+	}
+	return nil
+}
+
+func (or *orderRepository) TotalSalesQuantity(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error{
+
+	err := or.db.Raw(`SELECT sum(product_quantity) as total_sales_quantity from order_items where organization_id=? and date(created_at) between ? and ?`, organizationID, dateFrom, dateTo).Find(result).Error
+
+	if err != nil{
+		return err
+	}
+	return nil
+}
+
+func (or *orderRepository) TotalSalesAmount(result *map[string]interface{}, organizationID uint, dateFrom string, dateTo string) error{
+
+	err := or.db.Raw(`SELECT sum(total_price) as total_sales_amount from orders where organization_id=? and date(created_at) between ? and ?`, organizationID, dateFrom, dateTo).Find(result).Error
+
+	if err != nil{
+		return err
+	}
+	return err
 }

@@ -25,6 +25,7 @@ func OrderRoutes(e *echo.Echo, oc controller.OrderController, ic controller.Orde
 	o.PUT("/:id", oc.UpdateOrder)
 	o.PUT("/:id/soft-delete", oc.DeleteOrder)
 	o.GET("/customer/:id/invoice", oc.InvoiceReportCustomer)
+	o.GET("/report", oc.SaleReport)
 
 	o.GET("/:id/item", ic.GetOrderItemList)
 	o.POST("/:id/item", ic.CreateOrderItem)

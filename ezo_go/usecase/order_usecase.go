@@ -19,6 +19,7 @@ type (
 		Checkout(order model.Order, organizationID uint, cartID uint) (model.OrderResponse, error)
 		InvoiceReportCustomer(organizationID uint, customerID uint, dateFrom string, dateTo string) ([]model.OrderResponse, error)
 		GetInvoice(id uint) (model.OrderResponse, error)
+		SaleReport(organizationID uint, dateFrom string, dateTo string, page int) (map[string]interface{}, error)
 	}
 
 	orderUsecase struct {
@@ -272,4 +273,32 @@ func (ou *orderUsecase) GetInvoice(id uint) (model.OrderResponse, error) {
 		OrderItems:             order.OrderItems,
 	}
 	return resOrder, nil
+}
+
+func (ou *orderUsecase) SaleReport(organizationID uint, dateFrom string, dateTo string, page int) (map[string]interface{}, error){
+
+	var result []map[string]interface{}
+	if err := ou.or.SaleReport(&result, organizationID, dateFrom, dateTo, page); err != nil{
+		return nil, err
+	}
+
+	var sales map[string]interface{}
+	if err := ou.or.TotalSales(&sales, organizationID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+
+	if err := ou.or.TotalSalesQuantity(&sales, organizationID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+
+	if err := ou.or.TotalSalesAmount(&sales, organizationID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+	report := map[string]interface{}{
+		"data": map[string]interface{}{
+			"total": sales,
+			"sales_report": result,
+		},
+	}
+	return report, nil
 }
