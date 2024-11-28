@@ -4,21 +4,21 @@ import "time"
 
 type Product struct {
 	ID             uint         `json:"id" gorm:"primaryKey"`
-	OrganizationID uint         `json:"organization_id"`
+	OrganizationID uint         `json:"organization_id" gorm:"not null"`
 	Organization   Organization `json:"-" gorm:"foreignKey:OrganizationID;references:ID" validate:"-"`
-	RestaurantID   uint         `json:"restaurant_id"`
+	RestaurantID   uint         `json:"restaurant_id" gorm:"not null"`
 	Restaurant     Restaurant   `json:"-" gorm:"foreignKey:RestaurantID;references:ID" validate:"-"`
-	Name           string       `json:"name" validate:"required"`
+	Name           string       `json:"name" gorm:"not null;size:255" validate:"required"`
 	Description    string       `json:"description" validate:"omitempty"`
-	Category       string       `json:"category" validate:"required"`
-	UnitOfMeasure  string       `json:"unit_of_measure" validate:"required"`
-	UnitCost       int          `json:"unit_cost" validate:"required"`
-	Quantity       int          `json:"quantity" validate:"required"`
-	InventoryValue int          `json:"inventory_value"`
+	Category       string       `json:"category" gorm:"not null;size:255" validate:"required"`
+	UnitOfMeasure  string       `json:"unit_of_measure" gorm:"not null;size:255" validate:"required"`
+	UnitCost       int          `json:"unit_cost" gorm:"not null;type:int(11)" validate:"required"`
+	Quantity       int          `json:"quantity" gorm:"not null;type:int(11)" validate:"required"`
+	InventoryValue int          `json:"inventory_value" gorm:"not null;type:int(11)"`
 	Recipes        []Recipe     `gorm:"many2many:recipe_products"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
-	IsDeleted      bool         `json:"is_deleted"`
+	IsDeleted      bool         `json:"is_deleted" gorm:"not null;default:0"`
 }
 
 type ProductResponse struct {

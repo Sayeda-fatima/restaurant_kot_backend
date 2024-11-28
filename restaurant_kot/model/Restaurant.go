@@ -4,14 +4,14 @@ import "time"
 
 type Restaurant struct {
 	ID             uint         `json:"id" gorm:"primaryKey"`
-	OrganizationID uint         `json:"organization_id" validate:"required"`
+	OrganizationID uint         `json:"organization_id" gorm:"not null" validate:"required"`
 	Organization   Organization `json:"-" gorm:"foreignKey:OrganizationID;references:ID" validate:"-"`
-	Name           string       `json:"name" validate:"required"`
-	PhoneNo        string       `json:"phone_no" validate:"required"`
-	Email          string       `json:"email" validate:"required" gorm:"unique"`
+	Name           string       `json:"name" gorm:"not null;size:255" validate:"required"`
+	PhoneNo        string       `json:"phone_no" gorm:"not null;size:255" validate:"required"`
+	Email          string       `json:"email" validate:"required" gorm:"not null;unique"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
-	IsDeleted      bool         `json:"is_deleted"`
+	IsDeleted      bool         `json:"is_deleted" gorm:"not null;default:0"`
 }
 
 type RestaurantResponse struct {

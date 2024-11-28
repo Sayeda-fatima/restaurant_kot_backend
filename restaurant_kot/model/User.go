@@ -6,14 +6,14 @@ import (
 
 type User struct {
 	ID             uint         `json:"id" gorm:"primaryKey"`
-	OrganizationID uint         `json:"organization_id" gorm:"foreignKey"`
+	OrganizationID uint         `json:"organization_id" gorm:"not null"`
 	Organization   Organization `gorm:"foreignKey:OrganizationID;references:ID" validate:"-"`
-	Name           string       `json:"name"`
+	Name           string       `json:"name" gorm:"not null;size:255"`
 	Email          string       `json:"email" gorm:"unique" validate:"required,email"`
-	Password       string       `json:"password" validate:"required,min=8"`
-	AccessType     string       `json:"access_type"`
-	ApiToken       string       `json:"api_token"`
-	RefreshToken   string       `json:"refresh_token"`
+	Password       string       `json:"password" gorm:"not null;size:255" validate:"required,min=8"`
+	AccessType     string       `json:"access_type" gorm:"not null;type:enum('admin','manager','staff')"`
+	ApiToken       string       `json:"api_token" gorm:"size:255"`
+	RefreshToken   string       `json:"refresh_token" gorm:"size:255"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 }

@@ -4,24 +4,26 @@ import "time"
 
 type OrderItem struct {
 	ID             uint         `json:"id" gorm:"primaryKey"`
-	OrganizationID uint         `json:"organization_id"`
+	OrganizationID uint         `json:"organization_id" gorm:"not null"`
 	Organization   Organization `json:"-" gorm:"foreignKey:OrganizationID;references:ID" validate:"-"`
-	RestaurantID   uint         `json:"restaurant_id"`
+	RestaurantID   uint         `json:"restaurant_id" gorm:"not null"`
 	Restaurant     Restaurant   `json:"-" gorm:"foreignKey:RestaurantID;references:ID" validate:"-"`
-	MenuItemID     uint         `json:"menu_item_id" validate:"required"`
+	OrderID        uint         `json:"order_id" gorm:"not null" validate:"required"`
+	MenuItemID     uint         `json:"menu_item_id" gorm:"not null" validate:"required"`
 	MenuItem       MenuItem     `json:"-" gorm:"foreignKey:MenuItemID;references:ID" validate:"-"`
-	ItemQuantity   int          `json:"item_quantity" validate:"required"`
-	UnitItemPrice  int          `json:"unit_item_price" validate:"required"`
-	TotalItemPrice int          `json:"total_item_price" validate:"required"`
+	ItemQuantity   int          `json:"item_quantity" gorm:"not null;type:int(11)" validate:"required"`
+	UnitItemPrice  int          `json:"unit_item_price" gorm:"not null;type:int(11)" validate:"required"`
+	TotalItemPrice int          `json:"total_item_price" gorm:"not null;type:int(11)" validate:"required"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
-	IsDeleted      bool         `json:"is_deleted"`
+	IsDeleted      bool         `json:"is_deleted" gorm:"not null;default:0"`
 }
 
 type OrderItemResponse struct {
 	ID             uint `json:"id" gorm:"primaryKey"`
 	OrganizationID uint `json:"organization_id"`
 	RestaurantID   uint `json:"restaurant_id"`
+	OrderID        uint `json:"order_id"`
 	MenuItemID     uint `json:"menu_item_id"`
 	ItemQuantity   int  `json:"item_quantity"`
 	UnitItemPrice  int  `json:"unit_item_price"`
