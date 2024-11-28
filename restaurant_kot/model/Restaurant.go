@@ -11,6 +11,7 @@ type Restaurant struct {
 	Email          string       `json:"email" validate:"required" gorm:"unique"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
+	IsDeleted      bool         `json:"is_deleted"`
 }
 
 type RestaurantResponse struct {

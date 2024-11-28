@@ -15,20 +15,21 @@ type Product struct {
 	UnitCost       int          `json:"unit_cost" validate:"required"`
 	Quantity       int          `json:"quantity" validate:"required"`
 	InventoryValue int          `json:"inventory_value"`
-	Recipes		   []Recipe		`gorm:"many2many:recipe_products"`
-	CreatedAt      time.Time	`json:"created_at"`
-	UpdatedAt	   time.Time	`json:"updated_at"`
+	Recipes        []Recipe     `gorm:"many2many:recipe_products"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
+	IsDeleted      bool         `json:"is_deleted"`
 }
 
-type ProductResponse struct{
-	ID				uint		`json:"id"`
-	OrganizationID 	uint		`json:"organization_id"`
-	RestaurantID	uint		`json:"restaurant_id"`
-	Name			string		`json:"name"`
-	Description		string		`json:"description"`
-	Category		string		`json:"category"`
-	UnitOfMeasure	string		`json:"unit_of_measure"`
-	UnitCost		int			`json:"unit_cost"`
-	Quantity		int			`json:"quantity"`
-	InventoryValue	int			`json:"inventory_value"`
+type ProductResponse struct {
+	ID             uint   `json:"id"`
+	OrganizationID uint   `json:"organization_id"`
+	RestaurantID   uint   `json:"restaurant_id"`
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	Category       string `json:"category"`
+	UnitOfMeasure  string `json:"unit_of_measure"`
+	UnitCost       int    `json:"unit_cost"`
+	Quantity       int    `json:"quantity"`
+	InventoryValue int    `json:"inventory_value"`
 }

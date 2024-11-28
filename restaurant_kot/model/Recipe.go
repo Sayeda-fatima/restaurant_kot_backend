@@ -9,9 +9,10 @@ type Recipe struct {
 	CookingTime string     `json:"cooking_time" validate:"required"`
 	Serving     int        `json:"serving" validate:"required"`
 	Products    []Product  `gorm:"many2many:recipe_products"`
-	Allergens   []Allergen `json:"allergen" gorm:"foreignKey:ID"`
+	Allergens   []Allergen `json:"allergen" gorm:"foreignKey:RecipeID"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
+	IsDeleted   bool       `json:"is_deleted"`
 }
 
 type RecipeResponse struct {

@@ -12,6 +12,7 @@ type Menu struct {
 	MenuItems      []MenuItem   `json:"menu_items" gorm:"foreignKey:MenuID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
+	IsDeleted      bool         `json:"is_deleted"`
 }
 
 type MenuResponse struct {
