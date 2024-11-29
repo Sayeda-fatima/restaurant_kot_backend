@@ -11,6 +11,7 @@ type Cart struct {
 	TableID        uint            `json:"table_id" gorm:"not null" validate:"required"`
 	Table          RestaurantTable `json:"-" gorm:"foreignKey:TableID;references:ID"`
 	TotalQuantity  int             `json:"total_quantity" gorm:"not null;type:int(11)"`
+	CartType       string          `json:"cart_type" gorm:"not null;type:enum('dine_in', 'takeaway', 'delivery')"`
 	CartItems      []CartItem      `json:"cart_items" gorm:"foreignKey:CartID"`
 	CreatedAt      time.Time       `json:"created_at"`
 	UpdatedAt      time.Time       `json:"updated_at"`
@@ -22,5 +23,6 @@ type CartResponse struct {
 	ID             uint       `json:"id"`
 	TableID        uint       `json:"table_id"`
 	TotalQuantity  int        `json:"total_quantity"`
+	CartType       string     `json:"cart_type"`
 	CartItems      []CartItem `json:"cart_items"`
 }

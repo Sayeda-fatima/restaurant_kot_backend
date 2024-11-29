@@ -6,7 +6,7 @@ import (
 
 type Organization struct {
 	ID          uint      `json:"id" gorm:"primaryKey"`
-	Image       string    `json:"required" validate:"required"`
+	Image       string    `json:"image" validate:"required"`
 	Name        string    `json:"name" gorm:"not null;size:255" validate:"required"`
 	Address     string    `json:"address" gorm:"not null;size:255" validate:"required"`
 	Email       string    `json:"email" gorm:"not null;unique" validate:"required"`

@@ -9,6 +9,7 @@ type Restaurant struct {
 	Name           string       `json:"name" gorm:"not null;size:255" validate:"required"`
 	PhoneNo        string       `json:"phone_no" gorm:"not null;size:255" validate:"required"`
 	Email          string       `json:"email" validate:"required" gorm:"not null;unique"`
+	Address        string       `json:"address" validate:"omitempty"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 	IsDeleted      bool         `json:"is_deleted" gorm:"not null;default:0"`
@@ -20,4 +21,5 @@ type RestaurantResponse struct {
 	Name           string `json:"name"`
 	PhoneNo        string `json:"phone_no"`
 	Email          string `json:"email"`
+	Address        string `json:"address"`
 }

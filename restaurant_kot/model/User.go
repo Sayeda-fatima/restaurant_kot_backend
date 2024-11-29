@@ -8,6 +8,8 @@ type User struct {
 	ID             uint         `json:"id" gorm:"primaryKey"`
 	OrganizationID uint         `json:"organization_id" gorm:"not null"`
 	Organization   Organization `gorm:"foreignKey:OrganizationID;references:ID" validate:"-"`
+	RestaurantID   uint         `json:"restaurant_id" gorm:"not null"`
+	Restaurant     Restaurant   `json:"-" gorm:"foreignKey:RestaurantID;references:ID"`
 	Name           string       `json:"name" gorm:"not null;size:255"`
 	Email          string       `json:"email" gorm:"unique" validate:"required,email"`
 	Password       string       `json:"password" gorm:"not null;size:255" validate:"required,min=8"`
