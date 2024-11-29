@@ -51,7 +51,7 @@ func (ur *userRepository) GetUserByID(user *model.User, id uint) error {
 
 func (ur *userRepository) GetUserCountByOrganization(result *map[string]interface{}, organizationID uint) error{
 
-	if err := ur.db.Raw("SELECT count(users.id) as total_users, organizations.access_given from users left join organizations on organizations.id=users.organization_id where organization_id=?", organizationID).Find(result).Error; err != nil{
+	if err := ur.db.Raw("SELECT IFNULL(count(users.id),0) as total_users, organizations.access_given from organizations left join users on organizations.id=users.organization_id where organizations.id=?", organizationID).Scan(result).Error; err != nil{
 		return err
 	}
 	return nil

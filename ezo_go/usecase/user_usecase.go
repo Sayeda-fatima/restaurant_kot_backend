@@ -47,7 +47,9 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 	if err := uu.ur.GetUserCountByOrganization(&totalUsers, user.OrganizationID); err != nil{
 		return model.UserResponse{}, err
 	}
-	if totalUsers["total_users"].(int64) >= totalUsers["access_given"].(int64){
+	common.Logger.LogInfo().Msgf("type(total_users): %s, type(access_given): %s", totalUsers["total_users"], totalUsers["access_given"])
+	// totalUsers["total_users"] -> type(int64), totalUsers["access_given"] -> type(int32) --> needs conversion for comparison as per current query
+	if totalUsers["total_users"].(int64) >= int64(totalUsers["access_given"].(int32)) {
 		return model.UserResponse{}, fmt.Errorf("you've reached your limit for signups")
 	}
 

@@ -11,7 +11,7 @@ type Organization struct {
 	Address     string    `json:"address" gorm:"not null;size:255" validate:"required"`
 	Email       string    `json:"email" gorm:"not null;unique" validate:"required"`
 	PhoneNo     string    `json:"phone_no" gorm:"not null;size:255" validate:"required"`
-	AccessGiven int       `json:"access_given" gorm:"not null;type:int(11)" validate:"required"`
+	AccessGiven int64     `json:"access_given" gorm:"not null;type:int(11)" validate:"required"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	IsDeleted   bool      `json:"is_deleted" gorm:"not null;default:0"`
@@ -22,5 +22,5 @@ type OrganizationResponse struct {
 	Name        string `json:"name"`
 	Address     string `json:"address"`
 	PhoneNo     string `json:"phone_no"`
-	AccessGiven int    `json:"access_given"`
+	AccessGiven int64  `json:"access_given"`
 }

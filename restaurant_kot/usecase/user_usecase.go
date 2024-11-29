@@ -47,7 +47,9 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 	if err := uu.ur.GetUserCountByOrganization(&totalUsers, user.OrganizationID); err != nil {
 		return model.UserResponse{}, err
 	}
-	if totalUsers["total_users"].(int64) >= totalUsers["access_given"].(int64) {
+	common.Logger.LogInfo().Msgf("type(total_users): %s, type(access_given): %s", totalUsers["total_users"], totalUsers["access_given"])
+	// totalUsers["total_users"] -> type(int64), totalUsers["access_given"] -> type(int32) --> needs conversion for comparison as per current query
+	if totalUsers["total_users"].(int64) >= int64(totalUsers["access_given"].(int32)) {
 		return model.UserResponse{}, fmt.Errorf("you've reached your limit for signups")
 	}
 
@@ -65,7 +67,7 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 		"exp":             time.Now().Add(time.Hour * 100).Unix(),
 	})
 	tokenString, _ := token.SignedString([]byte(os.Getenv("SECRET")))
-	newUser := model.User{Email: user.Email, Name: user.Name, OrganizationID: user.OrganizationID, Password: string(hash), AccessType: user.AccessType, ApiToken: tokenString}
+	newUser := model.User{Email: user.Email, Name: user.Name, OrganizationID: user.OrganizationID, RestaurantID: user.RestaurantID, Password: string(hash), AccessType: user.AccessType, ApiToken: tokenString}
 	if err := uu.ur.CreateUser(&newUser); err != nil {
 		common.Logger.LogError().Msg(err.Error())
 		return model.UserResponse{}, err
