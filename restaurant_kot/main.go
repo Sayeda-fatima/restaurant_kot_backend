@@ -40,6 +40,12 @@ func main() {
 	restaurantUsecase := usecase.NewRestaurantUsecase(restaurantRepository, restaurantValidator)
 	restaurantController := controller.NewRestaurantController(restaurantUsecase)
 
+	// staff 
+	staffValidator := validator.NewStaffValidator()
+	staffRepository := repository.NewStaffRepository(db)
+	staffUsecase := usecase.NewStaffUsecase(staffRepository, staffValidator)
+	staffController := controller.NewStaffController(staffUsecase)
+
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:8000", os.Getenv("APP_URL")},
@@ -56,6 +62,7 @@ func main() {
 	routes.AuthRoutes(e, userController)
 	routes.OrganizationRoutes(e, organizationController)
 	routes.RestaurantRoutes(e, restaurantController)
+	routes.StaffRoutes(e, staffController)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }

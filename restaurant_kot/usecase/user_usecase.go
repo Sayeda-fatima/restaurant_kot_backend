@@ -102,17 +102,17 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id":         user.ID,
-		"organization_id": user.OrganizationID,
-		"restaurant_id":   user.RestaurantID,
-		"access_type":     user.AccessType,
+		"user_id":         storedUser.ID,
+		"organization_id": storedUser.OrganizationID,
+		"restaurant_id":   storedUser.RestaurantID,
+		"access_type":     storedUser.AccessType,
 		"exp":             time.Now().Add(time.Hour * 100).Unix(),
 	})
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":         storedUser.ID,
 		"organization_id": storedUser.OrganizationID,
-		"restaurant_id":   user.RestaurantID,
+		"restaurant_id":   storedUser.RestaurantID,
 		"access_type":     storedUser.AccessType,
 		"exp":             time.Now().Add(time.Hour * 100).Unix(),
 	})
@@ -220,7 +220,7 @@ func (uu *userUsecase) ForgotPassword(user model.User) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email":           storedUser.Email,
 		"organization_id": storedUser.OrganizationID,
-		"restaurant_id":   user.RestaurantID,
+		"restaurant_id":   storedUser.RestaurantID,
 		"access_type":     storedUser.AccessType,
 		"exp":             time.Now().Add(time.Hour * 2).Unix(),
 	})
