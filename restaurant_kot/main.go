@@ -39,6 +39,17 @@ func main() {
 	restaurantRepository := repository.NewRestaurantRepository(db)
 	restaurantUsecase := usecase.NewRestaurantUsecase(restaurantRepository, restaurantValidator)
 	restaurantController := controller.NewRestaurantController(restaurantUsecase)
+	// restaurant table
+	restaurantTableValidator := validator.NewRestaurantTableValidator()
+	restaurantTableRepository := repository.NewRestaurantTableRepository(db)
+	restaurantTableUsecase := usecase.NewRestaurantTableUsecase(restaurantTableRepository, restaurantTableValidator)
+	restaurantTableController := controller.NewRestaurantTableController(restaurantTableUsecase)
+
+	// customer
+	customerValidator := validator.NewCustomerValidator()
+	customerRepository := repository.NewCustomerRepository(db)
+	customerUsecase := usecase.NewCustomerUsecase(customerRepository, customerValidator)
+	customerController := controller.NewCustomerController(customerUsecase)
 
 	// staff 
 	staffValidator := validator.NewStaffValidator()
@@ -62,6 +73,8 @@ func main() {
 	routes.AuthRoutes(e, userController)
 	routes.OrganizationRoutes(e, organizationController)
 	routes.RestaurantRoutes(e, restaurantController)
+	routes.RestaurantTableRoutes(e, restaurantTableController)
+	routes.CustomerRoutes(e, customerController)
 	routes.StaffRoutes(e, staffController)
 
 	e.Logger.Fatal(e.Start(":8000"))
