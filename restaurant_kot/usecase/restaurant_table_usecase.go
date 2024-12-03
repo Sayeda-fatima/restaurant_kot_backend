@@ -38,6 +38,7 @@ func (ru *restaurantTableUsecase) GetRestaurantTableList(organizationID uint, re
 			ID : v.ID,
 			OrganizationID: v.OrganizationID,
 			RestaurantID: v.RestaurantID,
+			TableNo: v.TableNo,
 			Capacity: v.Capacity,
 			Status: v.Status,
 		}
@@ -60,6 +61,7 @@ func (ru *restaurantTableUsecase) CreateRestaurantTable(restaurantTable model.Re
 		ID: restaurantTable.ID,
 		OrganizationID: restaurantTable.OrganizationID,
 		RestaurantID: restaurantTable.RestaurantID,
+		TableNo: restaurantTable.TableNo,
 		Capacity: restaurantTable.Capacity,
 		Status: restaurantTable.Status,
 	}
@@ -81,6 +83,7 @@ func (ru *restaurantTableUsecase) UpdateRestaurantTable(restaurantTable model.Re
 		ID: restaurantTable.ID,
 		OrganizationID: restaurantTable.OrganizationID,
 		RestaurantID: restaurantTable.RestaurantID,
+		TableNo: restaurantTable.TableNo,
 		Capacity: restaurantTable.Capacity,
 		Status: restaurantTable.Status,
 	}

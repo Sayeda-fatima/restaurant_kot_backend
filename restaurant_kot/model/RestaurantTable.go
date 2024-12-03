@@ -4,7 +4,7 @@ import "time"
 
 type RestaurantTable struct {
 	ID             uint         `json:"id" gorm:"primaryKey"`
-	TableNo        int          `json:"table_no" gorm:"not null;type:int(11)"`
+	TableNo        int          `json:"table_no" gorm:"not null;type:int(11);index"`
 	OrganizationID uint         `json:"organization_id" gorm:"not null"`
 	Organization   Organization `json:"-" gorm:"foreignKey:OrganizationID;references:ID" validate:"-"`
 	RestaurantID   uint         `json:"restaurant_id" gorm:"not null"`
