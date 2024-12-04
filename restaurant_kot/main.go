@@ -45,6 +45,18 @@ func main() {
 	restaurantTableUsecase := usecase.NewRestaurantTableUsecase(restaurantTableRepository, restaurantTableValidator)
 	restaurantTableController := controller.NewRestaurantTableController(restaurantTableUsecase)
 
+	// product
+	productValidator := validator.NewProductValidator()
+	productRepository := repository.NewProductRepository(db)
+	productUsecase := usecase.NewProductUsecase(productRepository, productValidator)
+	productController := controller.NewProductController(productUsecase)
+
+	// recipe
+	recipeValidator := validator.NewRecipeValidator()
+	recipeRepository := repository.NewRecipeRepository(db)
+	recipeUsecase := usecase.NewRecipeUsecase(recipeRepository, recipeValidator)
+	recipeController := controller.NewRecipeController(recipeUsecase)
+
 	// customer
 	customerValidator := validator.NewCustomerValidator()
 	customerRepository := repository.NewCustomerRepository(db)
@@ -74,8 +86,10 @@ func main() {
 	routes.OrganizationRoutes(e, organizationController)
 	routes.RestaurantRoutes(e, restaurantController)
 	routes.RestaurantTableRoutes(e, restaurantTableController)
+	routes.ProductRoutes(e, productController)
 	routes.CustomerRoutes(e, customerController)
 	routes.StaffRoutes(e, staffController)
+	routes.RecipeRoutes(e, recipeController)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }
