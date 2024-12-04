@@ -57,6 +57,18 @@ func main() {
 	recipeUsecase := usecase.NewRecipeUsecase(recipeRepository, recipeValidator)
 	recipeController := controller.NewRecipeController(recipeUsecase)
 
+	// menu
+	menuValidator := validator.NewMenuValidator()
+	menuRepository := repository.NewMenuRepository(db)
+	menuUsecase := usecase.NewMenuUsecase(menuRepository, menuValidator)
+	menuController := controller.NewMenuController(menuUsecase)
+
+	// menu item
+	menuItemValidator := validator.NewMenuItemValidator()
+	menuItemRepository := repository.NewMenuItemRepository(db)
+	menuItemUsecase := usecase.NewMenuItemUsecase(menuItemRepository, menuItemValidator)
+	menuItemController := controller.NewMenuItemController(menuItemUsecase)
+
 	// customer
 	customerValidator := validator.NewCustomerValidator()
 	customerRepository := repository.NewCustomerRepository(db)
@@ -68,6 +80,12 @@ func main() {
 	staffRepository := repository.NewStaffRepository(db)
 	staffUsecase := usecase.NewStaffUsecase(staffRepository, staffValidator)
 	staffController := controller.NewStaffController(staffUsecase)
+
+	// allergen
+	allergenValidator := validator.NewAllergenValidator()
+	allergenRepository := repository.NewAllergenRepository(db)
+	allergenUsecase := usecase.NewAllergenUsecase(allergenRepository, allergenValidator)
+	allergenController := controller.NewAllergenController(allergenUsecase)
 
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -90,6 +108,8 @@ func main() {
 	routes.CustomerRoutes(e, customerController)
 	routes.StaffRoutes(e, staffController)
 	routes.RecipeRoutes(e, recipeController)
+	routes.AllergenRoutes(e, allergenController)
+	routes.MenuRoutes(e, menuController, menuItemController)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }
