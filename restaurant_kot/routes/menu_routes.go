@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func MenuRoutes(e *echo.Echo, mc controller.MenuController, mi controller.MenuItemController){
+func MenuRoutes(e *echo.Echo, mc controller.MenuController, mi controller.MenuItemController, ma controller.MenuAllergenController){
 
 	m := e.Group("/api/menu")
 	m.Use(echojwt.WithConfig(echojwt.Config{
@@ -25,4 +25,10 @@ func MenuRoutes(e *echo.Echo, mc controller.MenuController, mi controller.MenuIt
 	m.POST("/:menuID/item", mi.CreateMenuItem)
 	m.PUT("/:menuID/item/:id", mi.UpdateMenuItem)
 	m.DELETE("/:menuID/item/:id", mi.DeleteMenuItem)
+
+	// menu allergen 
+	m.GET("/:menuID/allergen", ma.GetMenuAllergenList)
+	m.POST("/:menuID/allergen", ma.CreateMenuAllergen)
+	m.PUT("/:menuID/allergen/:id", ma.UpdateMenuAllergen)
+	m.DELETE("/:menuID/allergen/:id", ma.DeleteMenuAllergen)
 }

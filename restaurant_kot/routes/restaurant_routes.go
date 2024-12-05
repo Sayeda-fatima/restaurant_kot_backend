@@ -7,10 +7,10 @@ import (
 
 func RestaurantRoutes(e *echo.Echo, rc controller.RestaurantController){
 
-	r := e.Group("/api/restaurant")
+	re := e.Group("/api/restaurant")
 
-	r.GET("/:id", rc.GetRestaurantList)
-	r.POST("", rc.CreateRestaurant)
-	r.PUT("/:id", rc.UpdateRestaurant)
-	r.DELETE("/:id", rc.DeleteRestaurant)
+	re.GET("/:id", rc.GetRestaurantList)
+	re.POST("", rc.CreateRestaurant)
+	re.PUT("/:id", rc.UpdateRestaurant)
+	re.DELETE("/:id", rc.DeleteRestaurant)
 }

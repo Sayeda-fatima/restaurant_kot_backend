@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/common"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/model"
 	"gorm.io/gorm"
@@ -46,6 +48,11 @@ func (or *organizationRepository) UpdateOrganization(organization *model.Organiz
 	if err := result.Error; err != nil{
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("object does not exist")
+	}
+	
 	return nil
 }
 
@@ -56,5 +63,10 @@ func (or *organizationRepository) DeleteOrganization(organization *model.Organiz
 	if err := result.Error; err != nil{
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("object does not exist")
+	}
+	
 	return nil
 }

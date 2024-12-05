@@ -115,8 +115,7 @@ func main() {
 	routes.StaffRoutes(e, staffController)
 	routes.RecipeRoutes(e, recipeController)
 	routes.AllergenRoutes(e, allergenController)
-	routes.MenuRoutes(e, menuController, menuItemController)
-	routes.MenuAllergenRoutes(e, menuAllergenController)
-
+	routes.MenuRoutes(e, menuController, menuItemController, menuAllergenController)
+	
 	e.Logger.Fatal(e.Start(":8000"))
 }

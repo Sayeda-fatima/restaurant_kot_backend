@@ -10,13 +10,13 @@ import (
 
 func RestaurantTableRoutes(e *echo.Echo, rc controller.RestaurantTableController){
 
-	m := e.Group("/api/restaurant/table")
-	m.Use(echojwt.WithConfig(echojwt.Config{
+	rt := e.Group("/api/restaurant/table")
+	rt.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey: []byte(os.Getenv("SECRET")),
 	}))
 
-	m.GET("", rc.GetRestaurantTableList)
-	m.POST("", rc.CreateRestaurantTable)
-	m.PUT("/:id", rc.UpdateRestaurantTable)
-	m.DELETE("/:id", rc.DeleteRestaurantTable)
+	rt.GET("", rc.GetRestaurantTableList)
+	rt.POST("", rc.CreateRestaurantTable)
+	rt.PUT("/:id", rc.UpdateRestaurantTable)
+	rt.DELETE("/:id", rc.DeleteRestaurantTable)
 }

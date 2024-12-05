@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/model"
 	"gorm.io/gorm"
 )
@@ -45,6 +47,11 @@ func (mr *menuItemRepository) UpdateMenuItem(menuItem *model.MenuItem, id uint) 
 	if err := result.Error; err != nil{
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("object does not exist")
+	}
+	
 	return nil
 }
 
@@ -55,5 +62,10 @@ func (mr *menuItemRepository) DeleteMenuItem(menuItem *model.MenuItem, id uint) 
 	if err := result.Error; err != nil{
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("object does not exist")
+	}
+	
 	return nil
 }
