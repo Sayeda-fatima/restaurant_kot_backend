@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
 )
@@ -44,5 +46,10 @@ func (pr *productImageRepository) DeleteProductImage(productImage *model.Product
 	if err := result.Error; err != nil {
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+	
 	return nil
 }

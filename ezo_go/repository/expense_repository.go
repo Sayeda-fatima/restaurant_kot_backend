@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
 )
@@ -47,6 +49,11 @@ func (er *expenseRepository) UpdateExpense(expense *model.Expense, id uint) erro
 	if err := result.Error; err != nil {
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+	
 	return nil
 }
 
@@ -57,6 +64,11 @@ func (er *expenseRepository) DeleteExpense(expense *model.Expense, id uint) erro
 	if err := result.Error; err != nil {
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+	
 	return nil
 }
 

@@ -3,7 +3,8 @@ package repository
 import (
 	//"time"
 
-	"github.com/NazishAhsan/easy_busy_book_go/common"
+	"fmt"
+
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
 )
@@ -44,12 +45,15 @@ func (cr *customerRepository) CreateCustomer(customer *model.Customer) error {
 
 func (cr *customerRepository) UpdateCustomer(customer *model.Customer, id uint) error {
 
-	//print("data: %s")
-	common.Logger.LogInfo().Fields(map[string]interface{}{"data": customer}).Msg("test")
 	result := cr.db.Model(customer).Where("id=?", id).Updates(customer)
 	if err := result.Error; err != nil {
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+	
 	return nil
 }
 
@@ -60,6 +64,11 @@ func (cr *customerRepository) DeleteCustomer(customer *model.Customer, id uint) 
 	if err := result.Error; err != nil {
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+
 	return nil
 }
 

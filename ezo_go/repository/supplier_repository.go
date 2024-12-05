@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
 )
@@ -48,6 +50,10 @@ func (sr *supplierRepository) UpdateSupplier(supplier *model.Supplier, id uint) 
 		return err
 	}
 
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	} 
+
 	return nil
 }
 
@@ -58,6 +64,11 @@ func (sr *supplierRepository) DeleteSupplier(supplier *model.Supplier, id uint) 
 	if err := result.Error; err!=nil{
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+	
 	return nil
 }
 

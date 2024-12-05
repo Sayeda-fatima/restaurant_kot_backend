@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/NazishAhsan/easy_busy_book_go/common"
 	"github.com/NazishAhsan/easy_busy_book_go/model"
 	"gorm.io/gorm"
@@ -54,6 +56,11 @@ func (or *orderRepository) UpdateOrder(order *model.Order, id uint) error {
 	if err := result.Error; err != nil {
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+	
 	return nil
 }
 
@@ -64,6 +71,11 @@ func (or *orderRepository) DeleteOrder(order *model.Order, id uint) error {
 	if err := result.Error; err != nil {
 		return err
 	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("record does not exist")
+	}
+	
 	return nil
 }
 

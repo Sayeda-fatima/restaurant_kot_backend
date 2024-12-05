@@ -74,7 +74,7 @@ func (ur *userRepository) UpdateUser(user *model.User, jwt string) error {
 	}
 
 	if result.RowsAffected < 1 {
-		return fmt.Errorf("object does not exist")
+		return fmt.Errorf("record does not exist")
 	}
 
 	return nil
@@ -89,7 +89,7 @@ func (ur *userRepository) UpdateUserRefreshToken(user *model.User, jwt string) e
 	}
 
 	if result.RowsAffected < 1 {
-		return fmt.Errorf("object does not exist")
+		return fmt.Errorf("record does not exist")
 	}
 	return nil
 }
