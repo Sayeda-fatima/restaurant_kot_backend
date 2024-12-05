@@ -6,7 +6,6 @@ import (
 
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/model"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/usecase"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -29,12 +28,7 @@ func NewAllergenController(au usecase.AllergenUsecase) AllergenController{
 
 func (ac *allergenController) GetAllergenList(c echo.Context) error{
 
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	organizationID := claims["organization_id"]
-	restaurantID := claims["restaurant_id"]
-
-	allergenRes, err := ac.au.GetAllergenList(uint(organizationID.(float64)), uint(restaurantID.(float64)))
+	allergenRes, err := ac.au.GetAllergenList()
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -44,11 +38,6 @@ func (ac *allergenController) GetAllergenList(c echo.Context) error{
 }
 
 func (ac *allergenController) CreateAllergen(c echo.Context) error{
-
-	// user := c.Get("user").(*jwt.Token)
-	// claims := user.Claims.(jwt.MapClaims)
-	// organizationID := claims["organization_id"]
-	// restaurantID := claims["restaraunt_id"]
 
 	allergen := model.Allergen{}
 	if err := c.Bind(&allergen); err != nil{

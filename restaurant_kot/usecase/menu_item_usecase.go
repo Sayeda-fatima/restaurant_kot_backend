@@ -45,7 +45,7 @@ func (mu *menuItemUsecase) GetMenuItemList(organizationID uint, restaurantID uin
 			Currency: v.Currency,
 			Price: strconv.FormatFloat(float64(v.Price)/100, 'f', -1, 64),
 			RecipeID: v.RecipeID,
-			Allergens: v.Allergens,
+			MenuAllergens: v.MenuAllergens,
 		}
 		resMenuItems = append(resMenuItems, res)
 	}
@@ -72,7 +72,7 @@ func (mu *menuItemUsecase) CreateMenuItem(menuItem model.MenuItem) (model.MenuIt
 		Currency: menuItem.Currency,
 		Price: strconv.FormatFloat(float64(menuItem.Price)/100, 'f', -1, 64),
 		RecipeID: menuItem.RecipeID,
-		Allergens: menuItem.Allergens,
+		MenuAllergens: menuItem.MenuAllergens,
 	}
 
 	return resMenuItem, nil
@@ -98,7 +98,7 @@ func (mu *menuItemUsecase) UpdateMenuItem(menuItem model.MenuItem, id uint) (mod
 		Currency: menuItem.Currency,
 		Price: strconv.FormatFloat(float64(menuItem.Price)/100, 'f', -1, 64),
 		RecipeID: menuItem.RecipeID,
-		Allergens: menuItem.Allergens,
+		MenuAllergens: menuItem.MenuAllergens,
 	}
 
 	return resMenuItem, nil

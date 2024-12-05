@@ -87,6 +87,12 @@ func main() {
 	allergenUsecase := usecase.NewAllergenUsecase(allergenRepository, allergenValidator)
 	allergenController := controller.NewAllergenController(allergenUsecase)
 
+	// menu allergen
+	menuAllergenValidator := validator.NewMenuAllergenValidator()
+	menuAllergenRepository := repository.NewMenuAllergenRepository(db)
+	menuAllergenUsecase := usecase.NewMenuAllergenUsecase(menuAllergenRepository, menuAllergenValidator)
+	menuAllergenController := controller.NewMenuAllergenController(menuAllergenUsecase)
+
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:8000", os.Getenv("APP_URL")},
@@ -110,6 +116,7 @@ func main() {
 	routes.RecipeRoutes(e, recipeController)
 	routes.AllergenRoutes(e, allergenController)
 	routes.MenuRoutes(e, menuController, menuItemController)
+	routes.MenuAllergenRoutes(e, menuAllergenController)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }

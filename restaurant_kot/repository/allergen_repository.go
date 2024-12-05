@@ -7,7 +7,7 @@ import (
 
 type (
 	AllergenRepository interface {
-		GetAllergenList(allergen *[]model.Allergen, organizationID uint, restaurantID uint) error
+		GetAllergenList(allergen *[]model.Allergen) error
 		CreateAllergen(allergen *model.Allergen) error
 		UpdateAllergen(allergen *model.Allergen, id uint) error
 		DeleteAllergen(allergen *model.Allergen, id uint) error
@@ -22,9 +22,9 @@ func NewAllergenRepository(db *gorm.DB) AllergenRepository{
 	return &allergenRepository{db}
 }
 
-func (ar *allergenRepository) GetAllergenList(allergen *[]model.Allergen, organizationID uint, restaurantID uint) error{
+func (ar *allergenRepository) GetAllergenList(allergen *[]model.Allergen) error{
 
-	if err := ar.db.Where("organization_id=? and restaurant_id=? and is_deleted=0", organizationID, restaurantID).Find(allergen).Error; err != nil{
+	if err := ar.db.Where("is_deleted=0").Find(allergen).Error; err != nil{
 		return err
 	}
 	return nil

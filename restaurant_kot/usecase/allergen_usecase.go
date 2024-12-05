@@ -8,7 +8,7 @@ import (
 
 type (
 	AllergenUsecase interface {
-		GetAllergenList(organizationID uint, restaurantID uint) ([]model.AllergenResponse, error)
+		GetAllergenList() ([]model.AllergenResponse, error)
 		CreateAllergen(allergen model.Allergen) (model.AllergenResponse, error)
 		UpdateAllergen(allergen model.Allergen, id uint) (model.AllergenResponse, error)
 		DeleteAllergen(allergen model.Allergen, id uint) error
@@ -24,11 +24,11 @@ func NewAllergenUsecase(ar repository.AllergenRepository, av validator.AllergenV
 	return &allergenUsecase{ar,av}
 }
 
-func (au *allergenUsecase) GetAllergenList(organizationID uint, restaurantID uint) ([]model.AllergenResponse, error){
+func (au *allergenUsecase) GetAllergenList() ([]model.AllergenResponse, error){
 
 	allergens := []model.Allergen{}
 
-	if err := au.ar.GetAllergenList(&allergens, organizationID, restaurantID); err != nil{
+	if err := au.ar.GetAllergenList(&allergens); err != nil{
 		return nil, err
 	}
 
@@ -36,8 +36,6 @@ func (au *allergenUsecase) GetAllergenList(organizationID uint, restaurantID uin
 	for _, v := range(allergens){
 		res := model.AllergenResponse{
 			ID: v.ID,
-			MenuItemID: v.MenuItemID,
-			RecipeID: v.RecipeID,
 			AllergenName: v.AllergenName,
 		}
 		resAllergen = append(resAllergen, res)
@@ -57,8 +55,6 @@ func (au *allergenUsecase) CreateAllergen(allergen model.Allergen) (model.Allerg
 
 	resAllergen := model.AllergenResponse{
 		ID: allergen.ID,
-		MenuItemID: allergen.MenuItemID,
-		RecipeID: allergen.RecipeID,
 		AllergenName: allergen.AllergenName,
 	}
 	return resAllergen, nil
@@ -76,8 +72,6 @@ func (au *allergenUsecase) UpdateAllergen(allergen model.Allergen, id uint) (mod
 
 	resAllergen := model.AllergenResponse{
 		ID: allergen.ID,
-		MenuItemID: allergen.MenuItemID,
-		RecipeID: allergen.RecipeID,
 		AllergenName: allergen.AllergenName,
 	}
 	return resAllergen, nil

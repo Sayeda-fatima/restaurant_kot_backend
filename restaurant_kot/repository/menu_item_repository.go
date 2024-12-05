@@ -24,7 +24,7 @@ func NewMenuItemRepository(db *gorm.DB) MenuItemRepository{
 
 func (mr *menuItemRepository) GetMenuItemList(menuItem *[]model.MenuItem, organizationID uint, restaurantID uint, menuID uint) error{
 
-	if err := mr.db.Where("organization_id=? and restaurant_id=? and menu_id=? and is_deleted=0", organizationID, restaurantID, menuID).Find(menuItem).Error; err != nil{
+	if err := mr.db.Preload("MenuAllergens.Allergen", func (db *gorm.DB) *gorm.DB{return db.Select("id", "allergen_name")}).Where("organization_id=? and restaurant_id=? and menu_id=? and is_deleted=0", organizationID, restaurantID, menuID).Find(menuItem).Error; err != nil{
 		return err
 	}
 	return nil
