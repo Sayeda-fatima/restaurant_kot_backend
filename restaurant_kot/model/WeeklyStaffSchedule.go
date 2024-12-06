@@ -5,11 +5,11 @@ import "time"
 type WeeklyStaffSchedule struct {
 	ID             uint         `json:"id" gorm:"primaryKey"`
 	OrganizationID uint         `json:"organization_id" gorm:"not null"`
-	Organization   Organization `json:"-" gorm:"foreignKey:OrganizationID;references:ID"`
+	Organization   Organization `json:"-" gorm:"foreignKey:OrganizationID;references:ID" validate:"-"`
 	RestaurantID   uint         `json:"restaurant_id" gorm:"not null"`
-	Restaurant     Restaurant   `json:"-" gorm:"foreignKey:RestaurantID;references:ID"`
+	Restaurant     Restaurant   `json:"-" gorm:"foreignKey:RestaurantID;references:ID" validate:"-"`
 	StaffID        uint         `json:"staff_id" gorm:"not null"`
-	Staff          Staff        `json:"-" gorm:"foreignKey:StaffID;references:ID"`
+	Staff          Staff        `json:"-" gorm:"foreignKey:StaffID;references:ID" validate:"-"`
 	WorkDate       time.Time    `json:"work_date" gorm:"not null"`
 	StartWorkHour  int          `json:"start_work_hour" gorm:"not null;type:int(11)"`
 	EndWorkHour    int          `json:"end_work_hour" gorm:"not null;type:int(11)"`

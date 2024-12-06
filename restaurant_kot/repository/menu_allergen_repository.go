@@ -57,7 +57,7 @@ func (mr *menuAllergenRepository) UpdateMenuAllergen(menuAllergen *model.MenuAll
 
 func (mr *menuAllergenRepository) DeleteMenuAllergen(menuAllergen *model.MenuAllergen, id uint) error{
 
-	result := mr.db.Model(menuAllergen).Where("id=?", id).Update("is_deleted", 1)
+	result := mr.db.Model(menuAllergen).Where("id=?", id).Delete(menuAllergen)
 
 	if err := result.Error; err != nil{
 		return err

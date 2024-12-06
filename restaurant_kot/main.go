@@ -81,6 +81,12 @@ func main() {
 	staffUsecase := usecase.NewStaffUsecase(staffRepository, staffValidator)
 	staffController := controller.NewStaffController(staffUsecase)
 
+	// staff weekly schedule
+	weeklyStaffScheduleValidator := validator.NewWeeklyStaffScheduleValidator()
+	weeklyStaffScheduleRepository := repository.NewWeeklyStaffScheduleRepository(db)
+	weeklyStaffScheduleUsecase := usecase.NewWeeklyStaffScheduleUsecase(weeklyStaffScheduleRepository, weeklyStaffScheduleValidator)
+	weeklyStaffScheduleController := controller.NewWeeklyStaffSchedule(weeklyStaffScheduleUsecase)
+
 	// allergen
 	allergenValidator := validator.NewAllergenValidator()
 	allergenRepository := repository.NewAllergenRepository(db)
@@ -112,10 +118,10 @@ func main() {
 	routes.RestaurantTableRoutes(e, restaurantTableController)
 	routes.ProductRoutes(e, productController)
 	routes.CustomerRoutes(e, customerController)
-	routes.StaffRoutes(e, staffController)
+	routes.StaffRoutes(e, staffController, weeklyStaffScheduleController)
 	routes.RecipeRoutes(e, recipeController)
 	routes.AllergenRoutes(e, allergenController)
 	routes.MenuRoutes(e, menuController, menuItemController, menuAllergenController)
-	
+
 	e.Logger.Fatal(e.Start(":8000"))
 }
