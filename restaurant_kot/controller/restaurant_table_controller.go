@@ -85,7 +85,7 @@ func (rc *restaurantTableController) UpdateRestaurantTable(c echo.Context) error
 	restaurantTable.OrganizationID = uint(organizationID.(float64))
 	restaurantTable.RestaurantID = uint(restaurantID.(float64))
 
-	restaurantTableRes, err := rc.ru.UpdateRestaurantTable(restaurantTable, uint(restaurantTableID))
+	restaurantTableRes, err := rc.ru.UpdateRestaurantTable(restaurantTable, uint(restaurantTableID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -96,6 +96,10 @@ func (rc *restaurantTableController) UpdateRestaurantTable(c echo.Context) error
 
 func (rc *restaurantTableController) DeleteRestaurantTable(c echo.Context) error {
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
 	id := c.Param("id")
 	restaurantTableID, _ := strconv.Atoi(id)
 
@@ -104,7 +108,7 @@ func (rc *restaurantTableController) DeleteRestaurantTable(c echo.Context) error
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := rc.ru.DeleteRestaurantTable(restaurantTable, uint(restaurantTableID)); err != nil {
+	if err := rc.ru.DeleteRestaurantTable(restaurantTable, uint(restaurantTableID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

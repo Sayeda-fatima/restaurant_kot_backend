@@ -85,7 +85,7 @@ func (wc *weeklyStaffScheduleController) UpdateWeeklyStaffSchedule(c echo.Contex
 	weeklyStaffSchedule.OrganizationID = uint(organizationID.(float64))
 	weeklyStaffSchedule.RestaurantID = uint(restaurantID.(float64))
 
-	weeklyStaffScheduleRes, err := wc.wu.UpdateWeeklyStaffSchedule(weeklyStaffSchedule, uint(weeklyStaffScheduleID))
+	weeklyStaffScheduleRes, err := wc.wu.UpdateWeeklyStaffSchedule(weeklyStaffSchedule, uint(weeklyStaffScheduleID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -96,6 +96,11 @@ func (wc *weeklyStaffScheduleController) UpdateWeeklyStaffSchedule(c echo.Contex
 
 func (wc *weeklyStaffScheduleController) DeleteWeeklyStaffSchedule(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
 	id := c.Param("id")
 	weeklyStaffScheduleID, _ := strconv.Atoi(id)
 
@@ -104,7 +109,7 @@ func (wc *weeklyStaffScheduleController) DeleteWeeklyStaffSchedule(c echo.Contex
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := wc.wu.DeleteWeeklyStaffSchedule(weeklyStaffSchedule, uint(weeklyStaffScheduleID)); err != nil{
+	if err := wc.wu.DeleteWeeklyStaffSchedule(weeklyStaffSchedule, uint(weeklyStaffScheduleID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 

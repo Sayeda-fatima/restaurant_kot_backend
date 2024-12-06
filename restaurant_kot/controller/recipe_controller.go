@@ -84,7 +84,7 @@ func (rc *recipeController) UpdateRecipe(c echo.Context) error{
 	recipe.ID = uint(recipeID)
 	recipe.OrganizationID = uint(organizationID.(float64))
 	recipe.RestaurantID = uint(restaurantID.(float64))
-	recipeRes, err := rc.ru.UpdateRecipe(recipe, uint(recipeID))
+	recipeRes, err := rc.ru.UpdateRecipe(recipe, uint(recipeID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -95,6 +95,10 @@ func (rc *recipeController) UpdateRecipe(c echo.Context) error{
 
 func (rc *recipeController) DeleteRecipe(c echo.Context) error{
 	
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
 	id := c.Param("id")
 	recipeID, _ := strconv.Atoi(id)
 
@@ -103,7 +107,7 @@ func (rc *recipeController) DeleteRecipe(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := rc.ru.DeleteRecipe(recipe, uint(recipeID)); err != nil{
+	if err := rc.ru.DeleteRecipe(recipe, uint(recipeID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

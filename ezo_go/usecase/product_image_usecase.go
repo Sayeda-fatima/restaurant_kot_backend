@@ -15,7 +15,7 @@ type (
 	ProductImageUsecase interface {
 		GetProductImageList(organizationID uint, productID uint) ([]model.ProductImageResponse, error)
 		AddProductImage(file *multipart.FileHeader, organizationID uint, productID uint) (model.ProductImageResponse, error)
-		DeleteProductImage(productImage model.ProductImage, id uint) error
+		DeleteProductImage(productImage model.ProductImage, id uint, organizationID uint) error
 	}
 
 	productImageUsecase struct {
@@ -79,9 +79,9 @@ func (pu *productImageUsecase) AddProductImage(file *multipart.FileHeader, organ
 	return resProductImage, nil
 }
 
-func (pu *productImageUsecase) DeleteProductImage(productImage model.ProductImage, id uint) error{
+func (pu *productImageUsecase) DeleteProductImage(productImage model.ProductImage, id uint, organizationID uint) error{
 
-	if err := pu.pr.DeleteProductImage(&productImage, id); err!=nil{
+	if err := pu.pr.DeleteProductImage(&productImage, id, organizationID); err!=nil{
 		return err
 	}
 	return nil

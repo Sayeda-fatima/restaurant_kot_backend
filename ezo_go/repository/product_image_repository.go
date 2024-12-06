@@ -11,7 +11,7 @@ type (
 	ProductImageRepository interface {
 		GetProductImageList(productImage *[]model.ProductImage, organizationID uint, productID uint) error
 		AddProductImage(productImage *model.ProductImage) error
-		DeleteProductImage(productImage *model.ProductImage, id uint) error
+		DeleteProductImage(productImage *model.ProductImage, id uint, organizationID uint) error
 	}
 
 	productImageRepository struct {
@@ -39,9 +39,9 @@ func (pr *productImageRepository) AddProductImage(productImage *model.ProductIma
 	return nil
 }
 
-func (pr *productImageRepository) DeleteProductImage(productImage *model.ProductImage, id uint) error {
+func (pr *productImageRepository) DeleteProductImage(productImage *model.ProductImage, id uint, organizationID uint) error {
 
-	result := pr.db.Model(productImage).Where("id=?", id).Update("is_deleted", 1)
+	result := pr.db.Model(productImage).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
 		return err

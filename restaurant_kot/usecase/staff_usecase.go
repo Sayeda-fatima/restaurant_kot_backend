@@ -11,8 +11,8 @@ type (
 		GetStaffListByOrganization(organizationID uint) ([]model.StaffResponse, error)
 		GetStaffListByRestaurant(organizationID uint, restaurantID uint) ([]model.StaffResponse, error)
 		CreateStaff(staff model.Staff) (model.StaffResponse, error)
-		UpdateStaff(staff model.Staff, id uint) (model.StaffResponse, error)
-		DeleteStaff(staff model.Staff, id uint) error
+		UpdateStaff(staff model.Staff, id uint, organizationID uint, restaurantID uint) (model.StaffResponse, error)
+		DeleteStaff(staff model.Staff, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	staffUsecase struct{
@@ -97,13 +97,13 @@ func (su *staffUsecase) CreateStaff(staff model.Staff) (model.StaffResponse, err
 	return resStaff, nil
 }
 
-func (su *staffUsecase) UpdateStaff(staff model.Staff, id uint) (model.StaffResponse, error){
+func (su *staffUsecase) UpdateStaff(staff model.Staff, id uint, organizationID uint, restaurantID uint) (model.StaffResponse, error){
 
 	if err := su.sv.StaffValidate(&staff); err != nil{
 		return model.StaffResponse{}, err
 	}
 
-	if err := su.sr.UpdateStaff(&staff, id); err != nil{
+	if err := su.sr.UpdateStaff(&staff, id, organizationID, restaurantID); err != nil{
 		return model.StaffResponse{}, err
 	}
 
@@ -120,9 +120,9 @@ func (su *staffUsecase) UpdateStaff(staff model.Staff, id uint) (model.StaffResp
 	return resStaff, nil
 }
 
-func (su *staffUsecase) DeleteStaff(staff model.Staff, id uint) error{
+func (su *staffUsecase) DeleteStaff(staff model.Staff, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := su.sr.DeleteStaff(&staff, id); err != nil{
+	if err := su.sr.DeleteStaff(&staff, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 	return nil

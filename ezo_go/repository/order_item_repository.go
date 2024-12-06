@@ -11,8 +11,8 @@ type (
 	OrderItemRepository interface {
 		GetOrderItemList(orderItems *[]model.OrderItem, organizationID uint, orderID uint) error
 		CreateOrderItem(orderItem *model.OrderItem) error
-		UpdateOrderItem(orderItem *model.OrderItem, id uint) error
-		DeleteOrderItem(orderItem *model.OrderItem, id uint) error
+		UpdateOrderItem(orderItem *model.OrderItem, id uint, organizationID uint) error
+		DeleteOrderItem(orderItem *model.OrderItem, id uint, organizationID uint) error
 		InvoiceCustomer(orderItems *[]model.OrderItem, organizationID uint, orderID uint, dateFrom string, dateTo string) error
 	}
 
@@ -41,9 +41,9 @@ func (or *orderItemRepository) CreateOrderItem(order *model.OrderItem) error {
 	return nil
 }
 
-func (or *orderItemRepository) UpdateOrderItem(order *model.OrderItem, id uint) error {
+func (or *orderItemRepository) UpdateOrderItem(order *model.OrderItem, id uint, organizationID uint) error {
 
-	result := or.db.Model(order).Where("id=?", id).Updates(order)
+	result := or.db.Model(order).Where("id=? and organization_id=?", id, organizationID).Updates(order)
 
 	if err := result.Error; err != nil {
 		return err
@@ -56,9 +56,9 @@ func (or *orderItemRepository) UpdateOrderItem(order *model.OrderItem, id uint) 
 	return nil
 }
 
-func (or *orderItemRepository) DeleteOrderItem(order *model.OrderItem, id uint) error {
+func (or *orderItemRepository) DeleteOrderItem(order *model.OrderItem, id uint, organizationID uint) error {
 
-	result := or.db.Model(order).Where("id=?", id).Update("is_deleted", 1)
+	result := or.db.Model(order).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
 		return err

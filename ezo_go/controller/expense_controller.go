@@ -81,7 +81,7 @@ func (ec *expenseController) UpdateExpense(c echo.Context) error {
 	expense.ID = uint(expenseID)
 	expense.AmountDue = expense.TotalAmount - expense.AmountPaid
 
-	expenseRes, err := ec.eu.UpdateExpense(expense, uint(expenseID))
+	expenseRes, err := ec.eu.UpdateExpense(expense, uint(expenseID), uint(organizationID.(float64)))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -91,6 +91,9 @@ func (ec *expenseController) UpdateExpense(c echo.Context) error {
 
 func (ec *expenseController) DeleteExpense(c echo.Context) error {
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	expenseID, _ := strconv.Atoi(id)
 
@@ -100,7 +103,7 @@ func (ec *expenseController) DeleteExpense(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := ec.eu.DeleteExpense(expense, uint(expenseID)); err != nil {
+	if err := ec.eu.DeleteExpense(expense, uint(expenseID), uint(organizationID.(float64))); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

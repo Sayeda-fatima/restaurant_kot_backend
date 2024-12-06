@@ -83,7 +83,7 @@ func (mc *menuController) UpdateMenu(c echo.Context) error{
 	menu.OrganizationID = uint(organizationID.(float64))
 	menu.RestaurantID = uint(restaurantID.(float64))
 
-	menuRes, err := mc.mu.UpdateMenu(menu, uint(menuID))
+	menuRes, err := mc.mu.UpdateMenu(menu, uint(menuID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -92,6 +92,10 @@ func (mc *menuController) UpdateMenu(c echo.Context) error{
 
 func (mc *menuController) DeleteMenu(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
 	id := c.Param("id")
 	menuID, _ := strconv.Atoi(id)
 
@@ -100,7 +104,7 @@ func (mc *menuController) DeleteMenu(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := mc.mu.DeleteMenu(menu, uint(menuID)); err != nil{
+	if err := mc.mu.DeleteMenu(menu, uint(menuID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

@@ -11,8 +11,8 @@ type (
 	ExpenseRepository interface {
 		GetExpenseList(expense *[]model.Expense, organizationID uint) error
 		CreateExpense(expense *model.Expense) error
-		UpdateExpense(expense *model.Expense, id uint) error
-		DeleteExpense(expense *model.Expense, id uint) error
+		UpdateExpense(expense *model.Expense, id uint, organizationID uint) error
+		DeleteExpense(expense *model.Expense, id uint, organizationID uint) error
 		ExpenseReport(expense *[]model.Expense, organizationID uint, dateFrom string, dateTo string) error
 	}
 
@@ -42,9 +42,9 @@ func (er *expenseRepository) CreateExpense(expense *model.Expense) error {
 	return nil
 }
 
-func (er *expenseRepository) UpdateExpense(expense *model.Expense, id uint) error {
+func (er *expenseRepository) UpdateExpense(expense *model.Expense, id uint, organizationID uint) error {
 
-	result := er.db.Model(expense).Where("id=?", id).Updates(expense)
+	result := er.db.Model(expense).Where("id=? and organization_id=?", id, organizationID).Updates(expense)
 
 	if err := result.Error; err != nil {
 		return err
@@ -57,9 +57,9 @@ func (er *expenseRepository) UpdateExpense(expense *model.Expense, id uint) erro
 	return nil
 }
 
-func (er *expenseRepository) DeleteExpense(expense *model.Expense, id uint) error {
+func (er *expenseRepository) DeleteExpense(expense *model.Expense, id uint, organizationID uint) error {
 
-	result := er.db.Model(expense).Where("id=?", id).Update("is_deleted", 1)
+	result := er.db.Model(expense).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
 		return err

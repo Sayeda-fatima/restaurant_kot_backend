@@ -82,7 +82,7 @@ func (cc *cartController) UpdateCart(c echo.Context) error {
 		cart.TotalQuantity += cart.CartItems[i].ProductQuantity
 	}
 
-	cartRes, err := cc.cu.UpdateCart(cart, uint(cartID))
+	cartRes, err := cc.cu.UpdateCart(cart, uint(cartID), uint(organizationID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -93,10 +93,13 @@ func (cc *cartController) UpdateCart(c echo.Context) error {
 
 func (cc *cartController) DeleteCart(c echo.Context) error {
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	cartID, _ := strconv.Atoi(id)
 
-	err := cc.cu.DeleteCart(uint(cartID))
+	err := cc.cu.DeleteCart(uint(cartID), uint(organizationID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

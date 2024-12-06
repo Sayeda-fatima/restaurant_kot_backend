@@ -80,7 +80,7 @@ func (pc *productCategoryController) UpdateProductCategory(c echo.Context) error
 	productCategory.OrganizationID = uint(organizationID.(float64))
 	productCategory.ID = uint(productCategoryID)
 
-	productCategoryRes, err := pc.pu.UpdateProductCategory(productCategory, uint(productCategoryID))
+	productCategoryRes, err := pc.pu.UpdateProductCategory(productCategory, uint(productCategoryID), uint(organizationID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -91,6 +91,9 @@ func (pc *productCategoryController) UpdateProductCategory(c echo.Context) error
 
 func (pc *productCategoryController) DeleteProductCategory(c echo.Context) error {
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	productCategoryID, _ := strconv.Atoi(id)
 
@@ -98,7 +101,7 @@ func (pc *productCategoryController) DeleteProductCategory(c echo.Context) error
 	if err := c.Bind(&productCategory); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	if err := pc.pu.DeleteProductCategory(productCategory, uint(productCategoryID)); err != nil {
+	if err := pc.pu.DeleteProductCategory(productCategory, uint(productCategoryID), uint(organizationID.(float64))); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 

@@ -11,8 +11,8 @@ type(
 	SupplierRepository interface{
 		GetSupplierList (suppliers *[]model.Supplier, organizationID uint) error
 		CreateSupplier (supplier *model.Supplier) error
-		UpdateSupplier (supplier *model.Supplier, id uint) error
-		DeleteSupplier (supplier *model.Supplier, id uint) error
+		UpdateSupplier (supplier *model.Supplier, id uint, organizationID uint) error
+		DeleteSupplier (supplier *model.Supplier, id uint, organizationID uint) error
 		SearchSupplier (suppliers *[]model.Supplier, organizationID uint, term string) error
 	}
 
@@ -42,9 +42,9 @@ func (sr *supplierRepository) CreateSupplier(supplier *model.Supplier) error{
 	return nil
 }
 
-func (sr *supplierRepository) UpdateSupplier(supplier *model.Supplier, id uint) error{
+func (sr *supplierRepository) UpdateSupplier(supplier *model.Supplier, id uint, organizationID uint) error{
 
-	result := sr.db.Model(supplier).Where("id=?", id).Updates(supplier)
+	result := sr.db.Model(supplier).Where("id=? and organization_id=?", id, organizationID).Updates(supplier)
 
 	if err := result.Error; err!=nil{
 		return err
@@ -57,9 +57,9 @@ func (sr *supplierRepository) UpdateSupplier(supplier *model.Supplier, id uint) 
 	return nil
 }
 
-func (sr *supplierRepository) DeleteSupplier(supplier *model.Supplier, id uint) error{
+func (sr *supplierRepository) DeleteSupplier(supplier *model.Supplier, id uint, organizationID uint) error{
 
-	result := sr.db.Model(supplier).Where("id=?", id).Update("is_deleted", 1)
+	result := sr.db.Model(supplier).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 
 	if err := result.Error; err!=nil{
 		return err

@@ -11,8 +11,8 @@ type (
 	CartItemRepository interface {
 		GetCartItemList(cartItems *[]model.CartItem, organizationID uint, cartID uint) error
 		CreateCartItem(cartItem *model.CartItem) error
-		UpdateCartItem(cartItem *model.CartItem, id uint) error
-		DeleteCartItem(cartItem *model.CartItem, id uint) error
+		UpdateCartItem(cartItem *model.CartItem, id uint, organizationID uint) error
+		DeleteCartItem(cartItem *model.CartItem, id uint, organizationID uint) error
 	}
 
 	cartItemRepository struct {
@@ -40,9 +40,9 @@ func (cr *cartItemRepository) CreateCartItem(cartItem *model.CartItem) error {
 	return nil
 }
 
-func (cr *cartItemRepository) UpdateCartItem(cartItem *model.CartItem, id uint) error {
+func (cr *cartItemRepository) UpdateCartItem(cartItem *model.CartItem, id uint, organizationID uint) error {
 
-	result := cr.db.Model(cartItem).Where("id=?", id).Updates(cartItem)
+	result := cr.db.Model(cartItem).Where("id=? and organization_id=?", id, organizationID).Updates(cartItem)
 
 	if err := result.Error; err != nil {
 		return err
@@ -55,9 +55,9 @@ func (cr *cartItemRepository) UpdateCartItem(cartItem *model.CartItem, id uint) 
 	return nil
 }
 
-func (cr *cartItemRepository) DeleteCartItem(cartItem *model.CartItem, id uint) error {
+func (cr *cartItemRepository) DeleteCartItem(cartItem *model.CartItem, id uint, organizationID uint) error {
 
-	result := cr.db.Model(cartItem).Where("id=?", id).Delete(cartItem)
+	result := cr.db.Model(cartItem).Where("id=? and organization_id=?", id, organizationID).Delete(cartItem)
 
 	if err := result.Error; err != nil {
 		return err

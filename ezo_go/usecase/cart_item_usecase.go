@@ -11,8 +11,8 @@ type (
 	CartItemUsecase interface {
 		GetCartItemList(organizationID uint, cartID uint) ([]model.CartItemResponse, error)
 		CreateCartItem(cartItem model.CartItem) (model.CartItemResponse, error)
-		UpdateCartItem(cartItem model.CartItem, id uint) (model.CartItemResponse, error)
-		DeleteCartItem(cartItem model.CartItem, id uint) error
+		UpdateCartItem(cartItem model.CartItem, id uint, organizationID uint) (model.CartItemResponse, error)
+		DeleteCartItem(cartItem model.CartItem, id uint, organizationID uint) error
 	}
 
 	cartItemUsecase struct {
@@ -73,14 +73,14 @@ func (cu *cartItemUsecase) CreateCartItem(cartItem model.CartItem) (model.CartIt
 	return resCartitem, nil
 }
 
-func (cu *cartItemUsecase) UpdateCartItem(cartItem model.CartItem, id uint) (model.CartItemResponse, error) {
+func (cu *cartItemUsecase) UpdateCartItem(cartItem model.CartItem, id uint, organizationID uint) (model.CartItemResponse, error) {
 
 	if err := cu.cv.CartItemValidate(cartItem); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCartItem")
 		return model.CartItemResponse{}, err
 	}
 
-	if err := cu.cr.UpdateCartItem(&cartItem, id); err != nil {
+	if err := cu.cr.UpdateCartItem(&cartItem, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCartItem")
 		return model.CartItemResponse{}, err
 	}
@@ -96,9 +96,9 @@ func (cu *cartItemUsecase) UpdateCartItem(cartItem model.CartItem, id uint) (mod
 	return resCartItem, nil
 }
 
-func (cu *cartItemUsecase) DeleteCartItem(cartItem model.CartItem, id uint) error {
+func (cu *cartItemUsecase) DeleteCartItem(cartItem model.CartItem, id uint, organizationID uint) error {
 
-	if err := cu.cr.DeleteCartItem(&cartItem, id); err != nil {
+	if err := cu.cr.DeleteCartItem(&cartItem, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteCartItem")
 		return err
 	}

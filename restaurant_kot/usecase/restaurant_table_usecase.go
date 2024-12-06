@@ -10,8 +10,8 @@ type (
 	RestaurantTableUsecase interface {
 		GetRestaurantTableList(organizationID uint, restaurantID uint) ([]model.RestaurantTableResponse, error)
 		CreateRestaurantTable(restaurantTable model.RestaurantTable) (model.RestaurantTableResponse, error)
-		UpdateRestaurantTable(restaurantTable model.RestaurantTable, id uint) (model.RestaurantTableResponse, error)
-		DeleteRestaurantTable(restaurantTable model.RestaurantTable, id uint) error
+		UpdateRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) (model.RestaurantTableResponse, error)
+		DeleteRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	restaurantTableUsecase struct{
@@ -69,13 +69,13 @@ func (ru *restaurantTableUsecase) CreateRestaurantTable(restaurantTable model.Re
 	return resRestaurantTable, nil
 }
 
-func (ru *restaurantTableUsecase) UpdateRestaurantTable(restaurantTable model.RestaurantTable, id uint) (model.RestaurantTableResponse, error){
+func (ru *restaurantTableUsecase) UpdateRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) (model.RestaurantTableResponse, error){
 
 	if err := ru.rv.RestaurantTableValidate(&restaurantTable); err != nil{
 		return model.RestaurantTableResponse{}, err
 	}
 
-	if err := ru.rr.UpdateRestaurantTable(&restaurantTable, id); err != nil{
+	if err := ru.rr.UpdateRestaurantTable(&restaurantTable, id, organizationID, restaurantID); err != nil{
 		return model.RestaurantTableResponse{}, err
 	}
 
@@ -90,9 +90,9 @@ func (ru *restaurantTableUsecase) UpdateRestaurantTable(restaurantTable model.Re
 	return resRestaurantTable, nil
 }
 
-func (ru *restaurantTableUsecase) DeleteRestaurantTable(restaurantTable model.RestaurantTable, id uint) error{
+func (ru *restaurantTableUsecase) DeleteRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := ru.rr.DeleteRestaurantTable(&restaurantTable, id); err != nil{
+	if err := ru.rr.DeleteRestaurantTable(&restaurantTable, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 

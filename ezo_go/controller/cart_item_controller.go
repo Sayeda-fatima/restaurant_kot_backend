@@ -87,7 +87,7 @@ func (cc *cartItemController) UpdateCartItem(c echo.Context) error {
 	cartItem.ID = uint(cartItemID)
 	cartItem.CartID = uint(cartID)
 	cartItem.OrganizationID = uint(organizationID.(float64))
-	cartItemRes, err := cc.cu.UpdateCartItem(cartItem, uint(cartItemID))
+	cartItemRes, err := cc.cu.UpdateCartItem(cartItem, uint(cartItemID), uint(organizationID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -98,6 +98,9 @@ func (cc *cartItemController) UpdateCartItem(c echo.Context) error {
 
 func (cc *cartItemController) DeleteCartItem(c echo.Context) error {
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	cartItemID, _ := strconv.Atoi(id)
 
@@ -106,7 +109,7 @@ func (cc *cartItemController) DeleteCartItem(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err := cc.cu.DeleteCartItem(cartItem, uint(cartItemID))
+	err := cc.cu.DeleteCartItem(cartItem, uint(cartItemID), uint(organizationID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

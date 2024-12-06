@@ -69,6 +69,9 @@ func (pc *productImageController) AddProductImage(c echo.Context) error{
 
 func (pc *productImageController) DeleteProductImage(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	productImageID,_ := strconv.Atoi(id)
 	productImage := model.ProductImage{}
@@ -76,7 +79,7 @@ func (pc *productImageController) DeleteProductImage(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := pc.pu.DeleteProductImage(productImage, uint(productImageID)); err!=nil{
+	if err := pc.pu.DeleteProductImage(productImage, uint(productImageID), uint(organizationID.(float64))); err!=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

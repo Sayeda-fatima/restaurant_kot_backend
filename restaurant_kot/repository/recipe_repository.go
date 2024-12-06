@@ -11,8 +11,8 @@ type (
 	RecipeRepository interface {
 		GetRecipeList(recipe *[]model.Recipe, organizationID uint, restaurantID uint) error
 		CreateRecipe(recipe *model.Recipe) error
-		UpdateRecipe(recipe *model.Recipe, id uint) error
-		DeleteRecipe(recipe *model.Recipe, id uint) error
+		UpdateRecipe(recipe *model.Recipe, id uint, organizationID uint, restaurantID uint) error
+		DeleteRecipe(recipe *model.Recipe, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	recipeRepository struct{
@@ -40,9 +40,9 @@ func (rr *recipeRepository) CreateRecipe(recipe *model.Recipe) error{
 	return nil
 }
 
-func (rr *recipeRepository) UpdateRecipe(recipe *model.Recipe, id uint) error{
+func (rr *recipeRepository) UpdateRecipe(recipe *model.Recipe, id uint, organizationID uint, restaurantID uint) error{
 
-	result := rr.db.Model(recipe).Where("id=?",id).Updates(recipe)
+	result := rr.db.Model(recipe).Where("id=? and organization_id=? and restaurant_id=?",id, organizationID, restaurantID).Updates(recipe)
 
 	if err := result.Error; err != nil{
 		return err
@@ -55,9 +55,9 @@ func (rr *recipeRepository) UpdateRecipe(recipe *model.Recipe, id uint) error{
 	return nil
 }
 
-func (rr *recipeRepository) DeleteRecipe(recipe *model.Recipe, id uint) error{
+func (rr *recipeRepository) DeleteRecipe(recipe *model.Recipe, id uint, organizationID uint, restaurantID uint) error{
 
-	result := rr.db.Model(recipe).Where("id=?", id).Update("is_deleted", 1)
+	result := rr.db.Model(recipe).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil{
 		return err

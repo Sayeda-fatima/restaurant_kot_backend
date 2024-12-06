@@ -11,8 +11,8 @@ type (
 	OrderItemUsecase interface {
 		GetOrderItemList(organizationID uint, orderID uint) ([]model.OrderItemResponse, error)
 		CreateOrderItem(orderItem model.OrderItem) (model.OrderItemResponse, error)
-		UpdateOrderItem(orderItem model.OrderItem, id uint) (model.OrderItemResponse, error)
-		DeleteOrderItem(orderItem model.OrderItem, id uint) error
+		UpdateOrderItem(orderItem model.OrderItem, id uint, organizationID uint) (model.OrderItemResponse, error)
+		DeleteOrderItem(orderItem model.OrderItem, id uint, organizationID uint) error
 		InvoiceCustomer(organizationID uint, orderID uint, dateFrom string, dateTo string)([]model.OrderItemResponse, error)
 	}
 
@@ -78,14 +78,14 @@ func (ou *orderItemUsecase) CreateOrderItem(orderItem model.OrderItem) (model.Or
 	return resOrderItem, nil
 }
 
-func (ou *orderItemUsecase) UpdateOrderItem(orderItem model.OrderItem, id uint) (model.OrderItemResponse, error){
+func (ou *orderItemUsecase) UpdateOrderItem(orderItem model.OrderItem, id uint, organizationID uint) (model.OrderItemResponse, error){
 
 	if err := ou.ov.OrderItemValidate(orderItem); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateOrderItem")
 		return model.OrderItemResponse{}, err
 	}
 
-	if err := ou.or.UpdateOrderItem(&orderItem, id); err!=nil{
+	if err := ou.or.UpdateOrderItem(&orderItem, id, organizationID); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateOrderItem")
 		return model.OrderItemResponse{}, err
 	}
@@ -103,9 +103,9 @@ func (ou *orderItemUsecase) UpdateOrderItem(orderItem model.OrderItem, id uint) 
 	return resOrderItem, nil
 } 
 
-func (ou *orderItemUsecase) DeleteOrderItem(orderItem model.OrderItem, id uint) error{
+func (ou *orderItemUsecase) DeleteOrderItem(orderItem model.OrderItem, id uint, organizationID uint) error{
 
-	if err := ou.or.DeleteOrderItem(&orderItem, id); err!=nil{
+	if err := ou.or.DeleteOrderItem(&orderItem, id, organizationID); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteOrderItem")
 		return err
 	}

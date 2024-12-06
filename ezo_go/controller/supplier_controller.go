@@ -79,7 +79,7 @@ func (sc *supplierController) UpdateSupplier(c echo.Context) error {
 	}
 
 	supplier.OrganizationID = uint(organizationID.(float64))
-	resSupplier, err := sc.su.UpdateSupplier(supplier, uint(supplierID))
+	resSupplier, err := sc.su.UpdateSupplier(supplier, uint(supplierID), uint(organizationID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -90,6 +90,9 @@ func (sc *supplierController) UpdateSupplier(c echo.Context) error {
 
 func (sc *supplierController) DeleteSupplier(c echo.Context) error {
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	supplierID, _ := strconv.Atoi(id)
 	common.Logger.LogInfo().Msg(id)
@@ -99,7 +102,7 @@ func (sc *supplierController) DeleteSupplier(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err := sc.su.DeleteSupplier(supplier, uint(supplierID))
+	err := sc.su.DeleteSupplier(supplier, uint(supplierID), uint(organizationID.(float64)))
 	
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

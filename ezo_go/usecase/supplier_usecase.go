@@ -11,8 +11,8 @@ type (
 	SupplierUsecase interface {
 		GetSupplierList(organizationID uint) ([]model.SupplierResponse, error)
 		CreateSupplier(supplier model.Supplier) (model.SupplierResponse, error)
-		UpdateSupplier(supplier model.Supplier, id uint) (model.SupplierResponse, error)
-		DeleteSupplier(supplier model.Supplier, id uint) error
+		UpdateSupplier(supplier model.Supplier, id uint, organizationID uint) (model.SupplierResponse, error)
+		DeleteSupplier(supplier model.Supplier, id uint, organizationID uint) error
 		SearchSupplier(organizationID uint, term string) ([]model.SupplierResponse, error)
 	}
 
@@ -91,14 +91,14 @@ func (su *supplierUsecase) CreateSupplier(supplier model.Supplier) (model.Suppli
 	return resSupplier, nil
 }
 
-func (su *supplierUsecase) UpdateSupplier(supplier model.Supplier, id uint) (model.SupplierResponse, error) {
+func (su *supplierUsecase) UpdateSupplier(supplier model.Supplier, id uint, organizationID uint) (model.SupplierResponse, error) {
 
 	if err := su.sv.SupplierValidate(supplier); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateSupplier")
 		return model.SupplierResponse{}, err
 	}
 
-	if err := su.sr.UpdateSupplier(&supplier, id); err != nil {
+	if err := su.sr.UpdateSupplier(&supplier, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateSupplier")
 		return model.SupplierResponse{}, err
 	}
@@ -124,9 +124,9 @@ func (su *supplierUsecase) UpdateSupplier(supplier model.Supplier, id uint) (mod
 	return resSupplier, nil
 }
 
-func (su *supplierUsecase) DeleteSupplier(supplier model.Supplier, id uint) error {
+func (su *supplierUsecase) DeleteSupplier(supplier model.Supplier, id uint, organizationID uint) error {
 
-	if err := su.sr.DeleteSupplier(&supplier, id); err != nil {
+	if err := su.sr.DeleteSupplier(&supplier, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteSupplier")
 		return err
 	}

@@ -12,8 +12,8 @@ type (
 	MenuItemUsecase interface {
 		GetMenuItemList(organizationID uint, restaurantID uint, menuID uint) ([]model.MenuItemResponse, error)
 		CreateMenuItem(menuItem model.MenuItem) (model.MenuItemResponse, error)
-		UpdateMenuItem(menuItem model.MenuItem, id uint) (model.MenuItemResponse, error)
-		DeleteMenuItem(menuItem model.MenuItem, id uint) error
+		UpdateMenuItem(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint) (model.MenuItemResponse, error)
+		DeleteMenuItem(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	menuItemUsecase struct{
@@ -78,13 +78,13 @@ func (mu *menuItemUsecase) CreateMenuItem(menuItem model.MenuItem) (model.MenuIt
 	return resMenuItem, nil
 }
 
-func (mu *menuItemUsecase) UpdateMenuItem(menuItem model.MenuItem, id uint) (model.MenuItemResponse, error){
+func (mu *menuItemUsecase) UpdateMenuItem(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint) (model.MenuItemResponse, error){
 
 	if err := mu.mv.MenuItemValidate(&menuItem); err != nil{
 		return model.MenuItemResponse{}, err
 	}
 
-	if err := mu.mr.UpdateMenuItem(&menuItem, id); err != nil{
+	if err := mu.mr.UpdateMenuItem(&menuItem, id, organizationID, restaurantID); err != nil{
 		return model.MenuItemResponse{}, err
 	}
 
@@ -104,9 +104,9 @@ func (mu *menuItemUsecase) UpdateMenuItem(menuItem model.MenuItem, id uint) (mod
 	return resMenuItem, nil
 }
 
-func (mu *menuItemUsecase) DeleteMenuItem(menuItem model.MenuItem, id uint) error{
+func (mu *menuItemUsecase) DeleteMenuItem(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := mu.mr.DeleteMenuItem(&menuItem, id); err != nil{
+	if err := mu.mr.DeleteMenuItem(&menuItem, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 	return nil

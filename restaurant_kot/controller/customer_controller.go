@@ -85,7 +85,7 @@ func (cc *customerController) UpdateCustomer(c echo.Context) error{
 	customer.OrganizationID = uint(organizationID.(float64))
 	customer.RestaurantID = uint(restaurantID.(float64))
 
-	customerRes, err := cc.cu.UpdateCustomer(customer, uint(customerID))
+	customerRes, err := cc.cu.UpdateCustomer(customer, uint(customerID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -95,6 +95,11 @@ func (cc *customerController) UpdateCustomer(c echo.Context) error{
 
 func (cc *customerController) DeleteCustomer(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
 	id := c.Param("id")
 	customerID, _ := strconv.Atoi(id)
 
@@ -103,7 +108,7 @@ func (cc *customerController) DeleteCustomer(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := cc.cu.DeleteCustomer(customer, uint(customerID)); err != nil{
+	if err := cc.cu.DeleteCustomer(customer, uint(customerID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 

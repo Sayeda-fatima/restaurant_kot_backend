@@ -10,8 +10,8 @@ type (
 	WeeklyStaffScheduleUsecase interface {
 		GetWeeklyStaffScheduleList(organizationID uint, restaurantID uint) ([]model.WeeklyStaffScheduleResponse, error)
 		CreateWeeklyStaffSchedule(weeklyStaffSchedule model.WeeklyStaffSchedule) (model.WeeklyStaffScheduleResponse, error)
-		UpdateWeeklyStaffSchedule(WeeklyStaffSchedule model.WeeklyStaffSchedule, id uint) (model.WeeklyStaffScheduleResponse, error)
-		DeleteWeeklyStaffSchedule(WeeklyStaffSchedule model.WeeklyStaffSchedule, id uint) error
+		UpdateWeeklyStaffSchedule(WeeklyStaffSchedule model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) (model.WeeklyStaffScheduleResponse, error)
+		DeleteWeeklyStaffSchedule(WeeklyStaffSchedule model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	weeklyStaffScheduleUsecase struct{
@@ -73,13 +73,13 @@ func (wu *weeklyStaffScheduleUsecase) CreateWeeklyStaffSchedule(weeklyStaffSched
 	return resWeeklyStaffSchedule, nil
 }
 
-func (wu *weeklyStaffScheduleUsecase) UpdateWeeklyStaffSchedule(weeklyStaffSchedule model.WeeklyStaffSchedule, id uint) (model.WeeklyStaffScheduleResponse, error){
+func (wu *weeklyStaffScheduleUsecase) UpdateWeeklyStaffSchedule(weeklyStaffSchedule model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) (model.WeeklyStaffScheduleResponse, error){
 
 	if err := wu.wv.WeeklyStaffScheduleValidate(weeklyStaffSchedule); err != nil{
 		return model.WeeklyStaffScheduleResponse{}, err
 	}
 
-	if err := wu.wr.UpdateWeeklyStaffSchedule(&weeklyStaffSchedule, id); err != nil{
+	if err := wu.wr.UpdateWeeklyStaffSchedule(&weeklyStaffSchedule, id, organizationID, restaurantID); err != nil{
 		return model.WeeklyStaffScheduleResponse{}, err
 	}
 
@@ -97,9 +97,9 @@ func (wu *weeklyStaffScheduleUsecase) UpdateWeeklyStaffSchedule(weeklyStaffSched
 	return resWeeklyStaffSchedule, nil
 }
 
-func (wu *weeklyStaffScheduleUsecase) DeleteWeeklyStaffSchedule(weeklyStaffSchedule model.WeeklyStaffSchedule, id uint) error{
+func (wu *weeklyStaffScheduleUsecase) DeleteWeeklyStaffSchedule(weeklyStaffSchedule model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := wu.wr.DeleteWeeklyStaffSchedule(&weeklyStaffSchedule, id); err != nil{
+	if err := wu.wr.DeleteWeeklyStaffSchedule(&weeklyStaffSchedule, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 	return nil

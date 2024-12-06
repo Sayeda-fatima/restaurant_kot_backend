@@ -12,8 +12,8 @@ type (
 		GetProductList(organizationID uint) ([]model.ProductListResponse, error)
 		CreateProduct(product model.Product) (model.ProductResponse, error)
 		GetProduct(organizationID uint, id uint) (model.ProductResponse, error)
-		UpdateProduct(product model.Product, id uint) (model.ProductResponse, error)
-		DeleteProduct(product model.Product, id uint) error
+		UpdateProduct(product model.Product, id uint, organizationID uint) (model.ProductResponse, error)
+		DeleteProduct(product model.Product, id uint, organizationID uint) error
 		SearchProduct(organizationID uint, term string) ([]model.ProductResponse, error)
 		GetProductByBarcode(organizationID uint, barcode string)(model.ProductResponse, error)
 		UpdateStockOfProduct(product model.Product, id uint, quantity int) (model.ProductResponse, error)
@@ -140,14 +140,14 @@ func (pu *productUsecase) GetProduct(organizationID uint, id uint) (model.Produc
 	return resProduct, nil
 }
 
-func (pu *productUsecase) UpdateProduct (product model.Product, id uint) (model.ProductResponse, error){
+func (pu *productUsecase) UpdateProduct (product model.Product, id uint, organizationID uint) (model.ProductResponse, error){
 
 	if err := pu.pv.ProductValidate(product); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateProduct")
 		return model.ProductResponse{}, err
 	}
 
-	if err := pu.pr.UpdateProduct(&product, id); err!=nil{
+	if err := pu.pr.UpdateProduct(&product, id, organizationID); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateProduct")
 		return model.ProductResponse{}, err
 	}
@@ -183,9 +183,9 @@ func (pu *productUsecase) UpdateProduct (product model.Product, id uint) (model.
 	return resProduct, nil
 }
 
-func (pu *productUsecase) DeleteProduct (product model.Product, id uint) error{
+func (pu *productUsecase) DeleteProduct (product model.Product, id uint, organizationID uint) error{
 
-	if err := pu.pr.DeleteProduct(&product, id); err!=nil{
+	if err := pu.pr.DeleteProduct(&product, id, organizationID); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteProduct")
 		return err
 	}

@@ -14,8 +14,8 @@ type (
 	OrderUsecase interface {
 		GetOrderList(organizationID uint) ([]model.OrderResponse, error)
 		CreateOrder(order model.Order) (model.OrderResponse, error)
-		UpdateOrder(order model.Order, id uint) (model.OrderResponse, error)
-		DeleteOrder(order model.Order, id uint) error
+		UpdateOrder(order model.Order, id uint, organizationID uint) (model.OrderResponse, error)
+		DeleteOrder(order model.Order, id uint, organizationID uint) error
 		Checkout(order model.Order, organizationID uint, cartID uint) (model.OrderResponse, error)
 		InvoiceReportCustomer(organizationID uint, customerID uint, dateFrom string, dateTo string) ([]model.OrderResponse, error)
 		GetInvoice(id uint) (model.OrderResponse, error)
@@ -86,14 +86,14 @@ func (ou *orderUsecase) CreateOrder(order model.Order) (model.OrderResponse, err
 	return resOrder, nil
 }
 
-func (ou *orderUsecase) UpdateOrder(order model.Order, id uint) (model.OrderResponse, error) {
+func (ou *orderUsecase) UpdateOrder(order model.Order, id uint, organizationID uint) (model.OrderResponse, error) {
 
 	if err := ou.ov.OrderValidate(order); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateOrder")
 		return model.OrderResponse{}, err
 	}
 
-	if err := ou.or.UpdateOrder(&order, id); err != nil {
+	if err := ou.or.UpdateOrder(&order, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateOrder")
 		return model.OrderResponse{}, err
 	}
@@ -110,9 +110,9 @@ func (ou *orderUsecase) UpdateOrder(order model.Order, id uint) (model.OrderResp
 	return resOrder, nil
 }
 
-func (ou *orderUsecase) DeleteOrder(order model.Order, id uint) error {
+func (ou *orderUsecase) DeleteOrder(order model.Order, id uint, organizationID uint) error {
 
-	if err := ou.or.DeleteOrder(&order, id); err != nil {
+	if err := ou.or.DeleteOrder(&order, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteOrder")
 		return err
 	}
@@ -195,7 +195,7 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, cartID 
 		return model.OrderResponse{}, err
 	}
 	// delete cart and cart items
-	if err := ou.cu.DeleteCart(cartID); err != nil {
+	if err := ou.cu.DeleteCart(cartID, organizationID); err != nil {
 		tx.Rollback()
 		return model.OrderResponse{}, err
 	}

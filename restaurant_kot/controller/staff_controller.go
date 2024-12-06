@@ -103,7 +103,7 @@ func (sc *staffController) UpdateStaff(c echo.Context) error{
 	staff.ID = uint(staffID)
 	staff.OrganizationID = uint(organizationID.(float64))
 	staff.RestaurantID = uint(restaurantID.(float64))
-	staffRes, err := sc.su.UpdateStaff(staff, uint(staffID))
+	staffRes, err := sc.su.UpdateStaff(staff, uint(staffID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -113,6 +113,10 @@ func (sc *staffController) UpdateStaff(c echo.Context) error{
 
 func (sc *staffController) DeleteStaff(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
 	id := c.Param("id")
 	staffID, _ := strconv.Atoi(id)
 
@@ -121,7 +125,7 @@ func (sc *staffController) DeleteStaff(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := sc.su.DeleteStaff(staff, uint(staffID)); err != nil{
+	if err := sc.su.DeleteStaff(staff, uint(staffID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

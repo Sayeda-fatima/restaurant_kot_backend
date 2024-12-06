@@ -11,8 +11,8 @@ type ProductRepository interface {
 	GetProductList(products *[]model.Product, organizationID uint) error
 	CreateProduct(product *model.Product) error
 	GetProduct(product *model.Product, organizationID uint, id uint) error
-	UpdateProduct(product *model.Product, id uint) error
-	DeleteProduct(product *model.Product, id uint) error
+	UpdateProduct(product *model.Product, id uint, organizationID uint) error
+	DeleteProduct(product *model.Product, id uint, organizationID uint) error
 	SearchProduct(products *[]model.Product, organizationID uint, term string) error
 	GetProductByBarcode(product *model.Product, organizationID uint, barcode string) error
 	UpdateStockOfProduct(product *model.Product, id uint, quantity int) error
@@ -50,9 +50,9 @@ func (pr *productRepository) GetProduct(product *model.Product, organizationID u
 	return nil
 }
 
-func (pr *productRepository) UpdateProduct(product *model.Product, id uint) error {
+func (pr *productRepository) UpdateProduct(product *model.Product, id uint, organizationID uint) error {
 
-	result := pr.db.Model(product).Where("id=?", id).Updates(product)
+	result := pr.db.Model(product).Where("id=? and organization_id=?", id, organizationID).Updates(product)
 	if err := result.Error; err != nil {
 		return err
 	}
@@ -64,9 +64,9 @@ func (pr *productRepository) UpdateProduct(product *model.Product, id uint) erro
 	return nil
 }
 
-func (pr *productRepository) DeleteProduct(product *model.Product, id uint) error {
+func (pr *productRepository) DeleteProduct(product *model.Product, id uint, organizationID uint) error {
 
-	result := pr.db.Model(product).Where("id=?", id).Update("is_deleted", 1)
+	result := pr.db.Model(product).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 	if err := result.Error; err != nil {
 		return err
 	}

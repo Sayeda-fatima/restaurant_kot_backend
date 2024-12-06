@@ -10,8 +10,8 @@ type (
 	RecipeUsecase interface {
 		GetRecipeList(organizationID uint, restaurantID uint) ([]model.RecipeResponse, error)
 		CreateRecipe(recipe model.Recipe) (model.RecipeResponse, error)
-		UpdateRecipe(recipe model.Recipe, id uint) (model.RecipeResponse, error)
-		DeleteRecipe(recipe model.Recipe, id uint) error
+		UpdateRecipe(recipe model.Recipe, id uint, organizationID uint, restaurantID uint) (model.RecipeResponse, error)
+		DeleteRecipe(recipe model.Recipe, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	recipeUsecase struct{
@@ -66,13 +66,13 @@ func (ru *recipeUsecase) CreateRecipe(recipe model.Recipe) (model.RecipeResponse
 	return resRecipe, nil
 }
 
-func (ru *recipeUsecase) UpdateRecipe(recipe model.Recipe, id uint) (model.RecipeResponse, error){
+func (ru *recipeUsecase) UpdateRecipe(recipe model.Recipe, id uint, organizationID uint, restaurantID uint) (model.RecipeResponse, error){
 
 	if err := ru.rv.RecipeValidate(&recipe); err != nil{
 		return model.RecipeResponse{}, err
 	}
 
-	if err := ru.rr.UpdateRecipe(&recipe, id); err != nil{
+	if err := ru.rr.UpdateRecipe(&recipe, id, organizationID, restaurantID); err != nil{
 		return model.RecipeResponse{}, err
 	}
 
@@ -86,9 +86,9 @@ func (ru *recipeUsecase) UpdateRecipe(recipe model.Recipe, id uint) (model.Recip
 	return resRecipe, nil
 }
 
-func (ru *recipeUsecase) DeleteRecipe(recipe model.Recipe, id uint) error{
+func (ru *recipeUsecase) DeleteRecipe(recipe model.Recipe, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := ru.rr.DeleteRecipe(&recipe, id); err != nil{
+	if err := ru.rr.DeleteRecipe(&recipe, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 	return nil

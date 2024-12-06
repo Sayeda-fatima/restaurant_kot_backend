@@ -11,8 +11,8 @@ type (
 	MenuItemRepository interface {
 		GetMenuItemList(menuItem *[]model.MenuItem, organizationID uint, restaurantID uint, menuID uint) error
 		CreateMenuItem(menuItem *model.MenuItem) error
-		UpdateMenuItem(menuItem *model.MenuItem, id uint) error
-		DeleteMenuItem(menuItem *model.MenuItem, id uint) error
+		UpdateMenuItem(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint) error
+		DeleteMenuItem(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	menuItemRepository struct{
@@ -40,9 +40,9 @@ func (mr *menuItemRepository) CreateMenuItem(menuItem *model.MenuItem) error{
 	return nil
 }
 
-func (mr *menuItemRepository) UpdateMenuItem(menuItem *model.MenuItem, id uint) error{
+func (mr *menuItemRepository) UpdateMenuItem(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint) error{
 
-	result := mr.db.Model(menuItem).Where("id=?", id).Updates(menuItem)
+	result := mr.db.Model(menuItem).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Updates(menuItem)
 
 	if err := result.Error; err != nil{
 		return err
@@ -55,9 +55,9 @@ func (mr *menuItemRepository) UpdateMenuItem(menuItem *model.MenuItem, id uint) 
 	return nil
 }
 
-func (mr *menuItemRepository) DeleteMenuItem(menuItem *model.MenuItem, id uint) error{
+func (mr *menuItemRepository) DeleteMenuItem(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint) error{
 
-	result := mr.db.Model(menuItem).Where("id=?", id).Update("is_deleted", 1)
+	result := mr.db.Model(menuItem).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil{
 		return err

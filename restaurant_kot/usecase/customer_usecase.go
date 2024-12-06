@@ -10,8 +10,8 @@ type (
 	CustomerUsecase interface {
 		GetCustomerList(organizationID uint, restaurantID uint) ([]model.CustomerResponse, error)
 		CreateCustomer(customer model.Customer) (model.CustomerResponse, error)
-		UpdateCustomer(customer model.Customer, id uint) (model.CustomerResponse, error)
-		DeleteCustomer(customer model.Customer, id uint) error
+		UpdateCustomer(customer model.Customer, id uint, organizationID uint, restaurantID uint) (model.CustomerResponse, error)
+		DeleteCustomer(customer model.Customer, id uint, organizationID uint, restaurantID uint) error
 	}
 	customerUsecase struct{
 		cr repository.CustomerRepository
@@ -66,13 +66,13 @@ func (cu *customerUsecase) CreateCustomer(customer model.Customer) (model.Custom
 	return resCustomer, nil
 }
 
-func (cu *customerUsecase) UpdateCustomer(customer model.Customer, id uint) (model.CustomerResponse, error){
+func (cu *customerUsecase) UpdateCustomer(customer model.Customer, id uint, organizationID uint, restaurantID uint) (model.CustomerResponse, error){
 
 	if err := cu.cv.CustomerValidate(&customer); err != nil{
 		return model.CustomerResponse{}, err
 	}
 
-	if err := cu.cr.UpdateCustomer(&customer, id); err != nil{
+	if err := cu.cr.UpdateCustomer(&customer, id, organizationID, restaurantID); err != nil{
 		return model.CustomerResponse{}, err
 	}
 
@@ -87,9 +87,9 @@ func (cu *customerUsecase) UpdateCustomer(customer model.Customer, id uint) (mod
 	return resCustomer, nil
 }
 
-func (cu *customerUsecase) DeleteCustomer(customer model.Customer, id uint) error{
+func (cu *customerUsecase) DeleteCustomer(customer model.Customer, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := cu.cr.DeleteCustomer(&customer, id); err != nil{
+	if err := cu.cr.DeleteCustomer(&customer, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 	return nil

@@ -75,7 +75,7 @@ func (pc *productStockController) UpdateProductStock(c echo.Context) error{
 
 	productStock.ID = uint(productStockID)
 	productStock.OrganizationID = uint(organizationID.(float64))
-	productStockRes, err := pc.pu.UpdateProductStock(productStock, uint(productStockID))
+	productStockRes, err := pc.pu.UpdateProductStock(productStock, uint(productStockID), uint(organizationID.(float64)))
 
 	if err!=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -85,6 +85,9 @@ func (pc *productStockController) UpdateProductStock(c echo.Context) error{
 
 func (pc *productStockController) DeleteProductStock(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	productStockID, _ := strconv.Atoi(id)
 
@@ -93,7 +96,7 @@ func (pc *productStockController) DeleteProductStock(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := pc.pu.DeleteProductStock(productStock, uint(productStockID)); err!=nil{
+	if err := pc.pu.DeleteProductStock(productStock, uint(productStockID), uint(organizationID.(float64))); err!=nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

@@ -11,8 +11,8 @@ type (
 	ProductRepository interface {
 		GetAllProduct(products *[]model.Product, organizationID uint, restaurantID uint) error
 		CreateProduct(product *model.Product) error
-		UpdateProduct(product *model.Product, id uint) error
-		DeleteProduct(product *model.Product, id uint) error
+		UpdateProduct(product *model.Product, id uint, organizationID uint, restaurantID uint) error
+		DeleteProduct(product *model.Product, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	productRepository struct{
@@ -40,9 +40,9 @@ func (pr *productRepository) CreateProduct(product *model.Product) error{
 	return nil
 }
 
-func (pr *productRepository) UpdateProduct(product *model.Product, id uint) error{
+func (pr *productRepository) UpdateProduct(product *model.Product, id uint, organizationID uint, restaurantID uint) error{
 
-	result := pr.db.Model(product).Where("id=?", id).Updates(product)
+	result := pr.db.Model(product).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Updates(product)
 
 	if err := result.Error; err != nil{
 		return err
@@ -55,9 +55,9 @@ func (pr *productRepository) UpdateProduct(product *model.Product, id uint) erro
 	return nil
 }
 
-func (pr *productRepository) DeleteProduct(product *model.Product, id uint) error{
+func (pr *productRepository) DeleteProduct(product *model.Product, id uint, organizationID uint, restaurantID uint) error{
 
-	result := pr.db.Model(product).Where("id=?", id).Update("is_deleted", 1)
+	result := pr.db.Model(product).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil{
 		return err

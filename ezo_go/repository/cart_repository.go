@@ -11,8 +11,8 @@ type (
 	CartRepository interface {
 		GetCartList(carts *[]model.Cart, organizationID uint) error
 		CreateCart(cart *model.Cart) error
-		UpdateCart(cart *model.Cart, id uint) error
-		DeleteCart(id uint) error
+		UpdateCart(cart *model.Cart, id uint, organizationID uint) error
+		DeleteCart(id uint, organizationID uint) error
 	}
 
 	cartRepository struct {
@@ -40,9 +40,9 @@ func (cr *cartRepository) CreateCart(cart *model.Cart) error {
 	return nil
 }
 
-func (cr *cartRepository) UpdateCart(cart *model.Cart, id uint) error {
+func (cr *cartRepository) UpdateCart(cart *model.Cart, id uint, organizationID uint) error {
 
-	result := cr.db.Model(cart).Where("id=?", id).Updates(cart)
+	result := cr.db.Model(cart).Where("id=? and organization_id=?", id, organizationID).Updates(cart)
 	if err := result.Error; err != nil {
 		return err
 	}
@@ -54,9 +54,9 @@ func (cr *cartRepository) UpdateCart(cart *model.Cart, id uint) error {
 	return nil
 }
 
-func (cr *cartRepository) DeleteCart(id uint) error {
+func (cr *cartRepository) DeleteCart(id uint, organizationID uint) error {
 
-	result := cr.db.Where("id=?", id).Delete(&model.Cart{})
+	result := cr.db.Where("id=? and organization_id=?", id, organizationID).Delete(&model.Cart{})
 
 	if err := result.Error; err != nil {
 		return err

@@ -11,8 +11,8 @@ type (
 	ExpenseUsecase interface {
 		GetExpenseList(organizationID uint) ([]model.ExpenseResponse, error)
 		CreateExpense(expense model.Expense) (model.ExpenseResponse, error)
-		UpdateExpense(expense model.Expense, id uint) (model.ExpenseResponse, error)
-		DeleteExpense(expense model.Expense, id uint) error
+		UpdateExpense(expense model.Expense, id uint, organizationID uint) (model.ExpenseResponse, error)
+		DeleteExpense(expense model.Expense, id uint, organizationID uint) error
 		ExpenseReport(organizationID uint, dateFrom string, dateTo string)([]model.ExpenseResponse, error)
 	}
 
@@ -81,14 +81,14 @@ func (eu *expenseUsecase) CreateExpense(expense model.Expense) (model.ExpenseRes
 	return resExpense, nil
 }
 
-func (eu *expenseUsecase) UpdateExpense(expense model.Expense, id uint) (model.ExpenseResponse, error) {
+func (eu *expenseUsecase) UpdateExpense(expense model.Expense, id uint, organizationID uint) (model.ExpenseResponse, error) {
 
 	if err := eu.ev.ExpenseValidate(expense); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateExpense")
 		return model.ExpenseResponse{}, err
 	}
 
-	if err := eu.er.UpdateExpense(&expense, id); err != nil {
+	if err := eu.er.UpdateExpense(&expense, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateExpense")
 		return model.ExpenseResponse{}, err
 	}
@@ -108,9 +108,9 @@ func (eu *expenseUsecase) UpdateExpense(expense model.Expense, id uint) (model.E
 	return resExpense, nil
 }
 
-func (eu *expenseUsecase) DeleteExpense(expense model.Expense, id uint) error {
+func (eu *expenseUsecase) DeleteExpense(expense model.Expense, id uint, organizationID uint) error {
 
-	if err := eu.er.DeleteExpense(&expense, id); err != nil {
+	if err := eu.er.DeleteExpense(&expense, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteExpense")
 		return err
 	}

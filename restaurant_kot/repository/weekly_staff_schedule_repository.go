@@ -11,8 +11,8 @@ type (
 	WeeklyStaffScheduleRepository interface {
 		GetWeeklyStaffScheduleList(weeklyStaffSchedule *[]model.WeeklyStaffSchedule, organizationID uint, restaurantID uint) error
 		CreateWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule) error
-		UpdateWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint) error
-		DeleteWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint) error
+		UpdateWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) error
+		DeleteWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	weeklyStaffScheduleRepository struct{
@@ -40,9 +40,9 @@ func (wr *weeklyStaffScheduleRepository) CreateWeeklyStaffSchedule(weeklyStaffSc
 	return nil
 }
 
-func (wr *weeklyStaffScheduleRepository) UpdateWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint) error{
+func (wr *weeklyStaffScheduleRepository) UpdateWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) error{
 
-	result := wr.db.Model(weeklyStaffSchedule).Where("id=?", id).Updates(weeklyStaffSchedule)
+	result := wr.db.Model(weeklyStaffSchedule).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Updates(weeklyStaffSchedule)
 
 	if err := result.Error; err != nil{
 		return err
@@ -55,9 +55,9 @@ func (wr *weeklyStaffScheduleRepository) UpdateWeeklyStaffSchedule(weeklyStaffSc
 	return nil
 }
 
-func (wr *weeklyStaffScheduleRepository) DeleteWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint) error{
+func (wr *weeklyStaffScheduleRepository) DeleteWeeklyStaffSchedule(weeklyStaffSchedule *model.WeeklyStaffSchedule, id uint, organizationID uint, restaurantID uint) error{
 
-	result := wr.db.Model(weeklyStaffSchedule).Where("id=?", id).Delete(weeklyStaffSchedule)
+	result := wr.db.Model(weeklyStaffSchedule).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Delete(weeklyStaffSchedule)
 
 	if err := result.Error; err != nil{
 		return err

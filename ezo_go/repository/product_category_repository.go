@@ -11,8 +11,8 @@ type (
 	ProductCategoryRepository interface {
 		GetProductCategoryList(productCategory *[]model.ProductCategory, organizationID uint) error
 		CreateProductCategory(productCategory *model.ProductCategory) error
-		UpdateProductCategory(productCategory *model.ProductCategory, id uint) error
-		DeleteProductCategory(productCategory *model.ProductCategory, id uint) error
+		UpdateProductCategory(productCategory *model.ProductCategory, id uint, organizationID uint) error
+		DeleteProductCategory(productCategory *model.ProductCategory, id uint, organizationID uint) error
 		SearchProductCategory(productCategory *[]model.ProductCategory, organizationID uint, term string) error
 	}
 
@@ -41,9 +41,9 @@ func (pr *productCategoryRepository) CreateProductCategory(productCategory *mode
 	return nil
 }
 
-func (pr *productCategoryRepository) UpdateProductCategory(productCategory *model.ProductCategory, id uint) error {
+func (pr *productCategoryRepository) UpdateProductCategory(productCategory *model.ProductCategory, id uint, organizationID uint) error {
 
-	result := pr.db.Model(productCategory).Where("id=?", id).Updates(productCategory)
+	result := pr.db.Model(productCategory).Where("id=? and organization_id=?", id, organizationID).Updates(productCategory)
 
 	if err := result.Error; err != nil {
 		return err
@@ -56,9 +56,9 @@ func (pr *productCategoryRepository) UpdateProductCategory(productCategory *mode
 	return nil
 }
 
-func (pr *productCategoryRepository) DeleteProductCategory(productCategory *model.ProductCategory, id uint) error {
+func (pr *productCategoryRepository) DeleteProductCategory(productCategory *model.ProductCategory, id uint, organizationID uint) error {
 
-	result := pr.db.Model(productCategory).Where("id=?", id).Update("is_deleted", 1)
+	result := pr.db.Model(productCategory).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
 		return err

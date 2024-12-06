@@ -11,8 +11,8 @@ type (
 	ProductStockUsecase interface {
 		GetProductStockList(organizationID uint) ([]model.ProductStockResponse, error)
 		CreateProductStock(organizationID uint, productID uint, quantity int) (model.ProductStockResponse, error)
-		UpdateProductStock(productStock model.ProductStock, id uint) (model.ProductStockResponse, error)
-		DeleteProductStock(productStock model.ProductStock, id uint) error
+		UpdateProductStock(productStock model.ProductStock, id uint, organizationID uint) (model.ProductStockResponse, error)
+		DeleteProductStock(productStock model.ProductStock, id uint, organizationID uint) error
 		GetProductStockListByUpdateType(organizationID uint, term string)([]model.ProductStockResponse, error)
 	}
 
@@ -107,13 +107,13 @@ func (pu *productStockUsecase) CreateProductStock(organizationID uint, productID
 	return resProductStock, nil
 }
 
-func (pu *productStockUsecase) UpdateProductStock(productStock model.ProductStock, id uint) (model.ProductStockResponse, error) {
+func (pu *productStockUsecase) UpdateProductStock(productStock model.ProductStock, id uint, organizationID uint) (model.ProductStockResponse, error) {
 
 	if err := pu.pv.ProductStockValidate(productStock); err != nil {
 		return model.ProductStockResponse{}, err
 	}
 
-	if err := pu.pr.UpdateProductStock(&productStock, id); err != nil {
+	if err := pu.pr.UpdateProductStock(&productStock, id, organizationID); err != nil {
 		return model.ProductStockResponse{}, err
 	}
 
@@ -131,9 +131,9 @@ func (pu *productStockUsecase) UpdateProductStock(productStock model.ProductStoc
 	return resProductStock, nil
 }
 
-func (pu *productStockUsecase) DeleteProductStock(productStock model.ProductStock, id uint) error {
+func (pu *productStockUsecase) DeleteProductStock(productStock model.ProductStock, id uint, organizationID uint) error {
 
-	if err := pu.pr.DeleteProductStock(&productStock, id); err != nil {
+	if err := pu.pr.DeleteProductStock(&productStock, id, organizationID); err != nil {
 		return err
 	}
 	return nil

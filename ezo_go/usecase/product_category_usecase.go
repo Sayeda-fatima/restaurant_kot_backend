@@ -11,8 +11,8 @@ type(
 	ProductCategoryUsecase interface{
 		GetProductCategoryList (organizationID uint) ([]model.ProductCategoryResponse, error)
 		CreateProductCategory (productCategory model.ProductCategory) (model.ProductCategoryResponse, error)
-		UpdateProductCategory (productCategory model.ProductCategory, id uint) (model.ProductCategoryResponse, error)
-		DeleteProductCategory (productCategory model.ProductCategory, id uint) error
+		UpdateProductCategory (productCategory model.ProductCategory, id uint, organizationID uint) (model.ProductCategoryResponse, error)
+		DeleteProductCategory (productCategory model.ProductCategory, id uint, organizationID uint) error
 		SearchProductCategory (organizationID uint, term string) ([]model.ProductCategoryResponse, error)
 	}
 
@@ -73,14 +73,14 @@ func (pu *productCategoryUsecase) CreateProductCategory (productCategory model.P
 	return resProductCategory, nil
 }
 
-func (pu *productCategoryUsecase) UpdateProductCategory (productCategory model.ProductCategory, id uint) (model.ProductCategoryResponse, error){
+func (pu *productCategoryUsecase) UpdateProductCategory (productCategory model.ProductCategory, id uint, organizationID uint) (model.ProductCategoryResponse, error){
 
 	if err := pu.pv.ProductCategoryValidate(productCategory); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateProductCategoryList")
 		return model.ProductCategoryResponse{}, err
 	}
 
-	if err := pu.pr.UpdateProductCategory(&productCategory, id); err!=nil{
+	if err := pu.pr.UpdateProductCategory(&productCategory, id, organizationID); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateProductCategoryList")
 		return model.ProductCategoryResponse{}, err
 	}
@@ -95,9 +95,9 @@ func (pu *productCategoryUsecase) UpdateProductCategory (productCategory model.P
 	return resProductCategory, nil
 }
 
-func (pu *productCategoryUsecase) DeleteProductCategory (productCategory model.ProductCategory, id uint) error{
+func (pu *productCategoryUsecase) DeleteProductCategory (productCategory model.ProductCategory, id uint, organizationID uint) error{
 
-	if err := pu.pr.DeleteProductCategory(&productCategory, id); err!=nil{
+	if err := pu.pr.DeleteProductCategory(&productCategory, id, organizationID); err!=nil{
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteProductCategoryList")
 		return err
 	}

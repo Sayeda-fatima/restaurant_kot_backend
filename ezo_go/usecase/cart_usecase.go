@@ -11,8 +11,8 @@ type (
 	CartUsecase interface {
 		GetCartList(organizationID uint) ([]model.CartResponse, error)
 		CreateCart(cart model.Cart) (model.CartResponse, error)
-		UpdateCart(cart model.Cart, id uint) (model.CartResponse, error)
-		DeleteCart(id uint) error
+		UpdateCart(cart model.Cart, id uint, organizationID uint) (model.CartResponse, error)
+		DeleteCart(id uint, organizationID uint) error
 	}
 
 	cartUsecase struct {
@@ -82,7 +82,7 @@ func (cu *cartUsecase) CreateCart(cart model.Cart) (model.CartResponse, error) {
 	return resCart, nil
 }
 
-func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint) (model.CartResponse, error) {
+func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint, organizationID uint) (model.CartResponse, error) {
 
 	if err := cu.cv.CartValidate(cart); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCart")
@@ -96,7 +96,7 @@ func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint) (model.CartResponse,
 		//cart.TotalQuantity += cart.CartItems[i].ProductQuantity 
 	}
 
-	if err := cu.cr.UpdateCart(&cart, id); err != nil {
+	if err := cu.cr.UpdateCart(&cart, id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("UpdateCart")
 		return model.CartResponse{}, err
 	}
@@ -112,9 +112,9 @@ func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint) (model.CartResponse,
 	return resCart, nil
 }
 
-func (cu *cartUsecase) DeleteCart(id uint) error {
+func (cu *cartUsecase) DeleteCart(id uint, organizationID uint) error {
 
-	if err := cu.cr.DeleteCart(id); err != nil {
+	if err := cu.cr.DeleteCart(id, organizationID); err != nil {
 		common.Logger.LogError().Fields(map[string]interface{}{"error": err.Error()}).Msg("DeleteCart")
 		return err
 	}

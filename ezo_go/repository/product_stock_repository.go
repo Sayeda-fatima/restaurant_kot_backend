@@ -11,8 +11,8 @@ type (
 	ProductStockRepository interface {
 		GetProductStockList(productStock *[]model.ProductStock, organizationID uint) error
 		CreateProductStock(productStock *model.ProductStock) error
-		UpdateProductStock(productStock *model.ProductStock, id uint) error
-		DeleteProductStock(productStock *model.ProductStock, id uint) error
+		UpdateProductStock(productStock *model.ProductStock, id uint, organizationID uint) error
+		DeleteProductStock(productStock *model.ProductStock, id uint, organizationID uint) error
 		GetProductStockListByUpdateType(productStock *[]model.ProductStock, organizationID uint, term string) error
 	}
 
@@ -41,9 +41,9 @@ func (pr *productStockRepository) CreateProductStock(productStock *model.Product
 	return nil
 }
 
-func (pr *productStockRepository) UpdateProductStock(productStock *model.ProductStock, id uint) error {
+func (pr *productStockRepository) UpdateProductStock(productStock *model.ProductStock, id uint, organizationID uint) error {
 
-	result := pr.db.Model(productStock).Where("id=?", id).Updates(productStock)
+	result := pr.db.Model(productStock).Where("id=? and organization_id=?", id, organizationID).Updates(productStock)
 
 	if err := result.Error; err != nil {
 		return err
@@ -56,9 +56,9 @@ func (pr *productStockRepository) UpdateProductStock(productStock *model.Product
 	return nil
 }
 
-func (pr *productStockRepository) DeleteProductStock(productStock *model.ProductStock, id uint) error {
+func (pr *productStockRepository) DeleteProductStock(productStock *model.ProductStock, id uint, organizationID uint) error {
 
-	result := pr.db.Model(productStock).Where("id=?", id).Update("is_deleted", 1)
+	result := pr.db.Model(productStock).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
 		return err

@@ -94,7 +94,7 @@ func (mc *menuItemController) UpdateMenuItem(c echo.Context) error{
 	menuItem.OrganizationID = uint(organizationID.(float64))
 	menuItem.RestaurantID = uint(restaurantID.(float64))
 
-	menuItemRes, err := mc.mu.UpdateMenuItem(menuItem, uint(menuItemID))
+	menuItemRes, err := mc.mu.UpdateMenuItem(menuItem, uint(menuItemID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -104,6 +104,10 @@ func (mc *menuItemController) UpdateMenuItem(c echo.Context) error{
 
 func (mc *menuItemController) DeleteMenuItem(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
 	id := c.Param("id")
 	menuItemID, _ := strconv.Atoi(id)
 
@@ -112,7 +116,7 @@ func (mc *menuItemController) DeleteMenuItem(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := mc.mu.DeleteMenuItem(menuItem, uint(menuItemID)); err != nil{
+	if err := mc.mu.DeleteMenuItem(menuItem, uint(menuItemID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 

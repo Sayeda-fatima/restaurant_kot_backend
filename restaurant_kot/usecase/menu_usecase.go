@@ -10,8 +10,8 @@ type (
 	MenuUsecase interface {
 		GetMenuList(organizationID uint, restaurantID uint) ([]model.MenuResponse, error)
 		CreateMenu(menu model.Menu) (model.MenuResponse, error)
-		UpdateMenu(menu model.Menu, id uint) (model.MenuResponse, error)
-		DeleteMenu(menu model.Menu, id uint) error
+		UpdateMenu(menu model.Menu, id uint, organizationID uint, restaurantID uint) (model.MenuResponse, error)
+		DeleteMenu(menu model.Menu, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	menuUsecase struct{
@@ -72,13 +72,13 @@ func (mu *menuUsecase) CreateMenu(menu model.Menu) (model.MenuResponse, error){
 	return resMenu, nil
 }
 
-func (mu *menuUsecase) UpdateMenu(menu model.Menu, id uint) (model.MenuResponse, error){
+func (mu *menuUsecase) UpdateMenu(menu model.Menu, id uint, organizationID uint, restaurantID uint) (model.MenuResponse, error){
 
 	if err := mu.mv.MenuValidate(&menu); err != nil{
 		return model.MenuResponse{}, err
 	}
 
-	if err := mu.mr.UpdateMenu(&menu, id); err != nil{
+	if err := mu.mr.UpdateMenu(&menu, id, organizationID, restaurantID); err != nil{
 		return model.MenuResponse{}, err
 	}
 
@@ -92,9 +92,9 @@ func (mu *menuUsecase) UpdateMenu(menu model.Menu, id uint) (model.MenuResponse,
 	return resMenu, nil
 }
 
-func (mu *menuUsecase) DeleteMenu(menu model.Menu, id uint) error{
+func (mu *menuUsecase) DeleteMenu(menu model.Menu, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := mu.mr.DeleteMenu(&menu, id); err != nil{
+	if err := mu.mr.DeleteMenu(&menu, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 	return nil

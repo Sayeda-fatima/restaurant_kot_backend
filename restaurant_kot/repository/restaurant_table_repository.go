@@ -11,8 +11,8 @@ type (
 	RestaurantTableRepository interface {
 		GetRestaurantTableList(restaurantTables *[]model.RestaurantTable, organizationID uint, restaurantID uint) error
 		CreateRestaurantTable(restaurantTable *model.RestaurantTable) error
-		UpdateRestaurantTable(restaurantTable *model.RestaurantTable, id uint) error
-		DeleteRestaurantTable(restaurantTable *model.RestaurantTable, id uint) error
+		UpdateRestaurantTable(restaurantTable *model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error
+		DeleteRestaurantTable(restaurantTable *model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	restaurantTableRepository struct{
@@ -40,9 +40,9 @@ func (rr *restaurantTableRepository) CreateRestaurantTable(restaurantTable *mode
 	return nil
 }
 
-func (rr *restaurantTableRepository) UpdateRestaurantTable(restaurantTable *model.RestaurantTable, id uint) error{
+func (rr *restaurantTableRepository) UpdateRestaurantTable(restaurantTable *model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error{
 
-	result := rr.db.Model(restaurantTable).Where("id=?", id).Updates(restaurantTable)
+	result := rr.db.Model(restaurantTable).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Updates(restaurantTable)
 
 	if err := result.Error; err != nil{
 		return err
@@ -55,9 +55,9 @@ func (rr *restaurantTableRepository) UpdateRestaurantTable(restaurantTable *mode
 	return nil
 }
 
-func (rr *restaurantTableRepository) DeleteRestaurantTable(restaurantTable *model.RestaurantTable, id uint) error{
+func (rr *restaurantTableRepository) DeleteRestaurantTable(restaurantTable *model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error{
 
-	result := rr.db.Model(restaurantTable).Where("id=?", id).Update("is_deleted", 1)
+	result := rr.db.Model(restaurantTable).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil{
 		return err

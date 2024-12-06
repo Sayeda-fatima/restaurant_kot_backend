@@ -12,8 +12,8 @@ type (
 		GetStaffListByOrganization(staff *[]model.Staff, organizationID uint) error
 		GetStaffListByRestaurant(staff *[]model.Staff, organizationID uint, restaurantID uint) error
 		CreateStaff(staff *model.Staff) error
-		UpdateStaff(staff *model.Staff, id uint) error
-		DeleteStaff(staff *model.Staff, id uint) error
+		UpdateStaff(staff *model.Staff, id uint, organizationID uint, restaurantID uint) error
+		DeleteStaff(staff *model.Staff, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	staffRepository struct{
@@ -50,9 +50,9 @@ func (sr *staffRepository) CreateStaff(staff *model.Staff) error{
 	return nil
 }
 
-func (sr *staffRepository) UpdateStaff(staff *model.Staff, id uint) error{
+func (sr *staffRepository) UpdateStaff(staff *model.Staff, id uint, organizationID uint, restaurantID uint) error{
 
-	result := sr.db.Model(staff).Where("id=?", id).Updates(staff)
+	result := sr.db.Model(staff).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Updates(staff)
 
 	if err := result.Error; err != nil{
 		return err
@@ -65,9 +65,9 @@ func (sr *staffRepository) UpdateStaff(staff *model.Staff, id uint) error{
 	return nil
 }
 
-func (sr *staffRepository) DeleteStaff(staff *model.Staff, id uint) error{
+func (sr *staffRepository) DeleteStaff(staff *model.Staff, id uint, organizationID uint, restaurantID uint) error{
 
-	result := sr.db.Model(staff).Where("id=?", id).Update("is_deleted", 1)
+	result := sr.db.Model(staff).Where("id=? and organization_id=? and restaurant_id=?", id, organizationID, restaurantID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil{
 		return err

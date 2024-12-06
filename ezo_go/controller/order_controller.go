@@ -88,7 +88,7 @@ func (oc *orderController) UpdateOrder(c echo.Context) error {
 
 	order.ID = uint(orderID)
 	order.OrganizationID = uint(organizationID.(float64))
-	orderRes, err := oc.ou.UpdateOrder(order, uint(orderID))
+	orderRes, err := oc.ou.UpdateOrder(order, uint(orderID), uint(organizationID.(float64)))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -99,6 +99,9 @@ func (oc *orderController) UpdateOrder(c echo.Context) error {
 
 func (oc *orderController) DeleteOrder(c echo.Context) error {
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
 	id := c.Param("id")
 	orderID, _ := strconv.Atoi(id)
 
@@ -107,7 +110,7 @@ func (oc *orderController) DeleteOrder(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err := oc.ou.DeleteOrder(order, uint(orderID))
+	err := oc.ou.DeleteOrder(order, uint(orderID), uint(organizationID.(float64)))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

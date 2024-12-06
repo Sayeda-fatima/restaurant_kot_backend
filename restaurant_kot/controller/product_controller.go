@@ -85,7 +85,7 @@ func (pc *productController) UpdateProduct(c echo.Context) error{
 	product.OrganizationID = uint(organizationID.(float64))
 	product.RestaurantID = uint(restaurantID.(float64))
 
-	productRes, err := pc.pu.UpdateProduct(product, uint(productID))
+	productRes, err := pc.pu.UpdateProduct(product, uint(productID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -95,6 +95,10 @@ func (pc *productController) UpdateProduct(c echo.Context) error{
 
 func (pc *productController) DeleteProduct(c echo.Context) error{
 
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
 	id := c.Param("id")
 	productID, _ := strconv.Atoi(id)
 
@@ -103,7 +107,7 @@ func (pc *productController) DeleteProduct(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	if err := pc.pu.DeleteProduct(product, uint(productID)); err != nil{
+	if err := pc.pu.DeleteProduct(product, uint(productID), uint(organizationID.(float64)), uint(restaurantID.(float64))); err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)

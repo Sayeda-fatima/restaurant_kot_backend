@@ -10,8 +10,8 @@ type (
 	ProductUsecase interface {
 		GetAllProduct(organizationID uint, restaurantID uint) ([]model.ProductResponse, error)
 		CreateProduct(product model.Product) (model.ProductResponse, error)
-		UpdateProduct(product model.Product, id uint) (model.ProductResponse, error)
-		DeleteProduct(product model.Product, id uint) error
+		UpdateProduct(product model.Product, id uint, organizationID uint, restaurantID uint) (model.ProductResponse, error)
+		DeleteProduct(product model.Product, id uint, organizationID uint, restaurantID uint) error
 	}
 
 	productUsecase struct{
@@ -77,13 +77,13 @@ func (pu *productUsecase) CreateProduct(product model.Product) (model.ProductRes
 	return resProduct, nil
 }
 
-func (pu *productUsecase) UpdateProduct(product model.Product, id uint) (model.ProductResponse, error){
+func (pu *productUsecase) UpdateProduct(product model.Product, id uint, organizationID uint, restaurantID uint) (model.ProductResponse, error){
 
 	if err := pu.pv.ProductValidate(&product); err != nil{
 		return model.ProductResponse{}, err
 	}
 
-	if err := pu.pr.UpdateProduct(&product, id); err != nil{
+	if err := pu.pr.UpdateProduct(&product, id, organizationID, restaurantID); err != nil{
 		return model.ProductResponse{}, err
 	}
 
@@ -103,9 +103,9 @@ func (pu *productUsecase) UpdateProduct(product model.Product, id uint) (model.P
 	return resProduct, nil
 }
 
-func (pu *productUsecase) DeleteProduct(product model.Product, id uint) error{
+func (pu *productUsecase) DeleteProduct(product model.Product, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := pu.pr.DeleteProduct(&product, id); err != nil{
+	if err := pu.pr.DeleteProduct(&product, id, organizationID, restaurantID); err != nil{
 		return err
 	}
 

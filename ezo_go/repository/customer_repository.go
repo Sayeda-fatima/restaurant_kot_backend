@@ -12,8 +12,8 @@ import (
 type CustomerRepository interface {
 	GetCustomerList(customers *[]model.Customer, organizationID uint) error
 	CreateCustomer(customer *model.Customer) error
-	UpdateCustomer(customer *model.Customer, id uint) error
-	DeleteCustomer(customer *model.Customer, id uint) error
+	UpdateCustomer(customer *model.Customer, id uint, organizationID uint) error
+	DeleteCustomer(customer *model.Customer, id uint, organizationID uint) error
 	SearchCustomer(customer *[]model.Customer, organizationID uint, term string) error
 	DetailReport(customer *[]model.Customer, organizationID uint, dateFrom string, dateTo string) error
 }
@@ -43,9 +43,9 @@ func (cr *customerRepository) CreateCustomer(customer *model.Customer) error {
 	return nil
 }
 
-func (cr *customerRepository) UpdateCustomer(customer *model.Customer, id uint) error {
+func (cr *customerRepository) UpdateCustomer(customer *model.Customer, id uint, organizationID uint) error {
 
-	result := cr.db.Model(customer).Where("id=?", id).Updates(customer)
+	result := cr.db.Model(customer).Where("id=? and organization_id=?", id, organizationID).Updates(customer)
 	if err := result.Error; err != nil {
 		return err
 	}
@@ -57,9 +57,9 @@ func (cr *customerRepository) UpdateCustomer(customer *model.Customer, id uint) 
 	return nil
 }
 
-func (cr *customerRepository) DeleteCustomer(customer *model.Customer, id uint) error {
+func (cr *customerRepository) DeleteCustomer(customer *model.Customer, id uint, organizationID uint) error {
 
-	result := cr.db.Model(customer).Where("id=?", id).Update("is_deleted", 1)
+	result := cr.db.Model(customer).Where("id=? and organization_id=?", id, organizationID).Update("is_deleted", 1)
 
 	if err := result.Error; err != nil {
 		return err
