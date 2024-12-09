@@ -57,6 +57,7 @@ func (pu *productUsecase) CreateProduct(product model.Product) (model.ProductRes
 		return model.ProductResponse{}, err
 	}
 
+	product.InventoryValue = product.Quantity * product.UnitCost
 	if err := pu.pr.CreateProduct(&product); err != nil{
 		return model.ProductResponse{}, err
 	}
@@ -83,6 +84,7 @@ func (pu *productUsecase) UpdateProduct(product model.Product, id uint, organiza
 		return model.ProductResponse{}, err
 	}
 
+	product.InventoryValue = product.Quantity * product.UnitCost
 	if err := pu.pr.UpdateProduct(&product, id, organizationID, restaurantID); err != nil{
 		return model.ProductResponse{}, err
 	}

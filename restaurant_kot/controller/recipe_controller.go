@@ -13,9 +13,11 @@ import (
 type (
 	RecipeController interface {
 		GetRecipeList(c echo.Context) error
+		GetRecipe(c echo.Context) error
 		CreateRecipe(c echo.Context) error
 		UpdateRecipe(c echo.Context) error
 		DeleteRecipe(c echo.Context) error
+		GetRecipeCost(c echo.Context) error
 	}
 
 	recipeController struct{
@@ -35,6 +37,25 @@ func (rc *recipeController) GetRecipeList(c echo.Context) error{
 	restaurantID := claims["restaurant_id"]
 
 	recipeRes, err := rc.ru.GetRecipeList(uint(organizationID.(float64)), uint(restaurantID.(float64)))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, recipeRes)
+}
+
+func (rc *recipeController) GetRecipe(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	id := c.Param("id")
+	recipeID, _ := strconv.Atoi(id)
+	
+	recipeRes, err := rc.ru.GetRecipe(uint(organizationID.(float64)), uint(restaurantID.(float64)), uint(recipeID))
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -111,4 +132,22 @@ func (rc *recipeController) DeleteRecipe(c echo.Context) error{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (rc *recipeController) GetRecipeCost(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	id := c.Param("id")
+	recipeID, _ := strconv.Atoi(id)
+
+	recipeRes, err := rc.ru.GetRecipeCost(uint(recipeID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, recipeRes)
 }

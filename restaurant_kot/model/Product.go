@@ -15,7 +15,7 @@ type Product struct {
 	UnitCost       int          `json:"unit_cost" gorm:"not null;type:int(11)" validate:"required"`
 	Quantity       int          `json:"quantity" gorm:"not null;type:int(11)" validate:"required"`
 	InventoryValue int          `json:"inventory_value" gorm:"not null;type:int(11)"`
-	Recipes        []Recipe     `gorm:"many2many:recipe_products"`
+	//Recipes        []Recipe     `gorm:"many2many:recipe_products"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 	IsDeleted      bool         `json:"is_deleted" gorm:"not null;default:0"`

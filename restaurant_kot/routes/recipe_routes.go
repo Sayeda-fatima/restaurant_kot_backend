@@ -17,6 +17,8 @@ func RecipeRoutes(e *echo.Echo, rc controller.RecipeController, rp controller.Re
 
 	r.GET("", rc.GetRecipeList)
 	r.POST("", rc.CreateRecipe)
+	r.GET("/:id", rc.GetRecipe)
+	r.GET("/:id/cost", rc.GetRecipeCost)
 	r.PUT("/:id", rc.UpdateRecipe)
 	r.DELETE("/:id", rc.DeleteRecipe)
 	
