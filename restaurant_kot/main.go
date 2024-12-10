@@ -105,6 +105,18 @@ func main() {
 	menuAllergenUsecase := usecase.NewMenuAllergenUsecase(menuAllergenRepository, menuAllergenValidator)
 	menuAllergenController := controller.NewMenuAllergenController(menuAllergenUsecase)
 
+	// cart
+	cartValidator := validator.NewCartValidator()
+	cartRepository := repository.NewCartRepository(db)
+	cartUsecase := usecase.NewCartUsecase(cartRepository, cartValidator)
+	cartController := controller.NewCartController(cartUsecase)
+
+	// cart item
+	cartItemValidator := validator.NewCartItemValidator()
+	cartItemRepository := repository.NewCartItemRepository(db)
+	cartItemUsecase := usecase.NewCartItemUsecase(cartItemRepository, cartItemValidator)
+	cartItemController := controller.NewCartItemController(cartItemUsecase)
+
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:8000", os.Getenv("APP_URL")},
@@ -128,6 +140,7 @@ func main() {
 	routes.RecipeRoutes(e, recipeController, recipeProductController)
 	routes.AllergenRoutes(e, allergenController)
 	routes.MenuRoutes(e, menuController, menuItemController, menuAllergenController)
+	routes.CartRoutes(e, cartController, cartItemController)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }

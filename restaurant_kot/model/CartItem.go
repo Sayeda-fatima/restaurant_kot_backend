@@ -12,6 +12,7 @@ type CartItem struct {
 	MenuItemID     uint         `json:"menu_item_id" gorm:"not null"`
 	MenuItem       MenuItem     `json:"menu_item" gorm:"foreignKey:MenuItemID;references:ID"`
 	ItemQuantity   int          `json:"item_quantity" gorm:"not null;type:int(11)"`
+	ItemStatus		string		`json:"item_status" gorm:"not null;type:enum('pending', 'sent_to_kitchen', 'ready_to_serve', 'served', 'cancelled', 'replaced', 'complementary')"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 }
