@@ -15,6 +15,7 @@ type (
 		GetCartItemList(c echo.Context) error
 		CreateCartItem(c echo.Context) error
 		UpdateCartItem(c echo.Context) error
+		UpdateCartItemStatus(c echo.Context) error
 		DeleteCartItem(c echo.Context) error
 	}
 
@@ -100,6 +101,34 @@ func (cc *cartItemController) UpdateCartItem(c echo.Context) error{
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
+	return c.JSON(http.StatusOK, cartItemRes)
+}
+
+func (cc *cartItemController) UpdateCartItemStatus(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	cart := c.Param("cart")
+	cartID, _ := strconv.Atoi(cart)
+	id := c.Param("id")
+	cartItemID, _ := strconv.Atoi(id)
+
+	status := c.FormValue("status")
+
+	cartItem := model.CartItem{}
+	if err := c.Bind(&cartItem); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	cartItemRes, err := cc.cu.UpdateCartItemStatus(cartItem, uint(cartItemID), uint(cartID), uint(restaurantID.(float64)), uint(organizationID.(float64)), status)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, cartItemRes)
 }
 

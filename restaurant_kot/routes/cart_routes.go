@@ -17,13 +17,18 @@ func CartRoutes(e *echo.Echo, cc controller.CartController, ci controller.CartIt
 
 	c.GET("", cc.GetCartList)
 	c.POST("", cc.CreateCart)
+	c.GET("/:table/active", cc.CheckCartActive)
 	c.PUT("/:id", cc.UpdateCart)
 	c.PUT("/:id/status", cc.UpdateCartStatus)
 	c.DELETE("/:id", cc.DeleteCart)
+
+	// send to kitchen
+	c.POST("/:id/send-to-kitchen", cc.SendCartToKitchen)
 
 	// cart items
 	c.GET("/:cart/item", ci.GetCartItemList)
 	c.POST("/:cart/item", ci.CreateCartItem)
 	c.PUT("/:cart/item/:id", ci.UpdateCartItem)
+	c.PUT("/:cart/item/:id/status", ci.UpdateCartItemStatus)
 	c.DELETE("/:cart/item/:id", ci.DeleteCartItem)
 }

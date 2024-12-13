@@ -10,10 +10,12 @@ import (
 type (
 	CartRepository interface {
 		GetCartList(carts *[]model.Cart, organizationID uint, restaurantID uint) error
+		GetCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error
 		CreateCart(cart *model.Cart) error
 		UpdateCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error
 		UpdateCartStatus(cart *model.Cart, id uint, organizationID uint, restaurantID uint, status string) error
 		DeleteCart(id uint, organizationID uint, restaurantID uint) error
+		CheckCartActive(cart *model.Cart, organizationID uint, restaurantID uint, tableID uint) error
 	}
 
 	cartRepository struct{
@@ -28,6 +30,14 @@ func NewCartRepository(db *gorm.DB) CartRepository{
 func (cr *cartRepository) GetCartList(carts *[]model.Cart, organizationID uint, restaurantID uint) error{
 
 	if err := cr.db.Where("organization_id=? and restaurant_id=?", organizationID, restaurantID).Find(carts).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (cr *cartRepository) GetCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error{
+
+	if err := cr.db.Preload("CartItems.MenuItem.Recipe.RecipeProducts.Product").Where("id=? and restaurant_id=? and organization_id=?", id, restaurantID, organizationID).First(cart).Error; err != nil{
 		return err
 	}
 	return nil
@@ -79,6 +89,14 @@ func (cr *cartRepository) DeleteCart(id uint, organizationID uint, restaurantID 
 
 	if result.RowsAffected < 1{
 		return fmt.Errorf("record not found")
+	}
+	return nil
+}
+
+func (cr *cartRepository) CheckCartActive(cart *model.Cart, organizationID uint, restaurantID uint, tableID uint) error{
+
+	if err := cr.db.Preload("CartItems.MenuItem").Where("organization_id=? and restaurant_id=? and table_id=? and cart_status='active'", organizationID, restaurantID, tableID).First(cart).Error; err != nil{
+		return err
 	}
 	return nil
 }

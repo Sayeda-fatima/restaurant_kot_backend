@@ -17,6 +17,8 @@ type (
 		UpdateCart(c echo.Context) error
 		UpdateCartStatus(c echo.Context) error
 		DeleteCart(c echo.Context) error
+		SendCartToKitchen(c echo.Context) error
+		CheckCartActive(c echo.Context) error
 	}
 
 	cartController struct{
@@ -136,4 +138,46 @@ func (cc *cartController) DeleteCart(c echo.Context) error{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (cc *cartController) SendCartToKitchen(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	id := c.Param("id")
+	cartID, _ := strconv.Atoi(id)
+
+	cart := model.Cart{}
+	if err := c.Bind(&cart); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	cartRes, err := cc.cu.SendCartToKitchen(uint(cartID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, cartRes)
+}
+
+func (cc *cartController) CheckCartActive(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	table := c.Param("table")
+	tableID, _ := strconv.Atoi(table)
+
+	cartRes, err := cc.cu.CheckCartActive(uint(organizationID.(float64)), uint(restaurantID.(float64)), uint(tableID))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, cartRes)
 }

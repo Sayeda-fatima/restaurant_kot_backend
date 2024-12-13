@@ -12,6 +12,7 @@ type (
 		GetCartItemList(cartItem *[]model.CartItem, cartID uint, restaurantID uint, organizationID uint) error
 		CreateCartitem(cartItem *model.CartItem) error
 		UpdateCartitem(cartItem *model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error
+		UpdateCartItemStatus(cartItem *model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) error
 		DeleteCartItem(cartItem *model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error
 	}
 
@@ -44,6 +45,21 @@ func (cr *cartItemRepository) CreateCartitem(cartItem *model.CartItem) error{
 func (cr *cartItemRepository) UpdateCartitem(cartItem *model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error{
 
 	result := cr.db.Model(cartItem).Where("id=? and cart_id=? and restaurant_id=? and organization_id=?", id, cartID, restaurantID, organizationID).Updates(cartItem)
+
+	if err := result.Error; err != nil{
+		return err
+	}
+
+	if result.RowsAffected < 1{
+		return fmt.Errorf("record not found")
+	}
+
+	return nil
+}
+
+func (cr *cartItemRepository) UpdateCartItemStatus(cartItem *model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) error{
+
+	result := cr.db.Model(cartItem).Where("id=? and cart_id=? and restaurant_id=? and organization_id=?", id, cartID, restaurantID, organizationID).Update("item_status", status)
 
 	if err := result.Error; err != nil{
 		return err

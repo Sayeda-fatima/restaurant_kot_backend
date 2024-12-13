@@ -108,14 +108,26 @@ func main() {
 	// cart
 	cartValidator := validator.NewCartValidator()
 	cartRepository := repository.NewCartRepository(db)
-	cartUsecase := usecase.NewCartUsecase(cartRepository, cartValidator)
-	cartController := controller.NewCartController(cartUsecase)
-
 	// cart item
 	cartItemValidator := validator.NewCartItemValidator()
 	cartItemRepository := repository.NewCartItemRepository(db)
 	cartItemUsecase := usecase.NewCartItemUsecase(cartItemRepository, cartItemValidator)
 	cartItemController := controller.NewCartItemController(cartItemUsecase)
+
+	cartUsecase := usecase.NewCartUsecase(cartRepository, cartValidator, db, cartItemUsecase)
+	cartController := controller.NewCartController(cartUsecase)
+
+	// order
+	orderValidator := validator.NewOrderValidator()
+	orderRepository := repository.NewOrderRepository(db)
+	orderUsecase := usecase.NewOrderUsecase(orderRepository, orderValidator)
+	orderController := controller.NewOrderController(orderUsecase)
+
+	// order item
+	orderItemValidator := validator.NewOrderItemValidator()
+	orderItemRepository := repository.NewOrderItemRepository(db)
+	orderItemUsecase := usecase.NewOrderItemUsecase(orderItemRepository, orderItemValidator)
+	orderItemController := controller.NewOrderItemController(orderItemUsecase)
 
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -141,6 +153,7 @@ func main() {
 	routes.AllergenRoutes(e, allergenController)
 	routes.MenuRoutes(e, menuController, menuItemController, menuAllergenController)
 	routes.CartRoutes(e, cartController, cartItemController)
+	routes.OrderRoutes(e, orderController, orderItemController)
 
 	e.Logger.Fatal(e.Start(":8000"))
 }

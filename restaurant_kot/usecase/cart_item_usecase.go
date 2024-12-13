@@ -11,6 +11,7 @@ type (
 		GetCartItemList(cartID uint, restaurantID uint, organizationID uint) ([]model.CartItemResponse, error)
 		CreateCartItem(cartItem model.CartItem) (model.CartItemResponse, error)
 		UpdateCartItem(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) (model.CartItemResponse, error)
+		UpdateCartItemStatus(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) (model.CartItemResponse, error)
 		DeleteCartItem(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error
 	}
 
@@ -90,6 +91,25 @@ func (cu *cartItemUsecase) UpdateCartItem(cartItem model.CartItem, id uint, cart
 		ItemQuantity: cartItem.ItemQuantity,
 	}
 	return resCartItem, nil
+}
+
+func (cu *cartItemUsecase) UpdateCartItemStatus(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) (model.CartItemResponse, error){
+
+	if err := cu.cr.UpdateCartItemStatus(&cartItem, id, cartID, restaurantID, organizationID, status); err != nil{
+		return model.CartItemResponse{}, err
+	}
+	
+	resCart := model.CartItemResponse{
+		ID: cartItem.ID,
+		OrganizationID: cartItem.OrganizationID,
+		RestaurantID: cartItem.RestaurantID,
+		CartID: cartItem.CartID,
+		MenuItemID: cartItem.MenuItemID,
+		MenuItem: cartItem.MenuItem,
+		ItemQuantity: cartItem.ItemQuantity,
+	}
+
+	return resCart, nil
 }
 
 func (cu *cartItemUsecase) DeleteCartItem(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error{
