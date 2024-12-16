@@ -37,7 +37,7 @@ func (cr *cartRepository) GetCartList(carts *[]model.Cart, organizationID uint, 
 
 func (cr *cartRepository) GetCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error{
 
-	if err := cr.db.Preload("CartItems.MenuItem.Recipe.RecipeProducts.Product").Where("id=? and restaurant_id=? and organization_id=?", id, restaurantID, organizationID).First(cart).Error; err != nil{
+	if err := cr.db.Preload("CartItems", "item_status = ?", "pending").Preload("CartItems.MenuItem.Recipe.RecipeProducts.Product").Where("id=? and restaurant_id=? and organization_id=?", id, restaurantID, organizationID).First(cart).Error; err != nil{
 		return err
 	}
 	return nil

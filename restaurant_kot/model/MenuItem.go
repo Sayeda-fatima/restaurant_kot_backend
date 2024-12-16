@@ -13,9 +13,9 @@ type MenuItem struct {
 	Description    string         `json:"description" gorm:"not null" validate:"omitempty"`
 	Currency       string         `json:"currency" gorm:"not null;size:10" validate:"required"`
 	Price          int            `json:"price" gorm:"not null;type:int(11)" validate:"required"`
+	Serving        int            `json:"serving" gorm:"not null;type:int(11)" validate:"required"`
 	RecipeID       uint           `json:"recipe_id" gorm:"not null"`
 	Recipe         Recipe         `json:"recipe" gorm:"foreignKey:RecipeID;references:ID" validate:"-"`
-	Serving        int            `json:"serving" gorm:"not null;type:int(11)" validate:"required"`
 	MenuAllergens  []MenuAllergen `json:"menu_allergens" gorm:"foreignKey:MenuItemID"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`

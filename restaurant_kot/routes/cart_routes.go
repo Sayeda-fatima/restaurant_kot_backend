@@ -31,4 +31,7 @@ func CartRoutes(e *echo.Echo, cc controller.CartController, ci controller.CartIt
 	c.PUT("/:cart/item/:id", ci.UpdateCartItem)
 	c.PUT("/:cart/item/:id/status", ci.UpdateCartItemStatus)
 	c.DELETE("/:cart/item/:id", ci.DeleteCartItem)
+
+	// send to kitchen
+	c.POST("/:cart/item/send-to-kitchen", ci.SendCartItemToKitchen)
 }

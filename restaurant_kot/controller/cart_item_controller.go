@@ -17,6 +17,7 @@ type (
 		UpdateCartItem(c echo.Context) error
 		UpdateCartItemStatus(c echo.Context) error
 		DeleteCartItem(c echo.Context) error
+		SendCartItemToKitchen(c echo.Context) error
 	}
 
 	cartItemController struct{
@@ -153,4 +154,23 @@ func (cc *cartItemController) DeleteCartItem(c echo.Context) error{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (cc *cartItemController) SendCartItemToKitchen(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	cart := c.Param("cart")
+	cartID, _ := strconv.Atoi(cart)
+
+	cartRes, err := cc.cu.SendCartItemToKitchen(uint(cartID), uint(organizationID.(float64)), uint(restaurantID.(float64)))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, cartRes)
 }

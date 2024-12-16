@@ -10,6 +10,7 @@ import (
 type (
 	CartItemRepository interface {
 		GetCartItemList(cartItem *[]model.CartItem, cartID uint, restaurantID uint, organizationID uint) error
+		GetPendingCartItemList(cartItem *[]model.CartItem, cartID uint, restaurantID uint, organizationID uint) error
 		CreateCartitem(cartItem *model.CartItem) error
 		UpdateCartitem(cartItem *model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error
 		UpdateCartItemStatus(cartItem *model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) error
@@ -28,6 +29,15 @@ func NewCartItemRepository(db *gorm.DB) CartItemRepository{
 func (cr *cartItemRepository) GetCartItemList(cartItem *[]model.CartItem, cartID uint, restaurantID uint, organizationID uint) error{
 
 	if err := cr.db.Preload("MenuItem").Where("organization_id=? and restaurant_id=? and cart_id=?", organizationID, restaurantID, cartID).Find(cartItem).Error; err != nil{
+		return err
+	}
+
+	return nil
+}
+
+func (cr *cartItemRepository) GetPendingCartItemList(cartItem *[]model.CartItem, cartID uint, restaurantID uint, organizationID uint) error{
+
+	if err := cr.db.Preload("MenuItem.Recipe.RecipeProducts", "is_deleted=?", "0").Preload("MenuItem.Recipe.RecipeProducts.Product").Where("cart_id=? and item_status='pending' and restaurant_id=? and organization_id=?", cartID, restaurantID, organizationID).Find(cartItem).Error; err != nil{
 		return err
 	}
 

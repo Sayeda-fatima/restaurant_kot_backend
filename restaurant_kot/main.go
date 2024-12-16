@@ -111,10 +111,10 @@ func main() {
 	// cart item
 	cartItemValidator := validator.NewCartItemValidator()
 	cartItemRepository := repository.NewCartItemRepository(db)
-	cartItemUsecase := usecase.NewCartItemUsecase(cartItemRepository, cartItemValidator)
+	cartItemUsecase := usecase.NewCartItemUsecase(cartItemRepository, cartItemValidator, db)
 	cartItemController := controller.NewCartItemController(cartItemUsecase)
 
-	cartUsecase := usecase.NewCartUsecase(cartRepository, cartValidator, db, cartItemUsecase)
+	cartUsecase := usecase.NewCartUsecase(cartRepository, cartValidator, db)
 	cartController := controller.NewCartController(cartUsecase)
 
 	// order
