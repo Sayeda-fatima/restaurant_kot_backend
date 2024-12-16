@@ -11,6 +11,7 @@ type (
 	CartRepository interface {
 		GetCartList(carts *[]model.Cart, organizationID uint, restaurantID uint) error
 		GetCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error
+		GetPendingCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error
 		CreateCart(cart *model.Cart) error
 		UpdateCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error
 		UpdateCartStatus(cart *model.Cart, id uint, organizationID uint, restaurantID uint, status string) error
@@ -37,9 +38,18 @@ func (cr *cartRepository) GetCartList(carts *[]model.Cart, organizationID uint, 
 
 func (cr *cartRepository) GetCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error{
 
+	if err := cr.db.Preload("CartItems.MenuItem").Where("id=? and restaurant_id=? and organization_id=?", id, restaurantID, organizationID).First(cart).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (cr *cartRepository) GetPendingCart(cart *model.Cart, id uint, organizationID uint, restaurantID uint) error{
+
 	if err := cr.db.Preload("CartItems", "item_status = ?", "pending").Preload("CartItems.MenuItem.Recipe.RecipeProducts.Product").Where("id=? and restaurant_id=? and organization_id=?", id, restaurantID, organizationID).First(cart).Error; err != nil{
 		return err
 	}
+
 	return nil
 }
 

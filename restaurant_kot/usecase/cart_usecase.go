@@ -12,6 +12,7 @@ import (
 type (
 	CartUsecase interface {
 		GetCartList(organizationID uint, restaurantID uint) ([]model.CartResponse, error)
+		GetCart(organizationID uint, restaurantID uint, cartID uint) (model.Cart, error)
 		CreateCart(cart model.Cart) (model.CartResponse, error)
 		UpdateCart(cart model.Cart, id uint, organizationID uint, restaurantID uint) (model.CartResponse, error)
 		UpdateCartStatus(cart model.Cart, id uint, organizationID uint, restaurantID uint, status string) (model.CartResponse, error)
@@ -54,6 +55,16 @@ func (cu *cartUsecase) GetCartList(organizationID uint, restaurantID uint) ([]mo
 		resCarts = append(resCarts, res)
 	}
 	return resCarts, nil
+}
+
+func (cu *cartUsecase) GetCart(organizationID uint, restaurantID uint, cartID uint) (model.Cart, error){
+
+	cart := model.Cart{}
+	if err := cu.cr.GetCart(&cart, cartID, organizationID, restaurantID); err != nil{
+		return model.Cart{}, err
+	}
+
+	return cart, nil
 }
 
 func (cu *cartUsecase) CreateCart(cart model.Cart) (model.CartResponse, error) {
@@ -150,7 +161,7 @@ func (cu *cartUsecase) DeleteCart(id uint, organizationID uint, restaurantID uin
 func (cu *cartUsecase) SendCartToKitchen(id uint, organizationID uint, restaurantID uint) (model.CartResponse, error) {
 
 	cart := model.Cart{}
-	if err := cu.cr.GetCart(&cart, id, organizationID, restaurantID); err != nil {
+	if err := cu.cr.GetPendingCart(&cart, id, organizationID, restaurantID); err != nil {
 		return model.CartResponse{}, err
 	}
 

@@ -15,7 +15,7 @@ type (
 		GetPendingCartItemList(cartID uint, restaurantID uint, organizationID uint) ([]model.CartItem, error)
 		CreateCartItem(cartItem model.CartItem) (model.CartItemResponse, error)
 		UpdateCartItem(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) (model.CartItemResponse, error)
-		UpdateCartItemStatus(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) (model.CartItemResponse, error)
+		UpdateCartItemStatus(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) (error)
 		DeleteCartItem(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error
 		SendCartItemToKitchen(cartID uint, organizationID uint, restaurantID uint) ([]model.CartItemResponse, error)
 	}
@@ -112,24 +112,13 @@ func (cu *cartItemUsecase) UpdateCartItem(cartItem model.CartItem, id uint, cart
 	return resCartItem, nil
 }
 
-func (cu *cartItemUsecase) UpdateCartItemStatus(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) (model.CartItemResponse, error) {
+func (cu *cartItemUsecase) UpdateCartItemStatus(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint, status string) (error) {
 
 	if err := cu.cr.UpdateCartItemStatus(&cartItem, id, cartID, restaurantID, organizationID, status); err != nil {
-		return model.CartItemResponse{}, err
+		return err
 	}
 
-	resCart := model.CartItemResponse{
-		ID:             cartItem.ID,
-		OrganizationID: cartItem.OrganizationID,
-		RestaurantID:   cartItem.RestaurantID,
-		CartID:         cartItem.CartID,
-		MenuItemID:     cartItem.MenuItemID,
-		MenuItem:       cartItem.MenuItem,
-		ItemQuantity:   cartItem.ItemQuantity,
-		ItemStatus:     cartItem.ItemStatus,
-	}
-
-	return resCart, nil
+	return nil
 }
 
 func (cu *cartItemUsecase) DeleteCartItem(cartItem model.CartItem, id uint, cartID uint, restaurantID uint, organizationID uint) error {

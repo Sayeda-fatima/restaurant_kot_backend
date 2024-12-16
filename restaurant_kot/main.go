@@ -120,7 +120,7 @@ func main() {
 	// order
 	orderValidator := validator.NewOrderValidator()
 	orderRepository := repository.NewOrderRepository(db)
-	orderUsecase := usecase.NewOrderUsecase(orderRepository, orderValidator)
+	orderUsecase := usecase.NewOrderUsecase(orderRepository, orderValidator, db, cartUsecase)
 	orderController := controller.NewOrderController(orderUsecase)
 
 	// order item
