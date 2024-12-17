@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/model"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/repository"
@@ -44,11 +45,11 @@ func (ou *orderUsecase) GetOrderList(organizationID uint, restaurantID uint) ([]
 			OrganizationID: v.OrganizationID,
 			RestaurantID: v.RestaurantID,
 			TableID: v.TableID,
-			TotalItemPrice: v.TotalItemPrice,
-			Tax: v.Tax,
-			ServiceCharge: v.ServiceCharge,
-			Tip: v.Tip,
-			TotalPrice: v.TotalPrice,
+			TotalItemPrice: strconv.FormatFloat(float64(v.TotalItemPrice)/100, 'f', -1, 64),
+			Tax: strconv.FormatFloat(float64(v.Tax)/100, 'f', -1, 64),
+			ServiceCharge: strconv.FormatFloat(float64(v.ServiceCharge)/100, 'f', -1, 64),
+			Tip: strconv.FormatFloat(float64(v.Tip)/100, 'f', -1, 64),
+			TotalPrice: strconv.FormatFloat(float64(v.TotalPrice)/100, 'f', -1, 64),
 			OrderItems: v.OrderItems,
 			OrderType: v.OrderType,
 			OrderStatus: v.OrderStatus,
@@ -73,10 +74,11 @@ func (ou *orderUsecase) CreateOrder(order model.Order) (model.OrderResponse, err
 		OrganizationID: order.OrganizationID,
 		RestaurantID: order.RestaurantID,
 		TableID: order.TableID,
-		TotalItemPrice: order.TotalItemPrice,
-		ServiceCharge: order.ServiceCharge,
-		Tip: order.Tip,
-		TotalPrice: order.TotalPrice,
+		TotalItemPrice: strconv.FormatFloat(float64(order.TotalItemPrice)/100, 'f', -1, 64),
+		Tax: strconv.FormatFloat(float64(order.Tax)/100, 'f', -1, 64),
+		ServiceCharge: strconv.FormatFloat(float64(order.ServiceCharge)/100, 'f', -1, 64),
+		Tip: strconv.FormatFloat(float64(order.Tip)/100, 'f', -1, 64),
+		TotalPrice: strconv.FormatFloat(float64(order.TotalPrice)/100, 'f', -1, 64),
 		OrderItems: order.OrderItems,
 		OrderType: order.OrderType,
 		OrderStatus: order.OrderStatus,
@@ -99,10 +101,11 @@ func (ou *orderUsecase) UpdateOrder(order model.Order, id uint, organizationID u
 		OrganizationID: order.OrganizationID,
 		RestaurantID: order.RestaurantID,
 		TableID: order.TableID,
-		TotalItemPrice: order.TotalItemPrice,
-		ServiceCharge: order.ServiceCharge,
-		Tip: order.Tip,
-		TotalPrice: order.TotalPrice,
+		TotalItemPrice: strconv.FormatFloat(float64(order.TotalItemPrice)/100, 'f', -1, 64),
+		Tax: strconv.FormatFloat(float64(order.Tax)/100, 'f', -1, 64),
+		ServiceCharge: strconv.FormatFloat(float64(order.ServiceCharge)/100, 'f', -1, 64),
+		Tip: strconv.FormatFloat(float64(order.Tip)/100, 'f', -1, 64),
+		TotalPrice: strconv.FormatFloat(float64(order.TotalPrice)/100, 'f', -1, 64),
 		OrderItems: order.OrderItems,
 		OrderType: order.OrderType,
 		OrderStatus: order.OrderStatus,
@@ -124,7 +127,7 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, restaur
 
 	cart, err := ou.cr.GetCart(organizationID, restaurantID, cartID)
 
-	if err != nil || len(cart.CartItems) == 0{
+	if err != nil || len(cart.CartItems) == 0 || cart.CartStatus != "ready_for_checkout"{
 		return model.OrderResponse{}, fmt.Errorf("cart is empty or invalid")
 	}
 
@@ -193,11 +196,11 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, restaur
 		OrganizationID: order.OrganizationID,
 		RestaurantID: order.RestaurantID,
 		TableID: order.TableID,
-		TotalItemPrice: order.TotalItemPrice,
-		Tax: order.Tax,
-		ServiceCharge: order.ServiceCharge,
-		Tip: order.Tip,
-		TotalPrice: order.TotalPrice,
+		TotalItemPrice: strconv.FormatFloat(float64(order.TotalItemPrice)/100, 'f', -1, 64),
+		Tax: strconv.FormatFloat(float64(order.Tax)/100, 'f', -1, 64),
+		ServiceCharge: strconv.FormatFloat(float64(order.ServiceCharge)/100, 'f', -1, 64),
+		Tip: strconv.FormatFloat(float64(order.Tip)/100, 'f', -1, 64),
+		TotalPrice: strconv.FormatFloat(float64(order.TotalPrice)/100, 'f', -1, 64),
 		OrderType: order.OrderType,
 		OrderStatus: order.OrderStatus,
 		OrderItems: orderItems,

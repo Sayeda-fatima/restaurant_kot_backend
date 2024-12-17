@@ -115,13 +115,13 @@ func (cc *cartController) UpdateCartStatus(c echo.Context) error{
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	cartRes, err := cc.cu.UpdateCartStatus(cart, uint(cartID), uint(organizationID.(float64)), uint(restaurantID.(float64)), status)
+	err := cc.cu.UpdateCartStatus(cart, uint(cartID), uint(organizationID.(float64)), uint(restaurantID.(float64)), status)
 
 	if err != nil{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, cartRes)
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "success"})
 }
 
 func (cc *cartController) DeleteCart(c echo.Context) error{

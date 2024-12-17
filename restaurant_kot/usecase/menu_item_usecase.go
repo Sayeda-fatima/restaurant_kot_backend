@@ -14,6 +14,7 @@ type (
 		CreateMenuItem(menuItem model.MenuItem) (model.MenuItemResponse, error)
 		UpdateMenuItem(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint) (model.MenuItemResponse, error)
 		DeleteMenuItem(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint) error
+		UpdateMenuItemIsActivated(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint, status bool) error
 	}
 
 	menuItemUsecase struct{
@@ -45,6 +46,7 @@ func (mu *menuItemUsecase) GetMenuItemList(organizationID uint, restaurantID uin
 			Currency: v.Currency,
 			Price: strconv.FormatFloat(float64(v.Price)/100, 'f', -1, 64),
 			RecipeID: v.RecipeID,
+			IsAvailable: v.IsAvailable,
 			MenuAllergens: v.MenuAllergens,
 		}
 		resMenuItems = append(resMenuItems, res)
@@ -72,6 +74,7 @@ func (mu *menuItemUsecase) CreateMenuItem(menuItem model.MenuItem) (model.MenuIt
 		Currency: menuItem.Currency,
 		Price: strconv.FormatFloat(float64(menuItem.Price)/100, 'f', -1, 64),
 		RecipeID: menuItem.RecipeID,
+		IsAvailable: menuItem.IsAvailable,
 		MenuAllergens: menuItem.MenuAllergens,
 	}
 
@@ -98,6 +101,7 @@ func (mu *menuItemUsecase) UpdateMenuItem(menuItem model.MenuItem, id uint, orga
 		Currency: menuItem.Currency,
 		Price: strconv.FormatFloat(float64(menuItem.Price)/100, 'f', -1, 64),
 		RecipeID: menuItem.RecipeID,
+		IsAvailable: menuItem.IsAvailable,
 		MenuAllergens: menuItem.MenuAllergens,
 	}
 
@@ -107,6 +111,14 @@ func (mu *menuItemUsecase) UpdateMenuItem(menuItem model.MenuItem, id uint, orga
 func (mu *menuItemUsecase) DeleteMenuItem(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint) error{
 
 	if err := mu.mr.DeleteMenuItem(&menuItem, id, organizationID, restaurantID); err != nil{
+		return err
+	}
+	return nil
+}
+
+func (mu *menuItemUsecase) UpdateMenuItemIsActivated(menuItem model.MenuItem, id uint, organizationID uint, restaurantID uint, status bool) error{
+
+	if err := mu.mr.UpdateMenuItemIsActivated(&menuItem, id, organizationID, restaurantID, status); err != nil{
 		return err
 	}
 	return nil

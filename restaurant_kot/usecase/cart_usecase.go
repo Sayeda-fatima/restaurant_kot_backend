@@ -15,7 +15,7 @@ type (
 		GetCart(organizationID uint, restaurantID uint, cartID uint) (model.Cart, error)
 		CreateCart(cart model.Cart) (model.CartResponse, error)
 		UpdateCart(cart model.Cart, id uint, organizationID uint, restaurantID uint) (model.CartResponse, error)
-		UpdateCartStatus(cart model.Cart, id uint, organizationID uint, restaurantID uint, status string) (model.CartResponse, error)
+		UpdateCartStatus(cart model.Cart, id uint, organizationID uint, restaurantID uint, status string) (error)
 		DeleteCart(id uint, organizationID uint, restaurantID uint) error
 		SendCartToKitchen(id uint, organizationID uint, restaurantID uint) (model.CartResponse, error)
 		CheckCartActive(organizationID uint, restaurantID uint, tableID uint) (model.CartResponse, error)
@@ -130,24 +130,13 @@ func (cu *cartUsecase) UpdateCart(cart model.Cart, id uint, organizationID uint,
 	return resCart, nil
 }
 
-func (cu *cartUsecase) UpdateCartStatus(cart model.Cart, id uint, organizationID uint, restaurantID uint, status string) (model.CartResponse, error) {
+func (cu *cartUsecase) UpdateCartStatus(cart model.Cart, id uint, organizationID uint, restaurantID uint, status string) (error) {
 
 	if err := cu.cr.UpdateCartStatus(&cart, id, organizationID, restaurantID, status); err != nil {
-		return model.CartResponse{}, err
+		return err
 	}
 
-	resCart := model.CartResponse{
-		ID:             cart.ID,
-		OrganizationID: cart.OrganizationID,
-		RestaurantID:   cart.RestaurantID,
-		TableID:        cart.TableID,
-		TotalQuantity:  cart.TotalQuantity,
-		CartType:       cart.CartType,
-		CartStatus:     cart.CartStatus,
-		CartItems:      cart.CartItems,
-	}
-
-	return resCart, nil
+	return nil
 }
 
 func (cu *cartUsecase) DeleteCart(id uint, organizationID uint, restaurantID uint) error {

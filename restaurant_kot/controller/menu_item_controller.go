@@ -16,6 +16,7 @@ type (
 		CreateMenuItem(c echo.Context) error
 		UpdateMenuItem(c echo.Context) error
 		DeleteMenuItem(c echo.Context) error
+		UpdateMenuItemIsActivated(c echo.Context) error
 	}
 
 	menuItemController struct{
@@ -121,4 +122,28 @@ func (mc *menuItemController) DeleteMenuItem(c echo.Context) error{
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func (mc *menuItemController) UpdateMenuItemIsActivated(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	id := c.Param("id")
+	menuItemID, _ := strconv.Atoi(id)
+	status := c.FormValue("status")
+	menuStatus, _ := strconv.ParseBool(status)
+
+	menuItem := model.MenuItem{}
+	if err := c.Bind(&menuItem); err != nil{
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	if err := mc.mu.UpdateMenuItemIsActivated(menuItem, uint(menuItemID), uint(organizationID.(float64)), uint(restaurantID.(float64)), menuStatus); err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "success"})
 }

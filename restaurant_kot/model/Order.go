@@ -18,6 +18,7 @@ type Order struct {
 	OrderItems     []OrderItem     `json:"order_items" gorm:"foreignKey:OrderID"`
 	OrderType      string          `json:"order_type" gorm:"not null;type:enum('dine_in', 'takeway', 'delivery')"`
 	OrderStatus    string          `json:"order_status" gorm:"not null;type:enum('placed','in_progress','paid')" validate:"required"` // set: placed, in_progress, ready_to_serve, served, paid
+	ModeOfPayment  string          `json:"mode_of_payment" gorm:"not null;type:enum('cash','bank','cheque')" validate:"-"`
 	CreatedAt      time.Time       `json:"created_at"`
 	UpdatedAt      time.Time       `json:"updated_at"`
 	IsDeleted      bool            `json:"is_deleted" gorm:"not null;default:0"`
@@ -28,12 +29,13 @@ type OrderResponse struct {
 	OrganizationID uint        `json:"organization_id"`
 	RestaurantID   uint        `json:"restaurant_id"`
 	TableID        uint        `json:"table_id"`
-	TotalItemPrice int         `json:"total_item_price"`
-	Tax            int         `json:"tax"`
-	ServiceCharge  int         `json:"service_charge"`
-	Tip            int         `json:"tip"`
-	TotalPrice     int         `json:"total_price"`
+	TotalItemPrice string      `json:"total_item_price"`
+	Tax            string      `json:"tax"`
+	ServiceCharge  string      `json:"service_charge"`
+	Tip            string      `json:"tip"`
+	TotalPrice     string      `json:"total_price"`
 	OrderItems     []OrderItem `json:"order_items"`
 	OrderType      string      `json:"order_type"`
 	OrderStatus    string      `json:"order_status"`
+	ModeOfPayment  string      `json:"mode_of_payment"`
 }

@@ -25,6 +25,7 @@ func MenuRoutes(e *echo.Echo, mc controller.MenuController, mi controller.MenuIt
 	m.POST("/:menuID/item", mi.CreateMenuItem)
 	m.PUT("/:menuID/item/:id", mi.UpdateMenuItem)
 	m.DELETE("/:menuID/item/:id", mi.DeleteMenuItem)
+	m.PUT("/:menuID/item/:id/available", mi.UpdateMenuItemIsActivated)
 
 	// menu allergen 
 	m.GET("/:menuID/allergen", ma.GetMenuAllergenList)

@@ -13,6 +13,7 @@ type (
 		CreateMenuItem(menuItem *model.MenuItem) error
 		UpdateMenuItem(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint) error
 		DeleteMenuItem(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint) error
+		UpdateMenuItemIsActivated(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint, status bool) error
 	}
 
 	menuItemRepository struct{
@@ -67,5 +68,20 @@ func (mr *menuItemRepository) DeleteMenuItem(menuItem *model.MenuItem, id uint, 
 		return fmt.Errorf("object does not exist")
 	}
 	
+	return nil
+}
+
+func (mr *menuItemRepository) UpdateMenuItemIsActivated(menuItem *model.MenuItem, id uint, organizationID uint, restaurantID uint, status bool) error{
+
+	result := mr.db.Model(menuItem).Where("id=? and restaurant_id=? and organization_id=?", id, restaurantID, organizationID).Update("is_available", status)
+
+	if err := result.Error; err != nil{
+		return err
+	}
+
+	if result.RowsAffected < 1{
+		return fmt.Errorf("object does not exist")
+	}
+
 	return nil
 }
