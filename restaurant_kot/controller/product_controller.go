@@ -16,6 +16,7 @@ type (
 		CreateProduct(c echo.Context) error
 		UpdateProduct(c echo.Context) error
 		DeleteProduct(c echo.Context) error
+		InventoryValue(c echo.Context) error
 	}
 
 	productController struct{
@@ -111,4 +112,20 @@ func (pc *productController) DeleteProduct(c echo.Context) error{
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (pc *productController) InventoryValue(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	inventory, err := pc.pu.InventoryValue(uint(organizationID.(float64)), uint(restaurantID.(float64)))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, inventory)
 }

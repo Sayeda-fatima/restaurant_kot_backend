@@ -12,6 +12,7 @@ type (
 		CreateProduct(product model.Product) (model.ProductResponse, error)
 		UpdateProduct(product model.Product, id uint, organizationID uint, restaurantID uint) (model.ProductResponse, error)
 		DeleteProduct(product model.Product, id uint, organizationID uint, restaurantID uint) error
+		InventoryValue(organizationID uint, restaurantID uint) (map[string]interface{}, error)
 	}
 
 	productUsecase struct{
@@ -112,4 +113,14 @@ func (pu *productUsecase) DeleteProduct(product model.Product, id uint, organiza
 	}
 
 	return nil
+}
+
+func (pu *productUsecase) InventoryValue(organizationID uint, restaurantID uint) (map[string]interface{}, error){
+
+	var result map[string]interface{}
+	if err := pu.pr.InventoryValue(&result, organizationID, restaurantID); err != nil{
+		return nil, err
+	}
+
+	return result, nil
 }

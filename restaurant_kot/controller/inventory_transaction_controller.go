@@ -1,0 +1,95 @@
+package controller
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/usecase"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/echo/v4"
+)
+
+type (
+	InventoryTransactionController interface {
+		AddStock(c echo.Context) error
+		AdjustStock(c echo.Context) error
+		RecordWaste(c echo.Context) error
+	}
+
+	inventoryTransactionController struct{
+		iu usecase.InventoryTransactionUsecase
+	}
+)
+
+func NewInventoryTransactionController(iu usecase.InventoryTransactionUsecase) InventoryTransactionController{
+	return &inventoryTransactionController{iu}
+}
+
+func (ic *inventoryTransactionController) AddStock(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	product := c.Param("product")
+	productID , _ := strconv.Atoi(product)
+
+	quantity := c.FormValue("quantity")
+	productQuantity, _ := strconv.Atoi(quantity)
+
+	unitCost := c.FormValue("unit_cost")
+	cost, _ := strconv.Atoi(unitCost)
+
+	resInventory, err := ic.iu.AddStock(uint(organizationID.(float64)), uint(restaurantID.(float64)), uint(productID), productQuantity, cost)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resInventory)
+}
+
+func (ic *inventoryTransactionController) AdjustStock(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	product := c.Param("product")
+	productID, _ := strconv.Atoi(product)
+	quantity := c.FormValue("quantity")
+	adjustmentQuantity, _ := strconv.Atoi(quantity)
+	reason := c.FormValue("reason")
+
+	resInventory, err := ic.iu.AdjustStock(uint(organizationID.(float64)), uint(restaurantID.(float64)), uint(productID), adjustmentQuantity, reason)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resInventory)
+}
+
+func (ic *inventoryTransactionController) RecordWaste(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	product := c.Param("product")
+	productID, _ := strconv.Atoi(product)
+	quantity := c.FormValue("quantity")
+	wasteQuantity, _ := strconv.Atoi(quantity)
+	reason := c.FormValue("reason")
+
+	resInventory, err := ic.iu.RecordWaste(uint(organizationID.(float64)), uint(restaurantID.(float64)), uint(productID), wasteQuantity, reason)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, resInventory)
+}

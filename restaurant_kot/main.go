@@ -51,6 +51,11 @@ func main() {
 	productUsecase := usecase.NewProductUsecase(productRepository, productValidator)
 	productController := controller.NewProductController(productUsecase)
 
+	// inventory transaction
+	inventoryTransactionRepository := repository.NewInventoryTransactionRepository(db)
+	inventoryTransactionUsecase := usecase.NewInventoryTransactionUsecase(inventoryTransactionRepository, productRepository)
+	inventoryTransactionController := controller.NewInventoryTransactionController(inventoryTransactionUsecase)
+
 	// recipe
 	recipeValidator := validator.NewRecipeValidator()
 	recipeRepository := repository.NewRecipeRepository(db)
@@ -147,6 +152,7 @@ func main() {
 	routes.RestaurantRoutes(e, restaurantController)
 	routes.RestaurantTableRoutes(e, restaurantTableController)
 	routes.ProductRoutes(e, productController)
+	routes.InventoryTransactionRoutes(e, inventoryTransactionController)
 	routes.CustomerRoutes(e, customerController)
 	routes.StaffRoutes(e, staffController, weeklyStaffScheduleController)
 	routes.RecipeRoutes(e, recipeController, recipeProductController)

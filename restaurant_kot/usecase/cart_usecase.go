@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"math"
+	"time"
 
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/model"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/repository"
@@ -193,6 +194,27 @@ func (cu *cartUsecase) SendCartToKitchen(id uint, organizationID uint, restauran
 			UpdateColumn("quantity", gorm.Expr("quantity + ?", quantityChange)).
 			UpdateColumn("inventory_value", gorm.Expr("quantity * unit_cost")).
 			Error; err != nil {
+			tx.Rollback()
+			return model.CartResponse{}, err
+		}
+
+		// log consumption of products in inventory_consumption table
+		product := model.Product{}
+		if err := tx.Where("id=?", productID).First(&product).Error; err != nil{
+			return model.CartResponse{}, err
+		}
+		inventoryTransaction := model.InventoryTransaction{
+			OrganizationID: organizationID,
+			RestaurantID: restaurantID,
+			ProductID: productID,
+			Quantity: float64(quantityChange),
+			UnitCost: float64(product.UnitCost),
+			TotalCost: -float64(product.UnitCost) * float64(quantityChange),
+			TransactionType: "sale",
+			RecordedAt: time.Now(),
+		}
+
+		if err := tx.Create(&inventoryTransaction).Error; err != nil{
 			tx.Rollback()
 			return model.CartResponse{}, err
 		}

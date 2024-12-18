@@ -19,4 +19,5 @@ func ProductRoutes(e *echo.Echo, pc controller.ProductController){
 	p.POST("", pc.CreateProduct)
 	p.PUT("/:id", pc.UpdateProduct)
 	p.DELETE("/:id", pc.DeleteProduct)
+	p.GET("/inventory", pc.InventoryValue)
 }
