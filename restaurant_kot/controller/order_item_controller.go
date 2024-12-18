@@ -16,6 +16,8 @@ type (
 		CreateOrderItem(c echo.Context) error
 		UpdateOrderItem(c echo.Context) error
 		DeleteOrderItem(c echo.Context) error
+		MostOrderedItems(c echo.Context) error
+		DailySaleByItem(c echo.Context) error
 	}
 
 	orderItemController struct{
@@ -126,4 +128,45 @@ func (oc *orderItemController) DeleteOrderItem(c echo.Context) error{
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func (oc *orderItemController) MostOrderedItems(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+
+	result, err := oc.ou.MostOrderedItems(uint(organizationID.(float64)), uint(restaurantID.(float64)), dateFrom, dateTo)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+
+func (oc *orderItemController) DailySaleByItem(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+	pageNo := c.QueryParam("page")
+	page, _ := strconv.Atoi(pageNo)
+
+	result, err := oc.ou.DailySaleByItem(uint(organizationID.(float64)), uint(restaurantID.(float64)), dateFrom, dateTo, page)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
 }

@@ -24,6 +24,10 @@ func OrderRoutes(e *echo.Echo, oc controller.OrderController, oi controller.Orde
 	o.POST("", oc.CreateOrder)
 	o.PUT("/:id", oc.UpdateOrder)
 	o.DELETE("/:id", oc.DeleteOrder)
+	o.GET("/popular", oi.MostOrderedItems)
+	o.GET("/daily-sale", oi.DailySaleByItem)
+	o.GET("/sales-report", oc.TotalSales)
+	o.GET("/sales", oc.TotalSalesByOrderType)
 
 	// order items
 	o.GET("/:order/item", oi.GetOrderItemList)

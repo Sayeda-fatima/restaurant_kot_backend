@@ -130,6 +130,7 @@ func (ru *recipeUsecase) GetRecipeCost(id uint, organizationID uint, restaurantI
 	perPlateCost := recipeCost/recipe.Serving
 
 	result := map[string]interface{}{
+		"recipe_id": id,
 		"recipe_cost": recipeCost,
 		"per_plate_cost": perPlateCost,
 	}

@@ -12,6 +12,7 @@ type (
 		CreateMenu(menu model.Menu) (model.MenuResponse, error)
 		UpdateMenu(menu model.Menu, id uint, organizationID uint, restaurantID uint) (model.MenuResponse, error)
 		DeleteMenu(menu model.Menu, id uint, organizationID uint, restaurantID uint) error
+		FoodCost(id uint, organizationID uint, restaurantID uint) ([]map[string]interface{}, error)
 	}
 
 	menuUsecase struct{
@@ -98,4 +99,37 @@ func (mu *menuUsecase) DeleteMenu(menu model.Menu, id uint, organizationID uint,
 		return err
 	}
 	return nil
+}
+
+func (mu *menuUsecase) FoodCost(id uint, organizationID uint, restaurantID uint) ([]map[string]interface{}, error){
+
+	menu := model.Menu{}
+	if err := mu.mr.GetMenu(&menu, id, organizationID, restaurantID); err != nil{
+		return nil, err
+	}
+
+	var result []map[string]interface{}
+	for i, menuItem := range(menu.MenuItems){
+		recipeCost := 0.00
+		// calculate recipe price
+		for _, v := range(menu.MenuItems[i].Recipe.RecipeProducts){
+			recipeCost += float64(v.Product.UnitCost * v.Quantity)
+		}
+		// calculate per plate cost
+		perPlateCost := float64(recipeCost/float64(menuItem.Recipe.Serving))*float64(menuItem.Serving)
+		// calculate food cost 
+		foodCost := (perPlateCost/float64(menuItem.Price))*100
+		// calculate contribution margin - revenue generated from each dish
+		contributionMargin := float64(menuItem.Price) - perPlateCost
+		res := map[string]interface{}{
+			"menu_item_id": menuItem.ID,
+			"recipe_cost": recipeCost,
+			"per_plate_cost": perPlateCost,
+			"food_cost_percentage": foodCost,
+			"contribution_margin": contributionMargin/100,
+		}
+		result = append(result, res)
+	}
+
+	return result, nil
 }

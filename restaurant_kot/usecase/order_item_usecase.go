@@ -12,6 +12,8 @@ type (
 		CreateOrderItem(orderItem model.OrderItem) (model.OrderItemResponse, error)
 		UpdateOrderItem(orderItem model.OrderItem, id uint, orderID uint, organizationID uint, restaurantID uint) (model.OrderItemResponse, error)
 		DeleteOrderItem(orderItem model.OrderItem, id uint, orderID uint, organizationID uint, restaurantID uint) error
+		MostOrderedItems(organizationID uint, restaurantID uint, dateFrom string, dateTo string) ([]map[string]interface{}, error)
+		DailySaleByItem(organizationID uint, restaurantID uint, dateFrom string, dateTo string, page int) ([]map[string]interface{}, error)
 	}
 
 	orderItemUsecase struct{
@@ -103,4 +105,26 @@ func (ou *orderItemUsecase) DeleteOrderItem(orderItem model.OrderItem, id uint, 
 	}
 
 	return nil
+}
+
+func (ou *orderItemUsecase) MostOrderedItems(organizationID uint, restaurantID uint, dateFrom string, dateTo string) ([]map[string]interface{}, error){
+
+	var result []map[string]interface{}
+
+	if err := ou.or.MostOrderedItems(&result, organizationID, restaurantID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (ou *orderItemUsecase) DailySaleByItem(organizationID uint, restaurantID uint, dateFrom string, dateTo string, page int) ([]map[string]interface{}, error){
+
+	var result []map[string]interface{}
+
+	if err := ou.or.DailySaleByItem(&result, organizationID, restaurantID, dateFrom, dateTo, page); err != nil{
+		return nil, err
+	}
+
+	return result, nil
 }

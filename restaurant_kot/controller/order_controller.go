@@ -17,6 +17,8 @@ type (
 		UpdateOrder(c echo.Context) error
 		DeleteOrder(c echo.Context) error
 		Checkout(c echo.Context) error
+		TotalSales(c echo.Context) error
+		TotalSalesByOrderType(c echo.Context) error
 	}
 
 	orderController struct{
@@ -138,4 +140,42 @@ func (oc *orderController) Checkout(c echo.Context) error{
 	}
 
 	return c.JSON(http.StatusOK, orderRes)
+}
+
+func (oc *orderController) TotalSales(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+
+	result, err := oc.ou.TotalSales(uint(organizationID.(float64)), uint(restaurantID.(float64)), dateFrom, dateTo)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func (oc *orderController) TotalSalesByOrderType(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+
+	result, err := oc.ou.TotalSalesByOrderType(uint(organizationID.(float64)), uint(restaurantID.(float64)), dateFrom, dateTo)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
 }

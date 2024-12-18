@@ -17,6 +17,8 @@ type (
 		UpdateOrder(order model.Order, id uint, organizationID uint, restaurantID uint) (model.OrderResponse, error)
 		DeleteOrder(order model.Order, id uint, organizationID uint, restaurantID uint) error
 		Checkout(order model.Order, organizationID uint, restaurantID uint, cartID uint) (model.OrderResponse, error)
+		TotalSales(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error)
+		TotalSalesByOrderType(organizationID uint, restaurantID uint, dateFrom string, dateTo string) ([]map[string]interface{}, error)
 	}
 
 	orderUsecase struct{
@@ -207,4 +209,23 @@ func (ou *orderUsecase) Checkout(order model.Order, organizationID uint, restaur
 	}
 
 	return resOrder, nil
+}
+
+func (ou *orderUsecase) TotalSales(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error){
+
+	var result map[string]interface{}
+	if err := ou.or.TotalSales(&result, organizationID, restaurantID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+	return result, nil
+}
+
+func (ou *orderUsecase) TotalSalesByOrderType(organizationID uint, restaurantID uint, dateFrom string, dateTo string) ([]map[string]interface{}, error){
+
+	var result []map[string]interface{}
+	if err := ou.or.TotalSalesByOrderType(&result, organizationID, restaurantID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+
+	return result, nil
 }

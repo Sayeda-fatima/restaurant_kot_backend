@@ -20,6 +20,8 @@ func MenuRoutes(e *echo.Echo, mc controller.MenuController, mi controller.MenuIt
 	m.PUT("/:id", mc.UpdateMenu)
 	m.DELETE("/:id", mc.DeleteMenu)
 
+	m.GET("/:id/food-cost", mc.FoodCost)
+
 	// menu items
 	m.GET("/:menuID/item", mi.GetMenuItemList)
 	m.POST("/:menuID/item", mi.CreateMenuItem)

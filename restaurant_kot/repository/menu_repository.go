@@ -10,6 +10,7 @@ import (
 type (
 	MenuRepository interface {
 		GetMenuList(menu *[]model.Menu, organizationID uint, restaurantID uint) error
+		GetMenu(menu *model.Menu, id uint, organizationID uint, restaurantID uint) error
 		CreateMenu(menu *model.Menu) error
 		UpdateMenu(menu *model.Menu, id uint, organizationID uint, restaurantID uint) error
 		DeleteMenu(menu *model.Menu, id uint, organizationID uint, restaurantID uint) error
@@ -27,6 +28,14 @@ func NewMenuRepository(db *gorm.DB) MenuRepository{
 func (mr *menuRepository) GetMenuList(menu *[]model.Menu, organizationID uint, restaurantID uint) error{
 
 	if err := mr.db.Preload("MenuItems", func(db *gorm.DB) *gorm.DB{return db.Select("id", "menu_id", "item_name", "description", "currency", "price") }).Where("organization_id=? and restaurant_id=? and is_deleted=0", organizationID, restaurantID).Find(menu).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (mr *menuRepository) GetMenu(menu *model.Menu, id uint, organizationID uint, restaurantID uint) error{
+
+	if err := mr.db.Preload("MenuItems.Recipe.RecipeProducts.Product").Where("id=? and restaurant_id=? and organization_id=? and is_deleted=0", id, restaurantID, organizationID).First(menu).Error; err != nil{
 		return err
 	}
 	return nil
