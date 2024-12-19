@@ -9,8 +9,8 @@ type InventoryTransaction struct {
 	RestaurantID    uint         `json:"restaurant_id" gorm:"not null"`
 	Restaurant      Restaurant   `json:"-" gorm:"foreignKey:RestaurantID;references:ID" validate:"-"`
 	ProductID       uint         `json:"product_id" gorm:"not null"`
-	Product         Product      `json:"-" gorm:"foreignKey:ProductID;references:ID"`
-	TransactionType string       `json:"transaction_type" gorm:"not null;type:enum('purchase','sale','adjustment','waste')"` // e.g., purchase, sale, adjustment, waste
+	Product         Product      `json:"product" gorm:"foreignKey:ProductID;references:ID"`
+	TransactionType string       `json:"transaction_type" gorm:"not null;type:enum('initial_stock','purchase','sale','adjustment','waste')"` // enum: initial_stock, purchase, sale, adjustment, waste
 	Quantity        float64      `json:"quantity" gorm:"not null"`                                                           // Positive for additions, negative for reductions
 	UnitCost        float64      `json:"unit_cost" gorm:"not null"`                                                          // Cost per unit (for purchases)
 	TotalCost       float64      `json:"total_cost"`                                                                         // Total cost for the transaction (auto-calculated)

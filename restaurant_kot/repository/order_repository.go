@@ -103,3 +103,17 @@ func (or *orderRepository) TotalSalesByOrderType(result *[]map[string]interface{
 
 	return nil
 }
+
+func (or *orderRepository) GrossProfit(result *map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string) error{
+
+	err := or.db.Raw(`SELECT sum(total_price) as total_revenue, sum(total_cost) as cost_of_goods_sold,
+						from orders 
+						where organization_id=? and restaurant_id=? and created_at between ? and ? 
+					`, organizationID, restaurantID, dateFrom, dateTo).Find(result).Error
+					
+	if err != nil{
+		return err
+	}
+
+	return nil
+}

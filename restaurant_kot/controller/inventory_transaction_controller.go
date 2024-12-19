@@ -11,9 +11,11 @@ import (
 
 type (
 	InventoryTransactionController interface {
+		GetInventoryTransactionList(c echo.Context) error
 		AddStock(c echo.Context) error
 		AdjustStock(c echo.Context) error
 		RecordWaste(c echo.Context) error
+		GetCostOfGoodsSold(c echo.Context) error
 	}
 
 	inventoryTransactionController struct{
@@ -23,6 +25,22 @@ type (
 
 func NewInventoryTransactionController(iu usecase.InventoryTransactionUsecase) InventoryTransactionController{
 	return &inventoryTransactionController{iu}
+}
+
+func (ic *inventoryTransactionController) GetInventoryTransactionList(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	inventoryTransactions, err := ic.iu.GetInventoryTransactionList(uint(organizationID.(float64)), uint(restaurantID.(float64)))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, inventoryTransactions)
 }
 
 func (ic *inventoryTransactionController) AddStock(c echo.Context) error{
@@ -92,4 +110,23 @@ func (ic *inventoryTransactionController) RecordWaste(c echo.Context) error{
 	}
 
 	return c.JSON(http.StatusOK, resInventory)
+}
+
+func (ic *inventoryTransactionController) GetCostOfGoodsSold(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	dateFrom := c.FormValue("date_from")
+	dateTo := c.FormValue("date_to")
+
+	inventory, err := ic.iu.GetCostOfGoodsSold(uint(organizationID.(float64)), uint(restaurantID.(float64)), dateFrom, dateTo)
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, inventory)
 }

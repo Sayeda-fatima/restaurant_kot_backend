@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"time"
+
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/model"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/repository"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/validator"
@@ -18,11 +20,12 @@ type (
 	productUsecase struct{
 		pr repository.ProductRepository
 		pv validator.ProductValidator
+		ir repository.InventoryTransactionRepository
 	}
 )
 
-func NewProductUsecase(pr repository.ProductRepository, pv validator.ProductValidator) ProductUsecase{
-	return &productUsecase{pr, pv}
+func NewProductUsecase(pr repository.ProductRepository, pv validator.ProductValidator, ir repository.InventoryTransactionRepository) ProductUsecase{
+	return &productUsecase{pr, pv, ir}
 }
 
 func (pu *productUsecase) GetAllProduct(organizationID uint, restaurantID uint) ([]model.ProductResponse, error){
@@ -60,6 +63,21 @@ func (pu *productUsecase) CreateProduct(product model.Product) (model.ProductRes
 
 	product.InventoryValue = product.Quantity * product.UnitCost
 	if err := pu.pr.CreateProduct(&product); err != nil{
+		return model.ProductResponse{}, err
+	}
+
+	transaction := model.InventoryTransaction{
+		OrganizationID: product.OrganizationID,
+		RestaurantID: product.RestaurantID,
+		ProductID: product.ID,
+		TransactionType: "purchase",
+		Quantity: float64(product.Quantity),
+		UnitCost: float64(product.UnitCost),
+		TotalCost: float64(product.UnitCost)* float64(product.Quantity),
+		RecordedAt: time.Now(),
+	}
+
+	if err := pu.ir.CreateInventoryTransaction(&transaction); err != nil{
 		return model.ProductResponse{}, err
 	}
 

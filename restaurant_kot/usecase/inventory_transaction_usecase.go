@@ -10,9 +10,11 @@ import (
 
 type (
 	InventoryTransactionUsecase interface {
+		GetInventoryTransactionList(organizationID uint, restaurantID uint) ([]model.InventoryTransaction, error)
 		AddStock(organizationID uint, restaurantID uint, productID uint, quantity int, unitCost int) (model.InventoryTransaction, error)
 		AdjustStock(organizationID uint, restaurantID uint, productID uint, adjustmentQuantity int, reason string) (model.InventoryTransaction, error)
 		RecordWaste(organizationID uint, restaurantID uint, productID uint, wasteQuantity int, reason string) (model.InventoryTransaction, error)
+		GetCostOfGoodsSold(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error)
 	}
 
 	inventoryTransactionUsecase struct{
@@ -23,6 +25,17 @@ type (
 
 func NewInventoryTransactionUsecase(ir repository.InventoryTransactionRepository, pr repository.ProductRepository) InventoryTransactionUsecase{
 	return &inventoryTransactionUsecase{ir, pr}
+}
+
+
+func (iu *inventoryTransactionUsecase) GetInventoryTransactionList(organizationID uint, restaurantID uint) ([]model.InventoryTransaction, error){
+
+	inventoryTransactions := []model.InventoryTransaction{}
+	if err := iu.ir.GetInventoryTransactionList(&inventoryTransactions, organizationID, restaurantID); err != nil{
+		return nil, err
+	}
+
+	return inventoryTransactions, nil
 }
 
 func (iu *inventoryTransactionUsecase) AddStock(organizationID uint, restaurantID uint, productID uint, quantity int, unitCost int) (model.InventoryTransaction, error){
@@ -86,6 +99,10 @@ func (iu *inventoryTransactionUsecase) AdjustStock(organizationID uint, restaura
 		RecordedAt: time.Now(),
 	}
 
+	if adjustmentQuantity < 0{
+		transaction.TotalCost = -float64(adjustmentQuantity)*float64(product.UnitCost)
+	}
+
 	if err := iu.ir.CreateInventoryTransaction(&transaction); err != nil{
 		return model.InventoryTransaction{}, err
 	}
@@ -116,7 +133,7 @@ func (iu *inventoryTransactionUsecase) RecordWaste(organizationID uint, restaura
 		TransactionType: "waste",
 		Quantity: -float64(wasteQuantity),
 		UnitCost: float64(product.UnitCost),
-		TotalCost: float64(product.UnitCost)*float64(wasteQuantity),
+		TotalCost: -float64(product.UnitCost)*float64(wasteQuantity),
 		Reason: reason,
 		RecordedAt: time.Now(),
 	}
@@ -126,4 +143,14 @@ func (iu *inventoryTransactionUsecase) RecordWaste(organizationID uint, restaura
 	}
 
 	return transaction, nil
+}
+
+func (iu *inventoryTransactionUsecase) GetCostOfGoodsSold(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error){
+
+	var result map[string]interface{}
+	if err := iu.ir.GetCostOfGoodsSold(&result, organizationID, restaurantID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+
+	return result, nil
 }

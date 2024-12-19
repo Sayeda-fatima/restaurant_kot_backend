@@ -48,11 +48,12 @@ func main() {
 	// product
 	productValidator := validator.NewProductValidator()
 	productRepository := repository.NewProductRepository(db)
-	productUsecase := usecase.NewProductUsecase(productRepository, productValidator)
-	productController := controller.NewProductController(productUsecase)
-
 	// inventory transaction
 	inventoryTransactionRepository := repository.NewInventoryTransactionRepository(db)
+	
+	productUsecase := usecase.NewProductUsecase(productRepository, productValidator, inventoryTransactionRepository)
+	productController := controller.NewProductController(productUsecase)
+
 	inventoryTransactionUsecase := usecase.NewInventoryTransactionUsecase(inventoryTransactionRepository, productRepository)
 	inventoryTransactionController := controller.NewInventoryTransactionController(inventoryTransactionUsecase)
 
