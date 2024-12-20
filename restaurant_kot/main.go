@@ -45,6 +45,8 @@ func main() {
 	restaurantTableUsecase := usecase.NewRestaurantTableUsecase(restaurantTableRepository, restaurantTableValidator)
 	restaurantTableController := controller.NewRestaurantTableController(restaurantTableUsecase)
 
+	// current inventory
+	currentInventoryRepository := repository.NewCurrentInventoryRepository(db)
 	// product
 	productValidator := validator.NewProductValidator()
 	productRepository := repository.NewProductRepository(db)
@@ -54,7 +56,7 @@ func main() {
 	productUsecase := usecase.NewProductUsecase(productRepository, productValidator, inventoryTransactionRepository)
 	productController := controller.NewProductController(productUsecase)
 
-	inventoryTransactionUsecase := usecase.NewInventoryTransactionUsecase(inventoryTransactionRepository, productRepository)
+	inventoryTransactionUsecase := usecase.NewInventoryTransactionUsecase(inventoryTransactionRepository, productRepository, currentInventoryRepository)
 	inventoryTransactionController := controller.NewInventoryTransactionController(inventoryTransactionUsecase)
 
 	// recipe

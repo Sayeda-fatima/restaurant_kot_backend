@@ -20,4 +20,6 @@ func InventoryTransactionRoutes(e *echo.Echo, ic controller.InventoryTransaction
 	i.POST("/:product/stock", ic.AddStock)
 	i.POST("/:product/stock/adjust", ic.AdjustStock)
 	i.POST("/:product/stock/waste", ic.RecordWaste)
+
+	i.POST("/current", ic.CreateCurrentInventoryValue)
 }

@@ -188,8 +188,26 @@ func (cu *cartUsecase) SendCartToKitchen(id uint, organizationID uint, restauran
 
 	}
 
-	// update product quantity in product table in bulk
 	for productID, quantityChange := range productUpdates {
+
+		product := model.Product{}
+		if err := tx.Where("id=?", productID).First(&product).Error; err != nil{
+			return model.CartResponse{}, err
+		}
+		inventoryTransaction := model.InventoryTransaction{
+			OrganizationID: organizationID,
+			RestaurantID: restaurantID,
+			ProductID: productID,
+			StockBeforeUpdate: float64(product.Quantity),
+			StockUnitPriceBeforeUpdate: float64(product.UnitCost),
+			Quantity: float64(quantityChange),
+			UnitCost: float64(product.UnitCost),
+			TotalCost: -float64(product.UnitCost) * float64(quantityChange),
+			TransactionType: "sale",
+			RecordedAt: time.Now(),
+		}
+
+		// update product quantity in product table in bulk
 		if err := tx.Model(&model.Product{}).Where("id = ?", productID).
 			UpdateColumn("quantity", gorm.Expr("quantity + ?", quantityChange)).
 			UpdateColumn("inventory_value", gorm.Expr("quantity * unit_cost")).
@@ -199,21 +217,6 @@ func (cu *cartUsecase) SendCartToKitchen(id uint, organizationID uint, restauran
 		}
 
 		// log consumption of products in inventory_consumption table
-		product := model.Product{}
-		if err := tx.Where("id=?", productID).First(&product).Error; err != nil{
-			return model.CartResponse{}, err
-		}
-		inventoryTransaction := model.InventoryTransaction{
-			OrganizationID: organizationID,
-			RestaurantID: restaurantID,
-			ProductID: productID,
-			Quantity: float64(quantityChange),
-			UnitCost: float64(product.UnitCost),
-			TotalCost: -float64(product.UnitCost) * float64(quantityChange),
-			TransactionType: "sale",
-			RecordedAt: time.Now(),
-		}
-
 		if err := tx.Create(&inventoryTransaction).Error; err != nil{
 			tx.Rollback()
 			return model.CartResponse{}, err

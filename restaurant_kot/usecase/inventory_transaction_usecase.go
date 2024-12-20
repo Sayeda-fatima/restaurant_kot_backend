@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/common"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/model"
 	"github.com/NazishAhsan/easy_busy_book_laravel/restaurant_kot/repository"
 )
@@ -15,16 +17,18 @@ type (
 		AdjustStock(organizationID uint, restaurantID uint, productID uint, adjustmentQuantity int, reason string) (model.InventoryTransaction, error)
 		RecordWaste(organizationID uint, restaurantID uint, productID uint, wasteQuantity int, reason string) (model.InventoryTransaction, error)
 		GetCostOfGoodsSold(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error)
+		CreateCurrentInventoryValue(organizationID uint, restaurantID uint) (model.CurrentInventory, error)
 	}
 
 	inventoryTransactionUsecase struct{
 		ir repository.InventoryTransactionRepository
 		pr repository.ProductRepository
+		cr repository.CurrentInventoryRepository
 	}
 )
 
-func NewInventoryTransactionUsecase(ir repository.InventoryTransactionRepository, pr repository.ProductRepository) InventoryTransactionUsecase{
-	return &inventoryTransactionUsecase{ir, pr}
+func NewInventoryTransactionUsecase(ir repository.InventoryTransactionRepository, pr repository.ProductRepository, cr repository.CurrentInventoryRepository) InventoryTransactionUsecase{
+	return &inventoryTransactionUsecase{ir, pr, cr}
 }
 
 
@@ -45,22 +49,24 @@ func (iu *inventoryTransactionUsecase) AddStock(organizationID uint, restaurantI
 		return model.InventoryTransaction{}, err
 	}
 
-	product.Quantity += quantity
-	product.UnitCost = unitCost
-	product.InventoryValue = product.Quantity * product.UnitCost
-	if err := iu.pr.UpdateProduct(&product, product.ID, product.OrganizationID, product.RestaurantID); err != nil{
-		return model.InventoryTransaction{}, err
-	}
-
 	transaction := model.InventoryTransaction{
 		OrganizationID: product.OrganizationID,
 		RestaurantID: product.RestaurantID,
 		ProductID: product.ID,
+		StockBeforeUpdate: float64(product.Quantity),
+		StockUnitPriceBeforeUpdate: float64(product.UnitCost),
 		TransactionType: "purchase",
 		Quantity: float64(quantity),
 		UnitCost: float64(unitCost),
 		TotalCost: float64(unitCost)* float64(quantity),
 		RecordedAt: time.Now(),
+	}
+
+	product.Quantity += quantity
+	product.UnitCost = unitCost
+	product.InventoryValue = product.Quantity * product.UnitCost
+	if err := iu.pr.UpdateProduct(&product, product.ID, product.OrganizationID, product.RestaurantID); err != nil{
+		return model.InventoryTransaction{}, err
 	}
 
 	if err := iu.ir.CreateInventoryTransaction(&transaction); err != nil{
@@ -83,20 +89,24 @@ func (iu *inventoryTransactionUsecase) AdjustStock(organizationID uint, restaura
 		return model.InventoryTransaction{}, fmt.Errorf("adjustment would result in negative stock")
 	}
 
-	if err := iu.pr.UpdateProductQuantity(&product, product.ID, product.OrganizationID, product.RestaurantID, newQuantity); err != nil{
-		return model.InventoryTransaction{}, err
-	}
-
 	transaction := model.InventoryTransaction{
 		OrganizationID: product.OrganizationID,
 		RestaurantID: product.RestaurantID,
 		ProductID: product.ID,
+		StockBeforeUpdate: float64(product.Quantity),
+		StockUnitPriceBeforeUpdate: float64(product.UnitCost),
 		TransactionType: "adjustment",
 		Quantity: float64(adjustmentQuantity),
 		UnitCost: float64(product.UnitCost),
 		TotalCost: float64(adjustmentQuantity)*float64(product.UnitCost),
 		Reason: reason,
 		RecordedAt: time.Now(),
+	}
+
+	product.Quantity = newQuantity
+	product.InventoryValue = newQuantity * product.UnitCost
+	if err := iu.pr.UpdateProduct(&product, product.ID, product.OrganizationID, product.RestaurantID); err != nil{
+		return model.InventoryTransaction{}, err
 	}
 
 	if adjustmentQuantity < 0{
@@ -121,21 +131,24 @@ func (iu *inventoryTransactionUsecase) RecordWaste(organizationID uint, restaura
 		return model.InventoryTransaction{}, fmt.Errorf("not enough stock to record waste")
 	}
 
-	product.Quantity -= wasteQuantity
-	if err := iu.pr.UpdateProductQuantity(&product, product.ID, product.OrganizationID, product.RestaurantID, product.Quantity); err != nil{
-		return model.InventoryTransaction{}, err
-	}
-
 	transaction := model.InventoryTransaction{
 		OrganizationID: product.OrganizationID,
 		RestaurantID: product.RestaurantID,
 		ProductID: product.ID,
+		StockBeforeUpdate: float64(product.Quantity),
+		StockUnitPriceBeforeUpdate: float64(product.UnitCost),
 		TransactionType: "waste",
 		Quantity: -float64(wasteQuantity),
 		UnitCost: float64(product.UnitCost),
 		TotalCost: -float64(product.UnitCost)*float64(wasteQuantity),
 		Reason: reason,
 		RecordedAt: time.Now(),
+	}
+
+	product.Quantity -= wasteQuantity
+	product.InventoryValue = product.Quantity * product.UnitCost
+	if err := iu.pr.UpdateProduct(&product, product.ID, product.OrganizationID, product.RestaurantID); err != nil{
+		return model.InventoryTransaction{}, err
 	}
 
 	if err := iu.ir.CreateInventoryTransaction(&transaction); err != nil{
@@ -145,12 +158,49 @@ func (iu *inventoryTransactionUsecase) RecordWaste(organizationID uint, restaura
 	return transaction, nil
 }
 
+func (iu *inventoryTransactionUsecase) CreateCurrentInventoryValue(organizationID uint, restaurantID uint) (model.CurrentInventory, error){
+
+	var result map[string]interface{}
+	if err := iu.pr.InventoryValue(&result, organizationID, restaurantID); err != nil{
+		return model.CurrentInventory{}, err
+	}
+
+	common.Logger.LogInfo().Msgf("value: %s", result["total_inventory_value"])
+	value, _ := strconv.ParseFloat(result["total_inventory_value"].(string), 64)
+	common.Logger.LogInfo().Msgf("%f", value)
+
+	currentInventory := model.CurrentInventory{
+		OrganizationID: organizationID,
+		RestaurantID: restaurantID,
+		InventoryValue: float64(value),
+	}
+
+	if err := iu.cr.CreateCurrentInventory(&currentInventory); err != nil{
+		return model.CurrentInventory{}, err
+	}
+
+	return currentInventory, nil
+}
+
 func (iu *inventoryTransactionUsecase) GetCostOfGoodsSold(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error){
 
 	var result map[string]interface{}
-	if err := iu.ir.GetCostOfGoodsSold(&result, organizationID, restaurantID, dateFrom, dateTo); err != nil{
+	if err := iu.ir.GetPurchaseDuringTimePeriod(&result, organizationID, restaurantID, dateFrom, dateTo); err != nil{
 		return nil, err
 	}
 
+	if err := iu.cr.GetBeginningInventory(&result, organizationID, restaurantID, dateFrom); err != nil{
+		return nil, err
+	}
+
+	currentInventory := model.CurrentInventory{}
+	if err := iu.cr.GetCurrentInventory(&currentInventory, organizationID, restaurantID, dateTo); err != nil{
+		return nil, err
+	}
+
+	costOfGoodsSold := result["beginning_inventory"].(float64) + result["purchased_inventory"].(float64) - currentInventory.InventoryValue
+
+	result["cost_of_goods_sold"] = costOfGoodsSold
+	result["ending_inventory"] = currentInventory.InventoryValue
 	return result, nil
 }

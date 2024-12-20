@@ -16,6 +16,7 @@ type (
 		AdjustStock(c echo.Context) error
 		RecordWaste(c echo.Context) error
 		GetCostOfGoodsSold(c echo.Context) error
+		CreateCurrentInventoryValue(c echo.Context) error
 	}
 
 	inventoryTransactionController struct{
@@ -129,4 +130,20 @@ func (ic *inventoryTransactionController) GetCostOfGoodsSold(c echo.Context) err
 	}
 
 	return c.JSON(http.StatusOK, inventory)
+}
+
+func (ic *inventoryTransactionController) CreateCurrentInventoryValue(c echo.Context) error{
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	organizationID := claims["organization_id"]
+	restaurantID := claims["restaurant_id"]
+
+	inventoryValue, err := ic.iu.CreateCurrentInventoryValue(uint(organizationID.(float64)), uint(restaurantID.(float64)))
+
+	if err != nil{
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusCreated, inventoryValue)
 }
