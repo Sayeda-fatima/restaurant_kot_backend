@@ -16,6 +16,7 @@ type (
 		DeleteOrderItem(orderItem *model.OrderItem, id uint, orderID uint, organizationID uint, restaurantID uint) error
 		MostOrderedItems(result *[]map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string) error
 		DailySaleByItem(result *[]map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string, page int) error
+		MenuItemPriceChange(result *[]map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string) error
 	}
 
 	orderItemRepository struct{
@@ -108,5 +109,20 @@ func (or *orderItemRepository) DailySaleByItem(result *[]map[string]interface{},
 		return err
 	}
 
+	return nil
+}
+
+func (or *orderItemRepository) MenuItemPriceChange(result *[]map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string) error{
+
+	err := or.db.Raw(`SELECT menu_item_id, unit_item_price, menu_items.price, (menu_items.price - unit_item_price) as price_change
+						from order_items
+						left join menu_items on menu_items.id = order_items.menu_item_id 
+						where order_items.organization_id=? and order_items.restaurant_id=? and order_items.created_at between ? and ?
+						group by menu_item_id
+					`, organizationID, restaurantID, dateFrom, dateTo).Find(result).Error
+
+	if err != nil{
+		return err
+	}
 	return nil
 }

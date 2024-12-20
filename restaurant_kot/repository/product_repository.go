@@ -93,7 +93,7 @@ func (pr *productRepository) DeleteProduct(product *model.Product, id uint, orga
 
 func (pr *productRepository) InventoryValue(result *map[string]interface{}, organizationID uint, restaurantID uint) error{
 
-	err := pr.db.Raw(`SELECT sum(inventory_value)/100 as total_inventory_value from products
+	err := pr.db.Raw(`SELECT sum(inventory_value) as total_inventory_value from products
 							where organization_id=? and restaurant_id=?
 						`, organizationID, restaurantID).Find(result).Error
 						

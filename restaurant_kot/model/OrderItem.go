@@ -15,7 +15,7 @@ type OrderItem struct {
 	UnitItemPrice  int          `json:"unit_item_price" gorm:"not null;type:int(11)" validate:"required"`
 	TotalItemPrice int          `json:"total_item_price" gorm:"not null;type:int(11)" validate:"required"`
 	ItemStatus     string       `json:"item_status" gorm:"not null;type:enum('normal', 'replaced', 'complementary')"`
-	Note           string       `json:"note" validate:"omitempty"`
+	Note           *string       `json:"note" validate:"omitempty"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 	IsDeleted      bool         `json:"is_deleted" gorm:"not null;default:0"`

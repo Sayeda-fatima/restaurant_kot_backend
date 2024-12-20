@@ -11,6 +11,8 @@ type (
 		CreateInventoryTransaction(inventoryTransaction *model.InventoryTransaction) error
 		UpdateInventoryTransaction(inventoryTransaction *model.InventoryTransaction, id uint, organizationID uint, restaurantID uint) error
 		GetPurchaseDuringTimePeriod(result *map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string) error
+		GetWasteDuringTimePeriod(result *[]map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string) error
+		DailyConsumption(result *[]map[string]interface{}, organizationID uint, restaurantID uint) error
 	}
 
 	inventoryTransactionRepository struct{
@@ -62,5 +64,35 @@ func (ir *inventoryTransactionRepository) GetPurchaseDuringTimePeriod(result *ma
 		return err
 	}
 
+	return nil
+}
+
+func (ir *inventoryTransactionRepository) GetWasteDuringTimePeriod(result *[]map[string]interface{}, organizationID uint, restaurantID uint, dateFrom string, dateTo string) error{
+
+	err := ir.db.Raw(`SELECT product_id, -1*sum(quantity) as waste_quantity, sum(total_cost) as waste_cost
+						from inventory_transactions
+						where transaction_type='waste' and organization_id=? and restaurant_id=? and recorded_at between ? and ?
+						group by product_id
+					`, organizationID, restaurantID, dateFrom, dateTo).Find(result).Error
+	
+	if err != nil{
+		return err
+	}
+
+	return nil
+}
+
+func (ir *inventoryTransactionRepository) DailyConsumption(result *[]map[string]interface{}, organizationID uint, restaurantID uint) error{
+
+	err := ir.db.Raw(`SELECT product_id, -1*sum(quantity) as daily_consumption
+						from inventory_transactions
+						where transaction_type='sale' and organization_id=? and restaurant_id=? and date(recorded_at)=CURDATE()
+						group by product_id
+					`, organizationID, restaurantID).Find(result).Error
+
+	if err != nil{
+		return err
+	}
+	
 	return nil
 }

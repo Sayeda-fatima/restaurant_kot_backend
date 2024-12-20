@@ -16,8 +16,10 @@ type (
 		AddStock(organizationID uint, restaurantID uint, productID uint, quantity int, unitCost int) (model.InventoryTransaction, error)
 		AdjustStock(organizationID uint, restaurantID uint, productID uint, adjustmentQuantity int, reason string) (model.InventoryTransaction, error)
 		RecordWaste(organizationID uint, restaurantID uint, productID uint, wasteQuantity int, reason string) (model.InventoryTransaction, error)
-		GetCostOfGoodsSold(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error)
 		CreateCurrentInventoryValue(organizationID uint, restaurantID uint) (model.CurrentInventory, error)
+		GetCostOfGoodsSold(organizationID uint, restaurantID uint, dateFrom string, dateTo string) (map[string]interface{}, error)
+		GetWasteDuringTimePeriod(organizationID uint, restaurantID uint, dateFrom string, dateTo string) ([]map[string]interface{}, error)
+		GetDailyConsumption(organizationID uint, restaurantID uint)([]map[string]interface{}, error)
 	}
 
 	inventoryTransactionUsecase struct{
@@ -140,7 +142,7 @@ func (iu *inventoryTransactionUsecase) RecordWaste(organizationID uint, restaura
 		TransactionType: "waste",
 		Quantity: -float64(wasteQuantity),
 		UnitCost: float64(product.UnitCost),
-		TotalCost: -float64(product.UnitCost)*float64(wasteQuantity),
+		TotalCost: float64(product.UnitCost)*float64(wasteQuantity),
 		Reason: reason,
 		RecordedAt: time.Now(),
 	}
@@ -202,5 +204,25 @@ func (iu *inventoryTransactionUsecase) GetCostOfGoodsSold(organizationID uint, r
 
 	result["cost_of_goods_sold"] = costOfGoodsSold
 	result["ending_inventory"] = currentInventory.InventoryValue
+	return result, nil
+}
+
+func (iu *inventoryTransactionUsecase) GetWasteDuringTimePeriod(organizationID uint, restaurantID uint, dateFrom string, dateTo string) ([]map[string]interface{}, error){
+
+	var result []map[string]interface{}
+	if err := iu.ir.GetWasteDuringTimePeriod(&result, organizationID, restaurantID, dateFrom, dateTo); err != nil{
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (iu *inventoryTransactionUsecase) GetDailyConsumption(organizationID uint, restaurantID uint) ([]map[string]interface{}, error){
+
+	var result []map[string]interface{}
+	if err := iu.ir.DailyConsumption(&result, organizationID, restaurantID); err != nil{
+		return nil, err
+	}
+
 	return result, nil
 }
