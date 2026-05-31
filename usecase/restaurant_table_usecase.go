@@ -1,0 +1,100 @@
+package usecase
+
+import (
+	"github.com/Sayeda-fatima/restaurant_kot_backend/model"
+	"github.com/Sayeda-fatima/restaurant_kot_backend/repository"
+	"github.com/Sayeda-fatima/restaurant_kot_backend/validator"
+)
+
+type (
+	RestaurantTableUsecase interface {
+		GetRestaurantTableList(organizationID uint, restaurantID uint) ([]model.RestaurantTableResponse, error)
+		CreateRestaurantTable(restaurantTable model.RestaurantTable) (model.RestaurantTableResponse, error)
+		UpdateRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) (model.RestaurantTableResponse, error)
+		DeleteRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error
+	}
+
+	restaurantTableUsecase struct{
+		rr repository.RestaurantTableRepository
+		rv validator.RestaurantTableValidator
+	}
+)
+
+func NewRestaurantTableUsecase (rr repository.RestaurantTableRepository, rv validator.RestaurantTableValidator) RestaurantTableUsecase{
+	return &restaurantTableUsecase{rr,rv}
+}
+
+func (ru *restaurantTableUsecase) GetRestaurantTableList(organizationID uint, restaurantID uint) ([]model.RestaurantTableResponse, error){
+
+	restaurantTables := []model.RestaurantTable{}
+
+	if err := ru.rr.GetRestaurantTableList(&restaurantTables, organizationID, restaurantID); err != nil{
+		return nil, err
+	}
+
+	resRestaurantTable := []model.RestaurantTableResponse{}
+	for _, v := range(restaurantTables){
+		res := model.RestaurantTableResponse{
+			ID : v.ID,
+			OrganizationID: v.OrganizationID,
+			RestaurantID: v.RestaurantID,
+			TableNo: v.TableNo,
+			Capacity: v.Capacity,
+			Status: v.Status,
+		}
+		resRestaurantTable = append(resRestaurantTable, res)
+	}
+	return resRestaurantTable, nil
+}
+
+func (ru *restaurantTableUsecase) CreateRestaurantTable(restaurantTable model.RestaurantTable) (model.RestaurantTableResponse, error){
+
+	if err := ru.rv.RestaurantTableValidate(&restaurantTable); err != nil{
+		return model.RestaurantTableResponse{}, err
+	}
+
+	if err := ru.rr.CreateRestaurantTable(&restaurantTable); err != nil{
+		return model.RestaurantTableResponse{}, err
+	}
+
+	resRestaurantTable := model.RestaurantTableResponse{
+		ID: restaurantTable.ID,
+		OrganizationID: restaurantTable.OrganizationID,
+		RestaurantID: restaurantTable.RestaurantID,
+		TableNo: restaurantTable.TableNo,
+		Capacity: restaurantTable.Capacity,
+		Status: restaurantTable.Status,
+	}
+
+	return resRestaurantTable, nil
+}
+
+func (ru *restaurantTableUsecase) UpdateRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) (model.RestaurantTableResponse, error){
+
+	if err := ru.rv.RestaurantTableValidate(&restaurantTable); err != nil{
+		return model.RestaurantTableResponse{}, err
+	}
+
+	if err := ru.rr.UpdateRestaurantTable(&restaurantTable, id, organizationID, restaurantID); err != nil{
+		return model.RestaurantTableResponse{}, err
+	}
+
+	resRestaurantTable := model.RestaurantTableResponse{
+		ID: restaurantTable.ID,
+		OrganizationID: restaurantTable.OrganizationID,
+		RestaurantID: restaurantTable.RestaurantID,
+		TableNo: restaurantTable.TableNo,
+		Capacity: restaurantTable.Capacity,
+		Status: restaurantTable.Status,
+	}
+	return resRestaurantTable, nil
+}
+
+func (ru *restaurantTableUsecase) DeleteRestaurantTable(restaurantTable model.RestaurantTable, id uint, organizationID uint, restaurantID uint) error{
+
+	if err := ru.rr.DeleteRestaurantTable(&restaurantTable, id, organizationID, restaurantID); err != nil{
+		return err
+	}
+
+	return nil
+}

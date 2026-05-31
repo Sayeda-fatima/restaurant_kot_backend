@@ -1,0 +1,71 @@
+package repository
+
+import (
+	"fmt"
+
+	"github.com/Sayeda-fatima/restaurant_kot_backend/model"
+	"gorm.io/gorm"
+)
+
+type (
+	AllergenRepository interface {
+		GetAllergenList(allergen *[]model.Allergen) error
+		CreateAllergen(allergen *model.Allergen) error
+		UpdateAllergen(allergen *model.Allergen, id uint) error
+		DeleteAllergen(allergen *model.Allergen, id uint) error
+	}
+
+	allergenRepository struct{
+		db *gorm.DB
+	}
+)
+
+func NewAllergenRepository(db *gorm.DB) AllergenRepository{
+	return &allergenRepository{db}
+}
+
+func (ar *allergenRepository) GetAllergenList(allergen *[]model.Allergen) error{
+
+	if err := ar.db.Where("is_deleted=0").Find(allergen).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (ar *allergenRepository) CreateAllergen(allergen *model.Allergen) error{
+
+	if err := ar.db.Create(allergen).Error; err != nil{
+		return err
+	}
+	return nil
+}
+
+func (ar *allergenRepository) UpdateAllergen(allergen *model.Allergen, id uint) error{
+
+	result := ar.db.Model(allergen).Where("id=?",id).Updates(allergen)
+
+	if err := result.Error; err != nil{
+		return err
+	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("object does not exist")
+	}
+
+	return nil
+}
+
+func (ar *allergenRepository) DeleteAllergen(allergen *model.Allergen, id uint) error{
+
+	result := ar.db.Model(allergen).Where("id=?",id).Update("is_deleted",1)
+
+	if err := result.Error; err != nil{
+		return err
+	}
+
+	if result.RowsAffected < 1 {
+		return fmt.Errorf("object does not exist")
+	}
+	
+	return nil
+}
